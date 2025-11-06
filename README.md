@@ -6,6 +6,7 @@ This repository is organized so each team member has their own dedicated folder 
 This structure avoids merge conflicts and keeps everyone’s work organized before integration.  
 
 GearUP-Vehicle-Rental-App/
+
 │
 ├── avi/ → Avi’s components and UI pages (e.g., Search Page, Firebase setup)
 │
