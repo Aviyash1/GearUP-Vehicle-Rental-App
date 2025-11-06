@@ -1,38 +1,221 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+/* Layout base */
+.search-container {
+  font-family: "Poppins", sans-serif;
+  background-color: #f9fbff;
   min-height: 100vh;
+  color: #333;
+}
+
+/* Header and search inputs */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 15px 30px;
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar input {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+  outline: none;
+  min-width: 140px;
+  transition: 0.3s;
+}
+
+.search-bar input:focus {
+  background: white;
+  border-color: #0046ff;
+}
+
+.search-btn {
+  background-color: #0046ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+  background-color: #0033cc;
+  transform: scale(1.05);
+}
+
+/* Main layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 20px;
+  padding: 30px;
+}
+
+/* Sidebar styles */
+.sidebar {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 20px;
+}
+
+.map-box {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Filters */
+.filters {
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-header a {
+  color: #0046ff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.filter-group h4 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* Vehicle results */
+.results h2 {
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.sort-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sort-bar button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #e0e7ff;
+  color: #0046ff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.sort-bar .active {
+  background: #0046ff;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.sort-bar button:hover {
+  background: #0046ff;
+  color: white;
+  transform: scale(1.05);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Vehicle cards */
+.car-card {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.car-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.car-card img {
+  width: 300px;
+  height: 180px;
+  object-fit: cover;
+}
+
+.car-info {
+  flex: 1;
+  padding: 15px 25px;
+  text-align: left;
+}
+
+.car-info h3 {
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.price {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.price h4 {
+  color: #0046ff;
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
+
+.price button {
+  background-color: #0046ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.price button:hover {
+  background-color: #0033cc;
+  transform: scale(1.05);
 }
