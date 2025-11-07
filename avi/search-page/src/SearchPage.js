@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./SearchPage.css";
 import mapImage from "./images/map-placeholder.png";
 import gmcImage from "./images/gmc.jpg";
@@ -8,9 +8,88 @@ import logoImage from "./images/logo.png";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
 
 function SearchPage() {
+  // Sample car data 
+  const allCars = [
+    {
+      id: 1,
+      name: "GMC Denali 2025",
+      seats: 5,
+      transmission: "Automatic",
+      bags: 3,
+      price: 180,
+      location: "Auckland",
+      image: gmcImage,
+    },
+    {
+      id: 2,
+      name: "Porsche 2025",
+      seats: 4,
+      transmission: "Automatic",
+      bags: 3,
+      price: 250,
+      location: "Queenstown",
+      image: porscheImage,
+    },
+    {
+      id: 3,
+      name: "Mercedes GTR 2025",
+      seats: 4,
+      transmission: "Automatic",
+      bags: 2,
+      price: 300,
+      location: "Auckland",
+      image: mercedesImage,
+    },
+    {
+      id: 4,
+      name: "Mazda CX-5 2024",
+      seats: 5,
+      transmission: "Manual",
+      bags: 3,
+      price: 150,
+      location: "Queenstown",
+      image: gmcImage,
+    },
+  ];
+
+  // States
+  const [cars, setCars] = useState(allCars);
+  const [locationFilter, setLocationFilter] = useState([]);
+  const [transmissionFilter, setTransmissionFilter] = useState([]);
+  const [priceFilter, setPriceFilter] = useState([]);
+
+  // Filter logic
+  const handleFilterChange = (filterType, value) => {
+    const updateFilter = (prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value];
+
+    if (filterType === "location") setLocationFilter(updateFilter);
+    if (filterType === "transmission") setTransmissionFilter(updateFilter);
+    if (filterType === "price") setPriceFilter(updateFilter);
+  };
+
+  const filteredCars = allCars.filter((car) => {
+    const locationMatch =
+      locationFilter.length === 0 || locationFilter.includes(car.location);
+    const transmissionMatch =
+      transmissionFilter.length === 0 ||
+      transmissionFilter.includes(car.transmission);
+    const priceMatch =
+      priceFilter.length === 0 ||
+      priceFilter.some((range) => {
+        if (range === "low") return car.price <= 200;
+        if (range === "high") return car.price > 200;
+        return true;
+      });
+
+    return locationMatch && transmissionMatch && priceMatch;
+  });
+
   return (
     <div className="search-container">
-      {/* HEADER BAR */}
+      {/* HEADER */}
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
         <div className="search-bar">
@@ -40,11 +119,7 @@ function SearchPage() {
         {/* LEFT SIDEBAR */}
         <aside className="sidebar">
           <div className="map-box">
-            <img
-              src={mapImage}
-              alt="Map"
-              className="map-img"
-            />
+            <img src={mapImage} alt="Map" className="map-img" />
             <div className="map-overlay">
               <FaMapMarkerAlt size={25} color="white" />
               <button
@@ -58,186 +133,125 @@ function SearchPage() {
             </div>
           </div>
 
+          {/* FILTERS */}
           <div className="filters">
             <div className="filter-header">
               <h3>Filters</h3>
-              <a href="#">Clear all filters</a>
+              <a href="#" onClick={() => {
+                setLocationFilter([]);
+                setTransmissionFilter([]);
+                setPriceFilter([]);
+              }}>Clear all filters</a>
             </div>
 
             <div className="filter-group">
               <h4>Location</h4>
-              <label><input type="checkbox" /> Auckland</label><br />
-              <label><input type="checkbox" /> Queens Town</label>
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("location", "Auckland")}
+                  checked={locationFilter.includes("Auckland")}
+                /> Auckland
+              </label><br />
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("location", "Queenstown")}
+                  checked={locationFilter.includes("Queenstown")}
+                /> Queenstown
+              </label>
             </div>
 
             <div className="filter-group">
               <h4>Transmission</h4>
-              <label><input type="checkbox" /> Automatic</label><br />
-              <label><input type="checkbox" /> Manual</label>
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("transmission", "Automatic")}
+                  checked={transmissionFilter.includes("Automatic")}
+                /> Automatic
+              </label><br />
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("transmission", "Manual")}
+                  checked={transmissionFilter.includes("Manual")}
+                /> Manual
+              </label>
             </div>
 
             <div className="filter-group">
               <h4>Price</h4>
-              <label><input type="checkbox" /> $0 - $500</label><br />
-              <label><input type="checkbox" /> $500+</label>
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("price", "low")}
+                  checked={priceFilter.includes("low")}
+                /> $0 - $200
+              </label><br />
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={() => handleFilterChange("price", "high")}
+                  checked={priceFilter.includes("high")}
+                /> $200+
+              </label>
             </div>
           </div>
         </aside>
 
-        {/* Search results and Vehicle Information*/}
+        {/* RESULTS SECTION */}
         <section className="results">
-          <h2>Vehicles Available</h2>
+          <h2>Vehicles Available ({filteredCars.length})</h2>
 
-          <div className="sort-bar">
-            <button>Sort By Vehicle Type</button>
-            <button className="active">Automatic Transmission</button>
-          </div>
+          {filteredCars.map((car) => (
+            <div className="car-card" key={car.id}>
+              <img src={car.image} alt={car.name} />
+              <div className="car-info">
+                <h3>{car.name}</h3>
+                <p>
+                  {car.seats} Seats • {car.transmission} • {car.bags} Bags
+                </p>
 
-          {/* GMC CARD */}
-        <div className="car-card">
-        <img src={gmcImage} alt="GMC Denali" />
-      <div className="car-info">
-        <h3>GMC Denali 2025</h3>
-        <p>5 Seats • Automatic • 3 Bags</p>
+                <div className="price-section">
+                  <h4>${car.price} / day</h4>
+                  <button className="rent-btn">Rent Now</button>
+                </div>
 
-        <div className="car-features">
-        <span className="tooltip">
-         Free cancellation (48h)
-        <span className="tooltiptext">Cancel up to 48 hours before pick-up for a full refund.</span>
-          </span>
-          <span className="tooltip">
-        Fair fuel policy
-        <span className="tooltiptext">Return the car with the same fuel level as picked up. Over-filling will not be refunded.</span>
-      </span>
-      <span className="tooltip">
-        Unlimited kilometres
-        <span className="tooltiptext">Drive as much as you want, with no distance limits.</span>
-      </span>
-      <span className="tooltip">
-        Liability coverage
-        <span className="tooltiptext">Includes third-party liability protection as required by law.</span>
-      </span>
-      <span className="tooltip">
-        Theft coverage
-        <span className="tooltiptext">Covers vehicle theft or attempted theft, subject to terms.</span>
-      </span>
-      <span className="tooltip">
-        Collision damage waiver
-        <span className="tooltiptext">Reduces your financial liability if the vehicle is damaged.</span>
-      </span>
-    </div>
+                <div className="car-features">
+                  <span className="tooltip">Free cancellation (48h)
+                    <span className="tooltiptext">
+                      Cancel up to 48 hours before pick-up for a full refund.
+                    </span>
+                  </span>
+                  <span className="tooltip">Unlimited kilometres
+                    <span className="tooltiptext">
+                      Drive as much as you want, with no distance limits.
+                    </span>
+                  </span>
+                </div>
 
-    {/* More Information Dropdown */}
-    <details className="info-dropdown">
-      <summary>More Information</summary>
-      <div className="owner-info">
-        <h4>Owner Contact Information</h4>
-        <p>Email: gmcdenali@rentals.co.nz</p>
-        <p>Phone: +64 21 555 1234</p>
-        <p>Location: Auckland City</p>
-        </div>
-       </details>
-     </div>
-  </div>
+                <details className="info-dropdown">
+                  <summary>More Information</summary>
+                  <div className="owner-info">
+                    <h4>Owner Contact Information</h4>
+                    <p>Email: info@{car.name.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
+                    <p>Phone: +64 21 555 1234</p>
+                    <p>Location: {car.location}</p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          ))}
 
-                {/* Porche Card */}
-<div className="car-card">
-  <img src={porscheImage} alt="Porche" />
-  <div className="car-info">
-    <h3>Porche 2025</h3>
-    <p>4 Seats • Automatic • 3 Bags</p>
-
-    <div className="car-features">
-      <span className="tooltip">
-        Free cancellation (48h)
-        <span className="tooltiptext">Cancel up to 48 hours before pick-up for a full refund.</span>
-      </span>
-      <span className="tooltip">
-        Fair fuel policy
-        <span className="tooltiptext">Return the car with the same fuel level as picked up. Over-filling will not be refunded.</span>
-      </span>
-      <span className="tooltip">
-        Unlimited kilometres
-        <span className="tooltiptext">Drive as much as you want, with no distance limits.</span>
-      </span>
-      <span className="tooltip">
-        Liability coverage
-        <span className="tooltiptext">Includes third-party liability protection as required by law.</span>
-      </span>
-      <span className="tooltip">
-        Theft coverage
-        <span className="tooltiptext">Covers vehicle theft or attempted theft, subject to terms.</span>
-      </span>
-      <span className="tooltip">
-        Collision damage waiver
-        <span className="tooltiptext">Reduces your financial liability if the vehicle is damaged.</span>
-      </span>
-    </div>
-
-    {/* More Information Dropdown */}
-    <details className="info-dropdown">
-      <summary>More Information</summary>
-      <div className="owner-info">
-        <h4>Owner Contact Information</h4>
-        <p>Email: porche@rentals.co.nz</p>
-        <p>Phone: +64 21 555 1234</p>
-        <p>Location: Auckland City</p>
-      </div>
-    </details>
-  </div>
-</div>
-
-{/* Mercedes Card */}
-<div className="car-card">
-  <img src={mercedesImage} alt="Mercedes GTR 2025" />
-  <div className="car-info">
-    <h3>Mercedes GTR 2025</h3>
-    <p>4 Seats • Automatic • 2 Bags</p>
-
-    <div className="car-features">
-      <span className="tooltip">
-        Free cancellation (48h)
-        <span className="tooltiptext">Cancel up to 48 hours before pick-up for a full refund.</span>
-      </span>
-      <span className="tooltip">
-        Fair fuel policy
-        <span className="tooltiptext">Return the car with the same fuel level as picked up. Over-filling will not be refunded.</span>
-      </span>
-      <span className="tooltip">
-        Unlimited kilometres
-        <span className="tooltiptext">Drive as much as you want, with no distance limits.</span>
-      </span>
-      <span className="tooltip">
-        Liability coverage
-        <span className="tooltiptext">Includes third-party liability protection as required by law.</span>
-      </span>
-      <span className="tooltip">
-        Theft coverage
-        <span className="tooltiptext">Covers vehicle theft or attempted theft, subject to terms.</span>
-      </span>
-      <span className="tooltip">
-        Collision damage waiver
-        <span className="tooltiptext">Reduces your financial liability if the vehicle is damaged.</span>
-      </span>
-    </div>
-
-    {/* More Information Dropdown */}
-    <details className="info-dropdown">
-      <summary>More Information</summary>
-      <div className="owner-info">
-        <h4>Owner Contact Information</h4>
-        <p>Email: gmcdenali@rentals.co.nz</p>
-        <p>Phone: +64 21 555 1234</p>
-        <p>Location: Auckland City</p>
-      </div>
-    </details>
-  </div>            
-          </div>
+          {filteredCars.length === 0 && (
+            <p style={{ color: "#888", marginTop: "20px" }}>
+              No vehicles match your filters.
+            </p>
+          )}
         </section>
       </main>
     </div>
-
-    
   );
 }
 
