@@ -25,10 +25,10 @@ function Dashboard() {
   const [cars, setCars] = useState([
     {
       id: 1,
-      model: "Toyota Corolla",
+      model: "Toyota Crolla",
       type: "Sedan",
       year: "2023",
-      mileage: "15000",
+      mileage: "2000",
       engine: "1800cc",
       color: "Silver",
       seats: "5",
