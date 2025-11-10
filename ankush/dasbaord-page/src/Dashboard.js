@@ -45,7 +45,7 @@ function Dashboard() {
       model: "Tesla Model 3",
       type: "Electric",
       year: "2024",
-      mileage: "2000",
+      mileage: "20",
       engine: "Electric Motor",
       color: "Red",
       seats: "5",
