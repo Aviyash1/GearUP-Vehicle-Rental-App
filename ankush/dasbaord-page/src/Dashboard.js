@@ -10,14 +10,14 @@ function Dashboard() {
   const [previewImage, setPreviewImage] = useState(null);
 
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1 234 567 890",
-    address: "123 Main St",
-    city: "Los Angeles",
-    country: "USA",
-    license: "DLX12345AB",
-    bank: "Bank of America",
+    name: "Tanveer Singh",
+    email: "TS@gmail.com",
+    phone: "+64 9876543210",
+    address: "350 queen street",
+    city: "Auckland",
+    country: "New Zealand",
+    license: "EF56////7890",
+    bank: "Bank of New Zealand",
     account: "****5678",
     profileImage: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
   });
