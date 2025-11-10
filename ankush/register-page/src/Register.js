@@ -75,8 +75,15 @@ export default function Register() {
             onChange={handleChange}
           />
           <button type="submit">Register</button>
-          {msg && <p className={`msg ${msg.startsWith("✗") ? "error" : "ok"}`}>{msg}</p>}
+          {msg && (
+            <p className={`msg ${msg.startsWith("✗") ? "error" : "ok"}`}>{msg}</p>
+          )}
         </form>
+
+        {/* ✅ Display text only — not an active link */}
+        <p className="switch">
+          Already have an account? <span>Login here</span>
+        </p>
       </div>
     </div>
   );

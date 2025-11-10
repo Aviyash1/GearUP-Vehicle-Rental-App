@@ -13,7 +13,7 @@
   --ok: #27ae60;
 }
 
-/* ✅ Layout container (overlay handled here) */
+/* ✅ Layout container */
 .login-container {
   position: relative;
   min-height: 100vh;
@@ -21,6 +21,7 @@
   place-items: center;
 }
 
+/* ✅ Background overlay */
 .login-container::before {
   content: "";
   position: absolute;
@@ -32,7 +33,7 @@
   z-index: 0;
 }
 
-/* ✅ Form card styling */
+/* ✅ Card styling */
 .login-card {
   position: relative;
   z-index: 1;
@@ -62,6 +63,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 15px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.login-card input:focus {
+  border-color: var(--primary);
 }
 
 /* ✅ Button styling */
@@ -74,7 +81,7 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .login-card button:hover {
@@ -97,7 +104,26 @@
   color: var(--error);
 }
 
-/* ✅ Responsive weks */
+/* ✅ “Already have an account?” section */
+.switch {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.switch span {
+  color: var(--primary);
+  font-weight: 600;
+  cursor: default; /* not clickable since no router */
+}
+
+.switch span:hover {
+  text-decoration: underline;
+  color: var(--accent);
+}
+
+/* ✅ Responsive tweaks */
 @media (max-width: 480px) {
   .login-card {
     padding: 25px;
