@@ -274,7 +274,7 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Add Car Modal */}
+      {/* Add Car ModaL */}
       {isAddCarModalOpen && (
         <div className="modal-overlay" onClick={() => setAddCarModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
