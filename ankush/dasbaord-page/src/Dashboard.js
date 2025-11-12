@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import "./Dashboard.css";
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState("overview");
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isAddCarModalOpen, setAddCarModalOpen] = useState(false);
   const [isCarDetailOpen, setCarDetailOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [lastBlobUrl, setLastBlobUrl] = useState(null);
 
   const [profile, setProfile] = useState({
     name: "Tanveer Singh",
@@ -25,7 +28,7 @@ function Dashboard() {
   const [cars, setCars] = useState([
     {
       id: 1,
-      model: "Toyota Crolla",
+      model: "Toyota Corolla",
       type: "Sedan",
       year: "2023",
       mileage: "2000",
@@ -74,21 +77,14 @@ function Dashboard() {
     image: "",
   });
 
-  // =============================
-  // Handlers
-  // =============================
-  const handleAction = (type) => {
-    switch (type) {
-      case "add":
-        setAddCarModalOpen(true);
-        break;
-      case "profile":
-        setProfileModalOpen(true);
-        break;
-      default:
-        alert(`${type} feature coming soon...`);
-    }
-  };
+  // prevent scroll behind modals
+  useEffect(() => {
+    document.body.style.overflow =
+      isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen ? "hidden" : "auto";
+  }, [isProfileModalOpen, isAddCarModalOpen, isCarDetailOpen]);
+
+  // sidebar toggle
+  const toggleSidebar = () => setSidebarCollapsed(!isSidebarCollapsed);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -96,11 +92,12 @@ function Dashboard() {
   };
 
   const handleProfileImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfile((prev) => ({ ...prev, profileImage: url }));
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+    setLastBlobUrl(url);
+    setProfile((prev) => ({ ...prev, profileImage: url }));
   };
 
   const handleSaveProfile = () => {
@@ -114,15 +111,16 @@ function Dashboard() {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewImage(url);
-      setNewCar((prev) => ({ ...prev, image: url }));
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+    setLastBlobUrl(url);
+    setPreviewImage(url);
+    setNewCar((prev) => ({ ...prev, image: url }));
   };
 
-  const handleAddCar = () => {
+  const validateCar = () => {
     const required = [
       "model",
       "type",
@@ -136,14 +134,21 @@ function Dashboard() {
       "rent",
       "image",
     ];
-    const missing = required.filter((f) => !newCar[f]);
-    if (missing.length) {
-      alert("Missing fields: " + missing.join(", "));
+    const missing = required.filter((f) => !String(newCar[f]).trim());
+    if (missing.length) return `Missing fields: ${missing.join(", ")}`;
+    if (!/^\d{4}$/.test(newCar.year)) return "Year must be 4 digits.";
+    return null;
+  };
+
+  const handleAddCar = () => {
+    const err = validateCar();
+    if (err) {
+      alert(err);
       return;
     }
-    setCars((p) => [
-      ...p,
-      { id: p.length + 1, ...newCar, status: "Pending Admin Approval" },
+    setCars((prev) => [
+      ...prev,
+      { id: Date.now(), ...newCar, status: "Pending Admin Approval" },
     ]);
     setAddCarModalOpen(false);
     setNewCar({
@@ -169,245 +174,132 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
-  // =============================
-  // Section Renderer
-  // =============================
+  const pendingCount = useMemo(
+    () => cars.filter((c) => c.status === "Pending Admin Approval").length,
+    [cars]
+  );
+
   const renderSection = () => {
     switch (activeSection) {
       case "overview":
         return (
-          <div className="content-box">
+          <div className="content-box fade-in">
             <h2>Dashboard Overview</h2>
-            <p>
-              Welcome back, <strong>{profile.name}</strong>! Here’s your
-              business summary.
-            </p>
             <div className="overview-cards">
-              <div className="overview-card">
+              <div className="overview-card stat-glass">
                 <h3>{cars.length}</h3>
                 <p>Total Cars</p>
               </div>
-              <div className="overview-card">
+              <div className="overview-card stat-glass">
                 <h3>$2,450</h3>
                 <p>Monthly Earnings</p>
               </div>
-              <div className="overview-card">
+              <div className="overview-card stat-glass">
                 <h3>3</h3>
                 <p>Active Bookings</p>
               </div>
-              <div className="overview-card">
-                <h3>
-                  {cars.filter((car) => car.status === "Pending Admin Approval")
-                    .length}
-                </h3>
+              <div className="overview-card stat-glass">
+                <h3>{pendingCount}</h3>
                 <p>Pending Approvals</p>
               </div>
             </div>
           </div>
         );
-
       case "cars":
         return (
-          <div className="content-box">
+          <div className="content-box fade-in">
             <h2>My Cars</h2>
             <div className="car-grid">
               {cars.map((car) => (
-                <div className="car-card" key={car.id}>
+                <div className="car-card hover-lift" key={car.id}>
                   <img src={car.image} alt={car.model} />
                   <h4>{car.model}</h4>
-                  <p>
-                    {car.year} • {car.type}
-                  </p>
+                  <p>{car.year} • {car.type}</p>
                   <p>Rent: {car.rent}</p>
-                  <span
-                    className={
-                      car.status === "Available"
-                        ? "status-available"
-                        : "status-pending"
-                    }
-                  >
+                  <span className={car.status === "Available" ? "status-available badge" : "status-pending badge"}>
                     {car.status}
                   </span>
-                  <button
-                    className="btn detail-btn"
-                    onClick={() => handleShowDetails(car)}
-                  >
-                    View Details
-                  </button>
+                  <button className="btn detail-btn" onClick={() => handleShowDetails(car)}>View Details</button>
                 </div>
               ))}
             </div>
           </div>
         );
-
       default:
-        return (
-          <div className="content-box">
-            <h2>{activeSection}</h2>
-            <p>Feature coming soon...</p>
-          </div>
-        );
+        return <div className="content-box"><p>Feature coming soon...</p></div>;
     }
   };
 
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">DriveRent</div>
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
+        <div className="brand" onClick={toggleSidebar}>
+          {isSidebarCollapsed ? "🚗" : "DriveRent"}
+        </div>
         <ul>
-          <li
-            className={activeSection === "overview" ? "active" : ""}
-            onClick={() => setActiveSection("overview")}
-          >
-            📊 Overview
+          <li onClick={() => setActiveSection("overview")} className={activeSection === "overview" ? "active" : ""}>
+            📊 {!isSidebarCollapsed && "Overview"}
           </li>
-          <li
-            className={activeSection === "cars" ? "active" : ""}
-            onClick={() => setActiveSection("cars")}
-          >
-            🚗 My Cars
+          <li onClick={() => setActiveSection("cars")} className={activeSection === "cars" ? "active" : ""}>
+            🚗 {!isSidebarCollapsed && "My Cars"}
           </li>
+          <li>💵 {!isSidebarCollapsed && "Finance"}</li>
+          <li>📘 {!isSidebarCollapsed && "Bookings"}</li>
+          <li>🔔 {!isSidebarCollapsed && "Notifications"}</li>
+          <li>📊 {!isSidebarCollapsed && "Reports"}</li>
+          <li>⚙️ {!isSidebarCollapsed && "Settings"}</li>
+          <li onClick={() => setProfileModalOpen(true)}>👤 {!isSidebarCollapsed && "Profile"}</li>
+          <li onClick={() => setAddCarModalOpen(true)}>➕ {!isSidebarCollapsed && "Add Car"}</li>
         </ul>
       </aside>
 
-      {/* Main */}
-      <main className="main">
-        <header className="topbar">
-          <h1>Car Owner Dashboard</h1>
-          <div className="top-actions">
-            <button className="action-btn">💵 Finance</button>
-            <button className="action-btn">📘 Bookings</button>
-            <button className="action-btn">🔔 Notifications</button>
-            <button className="action-btn">📊 Reports</button>
-            <button className="action-btn">⚙️ Settings</button>
-            <button
-              className="action-btn profile-btn"
-              onClick={() => handleAction("profile")}
-            >
-              👤 Profile
-            </button>
-            <button
-              className="action-btn primary"
-              onClick={() => handleAction("add")}
-            >
-              ➕ Add Car
-            </button>
-          </div>
-        </header>
-
-        {renderSection()}
-      </main>
+      {/* Main Content */}
+      <main className="main">{renderSection()}</main>
 
       {/* Profile Modal */}
       {isProfileModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setProfileModalOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Profile</h2>
-            <div className="image-upload-section">
-              <label>Profile Picture</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProfileImageUpload}
-              />
-              <img
-                src={profile.profileImage}
-                alt="Profile"
-                className="preview-image"
-              />
-            </div>
-
-            <label>Name</label>
-            <input name="name" value={profile.name} onChange={handleProfileChange} />
-            <label>Email</label>
-            <input name="email" value={profile.email} onChange={handleProfileChange} />
-            <label>Phone</label>
-            <input name="phone" value={profile.phone} onChange={handleProfileChange} />
-            <label>Address</label>
-            <input name="address" value={profile.address} onChange={handleProfileChange} />
-            <label>City</label>
-            <input name="city" value={profile.city} onChange={handleProfileChange} />
-            <label>Country</label>
-            <input name="country" value={profile.country} onChange={handleProfileChange} />
-            <label>License Number</label>
-            <input name="license" value={profile.license} onChange={handleProfileChange} />
-            <label>Bank Name</label>
-            <input name="bank" value={profile.bank} onChange={handleProfileChange} />
-            <label>Account Number</label>
-            <input name="account" value={profile.account} onChange={handleProfileChange} />
-
-            <div className="modal-actions">
-              <button className="btn primary" onClick={handleSaveProfile}>
-                Save
-              </button>
-              <button className="btn cancel" onClick={() => setProfileModalOpen(false)}>
-                Cancel
-              </button>
-            </div>
+            <input type="file" accept="image/*" onChange={handleProfileImageUpload} />
+            <img src={profile.profileImage} alt="Profile" className="preview-image" />
+            {Object.keys(profile).map((key) =>
+              key !== "profileImage" ? (
+                <input key={key} name={key} value={profile[key]} onChange={handleProfileChange} placeholder={key} />
+              ) : null
+            )}
+            <button className="btn primary" onClick={handleSaveProfile}>Save</button>
           </div>
         </div>
       )}
 
-      {/* ✅ Full Add Car Modal */}
+      {/* Add Car Modal */}
       {isAddCarModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setAddCarModalOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Car</h2>
-            <div className="add-car-grid">
-              <input name="model" placeholder="Model *" value={newCar.model} onChange={handleNewCarChange} />
-              <input name="type" placeholder="Type *" value={newCar.type} onChange={handleNewCarChange} />
-              <input type="number" name="year" placeholder="Year *" value={newCar.year} onChange={handleNewCarChange} />
-              <input name="mileage" placeholder="Mileage (km) *" value={newCar.mileage} onChange={handleNewCarChange} />
-              <input name="engine" placeholder="Engine *" value={newCar.engine} onChange={handleNewCarChange} />
-              <input name="color" placeholder="Color *" value={newCar.color} onChange={handleNewCarChange} />
-              <input name="seats" placeholder="Seats *" value={newCar.seats} onChange={handleNewCarChange} />
-              <input name="fuel" placeholder="Fuel *" value={newCar.fuel} onChange={handleNewCarChange} />
-              <input name="transmission" placeholder="Transmission *" value={newCar.transmission} onChange={handleNewCarChange} />
-              <input name="rent" placeholder="Daily Rent *" value={newCar.rent} onChange={handleNewCarChange} />
-              <div className="image-upload-section">
-                <label>Upload Image *</label>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                {previewImage && <img src={previewImage} alt="Preview" className="preview-image" />}
-              </div>
-              <textarea name="description" placeholder="Description" value={newCar.description} onChange={handleNewCarChange} />
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn primary" onClick={handleAddCar}>
-                Submit
-              </button>
-              <button className="btn cancel" onClick={() => setAddCarModalOpen(false)}>
-                Cancel
-              </button>
-            </div>
+            {Object.keys(newCar).map((key) =>
+              key !== "image" && key !== "description" ? (
+                <input key={key} name={key} value={newCar[key]} onChange={handleNewCarChange} placeholder={key} />
+              ) : null
+            )}
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
+            {previewImage && <img src={previewImage} alt="Preview" className="preview-image" />}
+            <textarea name="description" value={newCar.description} onChange={handleNewCarChange} placeholder="Description" />
+            <button className="btn primary" onClick={handleAddCar}>Submit</button>
           </div>
         </div>
       )}
 
-      {/* Car Details Modal */}
+      {/* Car Detail Modal */}
       {isCarDetailOpen && selectedCar && (
-        <div className="modal-overlay">
-          <div className="modal car-detail-modal">
-            <h2>{selectedCar.model} Details</h2>
+        <div className="modal-overlay" onClick={() => setCarDetailOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedCar.model}</h2>
             <img src={selectedCar.image} alt={selectedCar.model} className="detail-image" />
-            <div className="car-info">
-              <p><strong>Type:</strong> {selectedCar.type}</p>
-              <p><strong>Year:</strong> {selectedCar.year}</p>
-              <p><strong>Mileage:</strong> {selectedCar.mileage} km</p>
-              <p><strong>Engine:</strong> {selectedCar.engine}</p>
-              <p><strong>Color:</strong> {selectedCar.color}</p>
-              <p><strong>Fuel:</strong> {selectedCar.fuel}</p>
-              <p><strong>Transmission:</strong> {selectedCar.transmission}</p>
-              <p><strong>Rent:</strong> {selectedCar.rent}</p>
-              <p><strong>Status:</strong> {selectedCar.status}</p>
-              <p><strong>Description:</strong> {selectedCar.description}</p>
-            </div>
-            <div className="modal-actions">
-              <button className="btn cancel" onClick={() => setCarDetailOpen(false)}>
-                Close
-              </button>
-            </div>
+            <p>{selectedCar.description}</p>
+            <button className="btn cancel" onClick={() => setCarDetailOpen(false)}>Close</button>
           </div>
         </div>
       )}
