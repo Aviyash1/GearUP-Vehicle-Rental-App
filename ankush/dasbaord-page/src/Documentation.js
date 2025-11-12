@@ -115,7 +115,7 @@ function Documentation() {
 
       <div className="doc-actions-footer">
         <button className="btn primary" onClick={handleSubmit}>
-          ✅ Save All Documents
+          ✅ Save All Documents..
         </button>
       </div>
     </div>
