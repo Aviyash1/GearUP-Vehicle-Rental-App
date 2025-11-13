@@ -8,7 +8,7 @@ import logoImage from "./images/logo.png";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
 
 function SearchPage() {
-  // Sample car data 
+  // All car listings (simulated data)
   const allCars = [
     {
       id: 1,
@@ -18,6 +18,8 @@ function SearchPage() {
       bags: 3,
       price: 180,
       location: "Auckland",
+      availableFrom: "2025-11-11T08:00",
+      availableTo: "2025-11-25T23:00",
       image: gmcImage,
     },
     {
@@ -28,6 +30,8 @@ function SearchPage() {
       bags: 3,
       price: 250,
       location: "Queenstown",
+      availableFrom: "2025-11-10T10:00",
+      availableTo: "2025-11-20T22:00",
       image: porscheImage,
     },
     {
@@ -38,6 +42,8 @@ function SearchPage() {
       bags: 2,
       price: 300,
       location: "Auckland",
+      availableFrom: "2025-11-15T09:00",
+      availableTo: "2025-12-01T21:00",
       image: mercedesImage,
     },
     {
@@ -48,17 +54,24 @@ function SearchPage() {
       bags: 3,
       price: 150,
       location: "Queenstown",
+      availableFrom: "2025-11-01T07:00",
+      availableTo: "2025-11-30T23:00",
       image: gmcImage,
     },
   ];
 
   // States
-  const [cars, setCars] = useState(allCars);
+  const [cars] = useState(allCars);
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [pickupDate, setPickupDate] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [returnTime, setReturnTime] = useState("");
   const [locationFilter, setLocationFilter] = useState([]);
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-  // Filter logic
+  // Filter toggle handler
   const handleFilterChange = (filterType, value) => {
     const updateFilter = (prev) =>
       prev.includes(value)
@@ -70,12 +83,16 @@ function SearchPage() {
     if (filterType === "price") setPriceFilter(updateFilter);
   };
 
-  const filteredCars = allCars.filter((car) => {
+  // Main filtering logic
+  const filteredCars = cars.filter((car) => {
     const locationMatch =
-      locationFilter.length === 0 || locationFilter.includes(car.location);
+      (pickupLocation === "" || car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
+      (locationFilter.length === 0 || locationFilter.includes(car.location));
+
     const transmissionMatch =
       transmissionFilter.length === 0 ||
       transmissionFilter.includes(car.transmission);
+
     const priceMatch =
       priceFilter.length === 0 ||
       priceFilter.some((range) => {
@@ -84,28 +101,42 @@ function SearchPage() {
         return true;
       });
 
-    return locationMatch && transmissionMatch && priceMatch;
+    // Combine date & time into a full datetime string
+    const pickupDateTime = pickupDate && pickupTime ? `${pickupDate}T${pickupTime}` : null;
+    const returnDateTime = returnDate && returnTime ? `${returnDate}T${returnTime}` : null;
+
+    const dateMatch =
+      !pickupDateTime ||
+      !returnDateTime ||
+      (car.availableFrom <= pickupDateTime && car.availableTo >= returnDateTime);
+
+    return locationMatch && transmissionMatch && priceMatch && dateMatch;
   });
 
   return (
     <div className="search-container">
-      {/* HEADER */}
+      {/* HEADER BAR */}
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
         <div className="search-bar">
-          <input type="text" placeholder="Pick-up Location" />
+          <input
+            type="text"
+            placeholder="Pick-up Location"
+            value={pickupLocation}
+            onChange={(e) => setPickupLocation(e.target.value)}
+          />
           <div className="input-icon"><FaMapMarkerAlt /></div>
 
-          <input type="date" />
+          <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
           <div className="input-icon"><FaCalendarAlt /></div>
 
-          <input type="time" />
+          <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
           <div className="input-icon"><FaClock /></div>
 
-          <input type="date" />
+          <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
           <div className="input-icon"><FaCalendarAlt /></div>
 
-          <input type="time" />
+          <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
           <div className="input-icon"><FaClock /></div>
 
           <button className="search-btn">
@@ -116,7 +147,7 @@ function SearchPage() {
 
       {/* MAIN CONTENT */}
       <main className="main-layout">
-        {/* LEFT SIDEBAR */}
+        {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="map-box">
             <img src={mapImage} alt="Map" className="map-img" />
@@ -200,7 +231,7 @@ function SearchPage() {
           </div>
         </aside>
 
-        {/* RESULTS SECTION */}
+        {/* RESULTS */}
         <section className="results">
           <h2>Vehicles Available ({filteredCars.length})</h2>
 
@@ -209,26 +240,11 @@ function SearchPage() {
               <img src={car.image} alt={car.name} />
               <div className="car-info">
                 <h3>{car.name}</h3>
-                <p>
-                  {car.seats} Seats • {car.transmission} • {car.bags} Bags
-                </p>
+                <p>{car.seats} Seats • {car.transmission} • {car.bags} Bags</p>
 
                 <div className="price-section">
                   <h4>${car.price} / day</h4>
                   <button className="rent-btn">Rent Now</button>
-                </div>
-
-                <div className="car-features">
-                  <span className="tooltip">Free cancellation (48h)
-                    <span className="tooltiptext">
-                      Cancel up to 48 hours before pick-up for a full refund.
-                    </span>
-                  </span>
-                  <span className="tooltip">Unlimited kilometres
-                    <span className="tooltiptext">
-                      Drive as much as you want, with no distance limits.
-                    </span>
-                  </span>
                 </div>
 
                 <details className="info-dropdown">
@@ -246,7 +262,7 @@ function SearchPage() {
 
           {filteredCars.length === 0 && (
             <p style={{ color: "#888", marginTop: "20px" }}>
-              No vehicles match your filters.
+              No vehicles match your search or filters.
             </p>
           )}
         </section>
