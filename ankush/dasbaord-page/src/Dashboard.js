@@ -259,7 +259,7 @@ function Dashboard() {
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="brand" onClick={toggleSidebar}>
-          {isSidebarCollapsed ? "🚗" : "DriveRent"}
+          {isSidebarCollapsed ? "🚗" : "GearUP"}
         </div>
         <ul>
           <li
