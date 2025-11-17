@@ -1,0 +1,21 @@
+.notification-list {
+  list-style: none;
+  padding: 0;
+}
+
+.notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification-item.unread {
+  background-color: rgba(255, 215, 0, 0.15);
+}
+
+.notification-item.read {
+  opacity: 0.6;
+}
+
+.notification-item button {
+  margin-left: 0.5rem;
+}

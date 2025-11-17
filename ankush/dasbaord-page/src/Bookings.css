@@ -1,0 +1,28 @@
+.booking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.booking-card {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.badge.active {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge.pending {
+  background-color: #ffc107;
+  color: black;
+}
+
+.badge.completed,
+.badge.cancelled {
+  background-color: #dc3545;
+  color: white;
+}
