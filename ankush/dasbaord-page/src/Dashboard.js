@@ -288,8 +288,8 @@ function Dashboard() {
 
           {/* ✅ Replaced Reports with Car Documentation */}
           <li
-            onClick={() => navigate("/car-documents")}
-            className={isActiveRoute("/car-documents") ? "active" : ""}
+            onClick={() => navigate("/documentation")}
+            className={isActiveRoute("/documentation") ? "active" : ""}
           >
             📖 {!isSidebarCollapsed && "Car Documentation"}
           </li>
