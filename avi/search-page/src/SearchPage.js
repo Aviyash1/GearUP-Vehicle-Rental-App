@@ -4,6 +4,7 @@ import mapImage from "./images/map-placeholder.png";
 import gmcImage from "./images/gmc.jpg";
 import porscheImage from "./images/porsche.jpg";
 import mercedesImage from "./images/mercedes.jpg";
+import mazdaImage from "./images/mazda.jpg";
 import logoImage from "./images/logo.png";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
 
@@ -56,7 +57,7 @@ function SearchPage() {
       location: "Queenstown",
       availableFrom: "2025-11-01T07:00",
       availableTo: "2025-11-30T23:00",
-      image: gmcImage,
+      image: mazdaImage, 
     },
   ];
 
