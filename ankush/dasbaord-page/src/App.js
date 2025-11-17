@@ -1,24 +1,24 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./Dashboard";
-//import Finance from "./Finance";
 import Settings from "./Settings";
 import Documentation from "./Documentation";
-import "./App.css"; // optional global styles
+import "./App.css"; // Global styles
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default route loads the Dashboard */}
+        {/* Dashboard is the main route */}
         <Route path="/" element={<Dashboard />} />
 
-        {/* Finance and Settings pages */}
-        {/* <Route path="/finance" element={<Finance />} /> */}
+        {/* Settings page */}
         <Route path="/settings" element={<Settings />} />
+
+        {/* Documentation page */}
         <Route path="/documentation" element={<Documentation />} />
 
-        {/* Optional: fallback for unknown routes */}
+        {/* Fallback for unknown routes */}
         <Route
           path="*"
           element={
@@ -30,7 +30,7 @@ function App() {
                 style={{
                   display: "inline-block",
                   marginTop: "20px",
-                  color: "#2563eb",
+                  color: "#007bff",
                   fontWeight: "bold",
                 }}
               >
