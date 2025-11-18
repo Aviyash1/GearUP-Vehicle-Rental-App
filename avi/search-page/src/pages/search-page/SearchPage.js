@@ -1,75 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SearchPage.css";
+
+import { db } from "../../firebase";
+import { collection, getDocs } from "firebase/firestore";
+
 import mapImage from "./images/map-placeholder.png";
-import gmcImage from "./images/gmc.jpg";
-import porscheImage from "./images/porsche.jpg";
-import mercedesImage from "./images/mercedes.jpg";
 import logoImage from "./images/logo.png";
+import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
 
 function SearchPage() {
-  // All car listings (simulated data)
-  const allCars = [
-    {
-      id: 1,
-      name: "GMC Denali 2025",
-      seats: 5,
-      transmission: "Automatic",
-      bags: 3,
-      price: 180,
-      location: "Auckland",
-      availableFrom: "2025-11-11T08:00",
-      availableTo: "2025-11-25T23:00",
-      image: gmcImage,
-    },
-    {
-      id: 2,
-      name: "Porsche 2025",
-      seats: 4,
-      transmission: "Automatic",
-      bags: 3,
-      price: 250,
-      location: "Queenstown",
-      availableFrom: "2025-11-10T10:00",
-      availableTo: "2025-11-20T22:00",
-      image: porscheImage,
-    },
-    {
-      id: 3,
-      name: "Mercedes GTR 2025",
-      seats: 4,
-      transmission: "Automatic",
-      bags: 2,
-      price: 300,
-      location: "Auckland",
-      availableFrom: "2025-11-15T09:00",
-      availableTo: "2025-12-01T21:00",
-      image: mercedesImage,
-    },
-    {
-      id: 4,
-      name: "Mazda CX-5 2024",
-      seats: 5,
-      transmission: "Manual",
-      bags: 3,
-      price: 150,
-      location: "Queenstown",
-      availableFrom: "2025-11-01T07:00",
-      availableTo: "2025-11-30T23:00",
-      image: gmcImage,
-    },
-  ];
+  const navigate = useNavigate();
 
-  // States
-  const [cars] = useState(allCars);
+  // Firestore-loaded cars
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Form states
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("");
+
   const [locationFilter, setLocationFilter] = useState([]);
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
+
+  // Load cars from Firestore
+  useEffect(() => {
+    async function fetchCars() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "vehicles"));
+        const fetchedCars = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setCars(fetchedCars);
+      } catch (error) {
+        console.error("Error loading vehicles:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCars();
+  }, []);
 
   // Filter toggle handler
   const handleFilterChange = (filterType, value) => {
@@ -83,10 +60,11 @@ function SearchPage() {
     if (filterType === "price") setPriceFilter(updateFilter);
   };
 
-  // Main filtering logic
+  // Filtering logic
   const filteredCars = cars.filter((car) => {
     const locationMatch =
-      (pickupLocation === "" || car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
+      (!pickupLocation ||
+        car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
       (locationFilter.length === 0 || locationFilter.includes(car.location));
 
     const transmissionMatch =
@@ -101,23 +79,43 @@ function SearchPage() {
         return true;
       });
 
-    // Combine date & time into a full datetime string
-    const pickupDateTime = pickupDate && pickupTime ? `${pickupDate}T${pickupTime}` : null;
-    const returnDateTime = returnDate && returnTime ? `${returnDate}T${returnTime}` : null;
-
-    const dateMatch =
-      !pickupDateTime ||
-      !returnDateTime ||
-      (car.availableFrom <= pickupDateTime && car.availableTo >= returnDateTime);
-
-    return locationMatch && transmissionMatch && priceMatch && dateMatch;
+    return locationMatch && transmissionMatch && priceMatch;
   });
+
+  const validateDates = () => {
+    if (!pickupDate || !pickupTime || !returnDate || !returnTime) {
+      alert("Please enter pickup and dropoff date and time.");
+      return false;
+    }
+
+    const start = new Date(`${pickupDate}T${pickupTime}`);
+    const end = new Date(`${returnDate}T${returnTime}`);
+    const now = new Date();
+
+    if (start < now) {
+      alert("Pickup must be in the future.");
+      return false;
+    }
+    if (end <= start) {
+      alert("Dropoff must be after pickup.");
+      return false;
+    }
+
+    return true;
+  };
+
+  // Render loading
+  if (loading) {
+    return <h2 style={{ padding: "40px" }}>Loading vehicles...</h2>;
+  }
 
   return (
     <div className="search-container">
+
       {/* HEADER BAR */}
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
+
         <div className="search-bar">
           <input
             type="text"
@@ -139,14 +137,13 @@ function SearchPage() {
           <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
           <div className="input-icon"><FaClock /></div>
 
-          <button className="search-btn">
-            <FaSearch /> Search
-          </button>
+          <button className="search-btn"><FaSearch /> Search</button>
         </div>
       </header>
 
       {/* MAIN CONTENT */}
       <main className="main-layout">
+
         {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="map-box">
@@ -155,9 +152,7 @@ function SearchPage() {
               <FaMapMarkerAlt size={25} color="white" />
               <button
                 className="map-btn"
-                onClick={() =>
-                  window.open("https://maps.app.goo.gl/dyskwAnqUHzFVPBU7", "_blank")
-                }
+                onClick={() => window.open("https://maps.app.goo.gl/dyskwAnqUHzFVPBU7", "_blank")}
               >
                 Open Maps
               </button>
@@ -177,56 +172,21 @@ function SearchPage() {
 
             <div className="filter-group">
               <h4>Location</h4>
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("location", "Auckland")}
-                  checked={locationFilter.includes("Auckland")}
-                /> Auckland
-              </label><br />
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("location", "Queenstown")}
-                  checked={locationFilter.includes("Queenstown")}
-                /> Queenstown
-              </label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Auckland")} checked={locationFilter.includes("Auckland")} /> Auckland</label><br />
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Wellington")} checked={locationFilter.includes("Wellington")} /> Wellington</label><br />
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Queenstown")} checked={locationFilter.includes("Queenstown")} /> Queenstown</label>
             </div>
 
             <div className="filter-group">
               <h4>Transmission</h4>
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("transmission", "Automatic")}
-                  checked={transmissionFilter.includes("Automatic")}
-                /> Automatic
-              </label><br />
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("transmission", "Manual")}
-                  checked={transmissionFilter.includes("Manual")}
-                /> Manual
-              </label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Automatic")} checked={transmissionFilter.includes("Automatic")} /> Automatic</label><br />
+              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Manual")} checked={transmissionFilter.includes("Manual")} /> Manual</label>
             </div>
 
             <div className="filter-group">
               <h4>Price</h4>
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("price", "low")}
-                  checked={priceFilter.includes("low")}
-                /> $0 - $200
-              </label><br />
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={() => handleFilterChange("price", "high")}
-                  checked={priceFilter.includes("high")}
-                /> $200+
-              </label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("price", "low")} checked={priceFilter.includes("low")} /> $0 - $200</label><br />
+              <label><input type="checkbox" onChange={() => handleFilterChange("price", "high")} checked={priceFilter.includes("high")} /> $200+</label>
             </div>
           </div>
         </aside>
@@ -235,16 +195,39 @@ function SearchPage() {
         <section className="results">
           <h2>Vehicles Available ({filteredCars.length})</h2>
 
+          {filteredCars.length === 0 && (
+            <p style={{ marginTop: "20px", color: "#777" }}>No vehicles match your search or filters.</p>
+          )}
+
           {filteredCars.map((car) => (
             <div className="car-card" key={car.id}>
-              <img src={car.image} alt={car.name} />
+              <img src={car.imageUrl} alt={car.name} />
+
               <div className="car-info">
                 <h3>{car.name}</h3>
                 <p>{car.seats} Seats • {car.transmission} • {car.bags} Bags</p>
 
                 <div className="price-section">
                   <h4>${car.price} / day</h4>
-                  <button className="rent-btn">Rent Now</button>
+
+                  <button
+                    className="rent-btn"
+                    onClick={() => {
+                      if (!validateDates()) return;
+
+                      navigate("/payment", {
+                        state: {
+                          car,
+                          pickupDate,
+                          pickupTime,
+                          returnDate,
+                          returnTime,
+                        },
+                      });
+                    }}
+                  >
+                    Rent Now
+                  </button>
                 </div>
 
                 <details className="info-dropdown">
@@ -256,15 +239,11 @@ function SearchPage() {
                     <p>Location: {car.location}</p>
                   </div>
                 </details>
+
               </div>
             </div>
           ))}
 
-          {filteredCars.length === 0 && (
-            <p style={{ color: "#888", marginTop: "20px" }}>
-              No vehicles match your search or filters.
-            </p>
-          )}
         </section>
       </main>
     </div>

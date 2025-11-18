@@ -480,3 +480,10 @@
   box-shadow: 0 5px 15px rgba(0, 230, 118, 0.5);
   background: linear-gradient(135deg, #00c853, #00e676);
 }
+
+.results {
+  height: calc(200vh - 150px); 
+  overflow-y: auto;
+  padding-right: 10px;
+}
+

@@ -1,0 +1,98 @@
+.payment-container {
+  font-family: "Poppins", sans-serif;
+  background-color: #f9fbff;
+  min-height: 100vh;
+  padding: 30px;
+  color: #333;
+}
+
+.payment-title {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #0046ff;
+}
+
+/* CAR CARD */
+.payment-card {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.payment-car-img {
+  width: 260px;
+  height: auto;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+
+.payment-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.payment-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.total-row {
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+  font-size: 1.2rem;
+}
+
+.payment-breakdown {
+  margin-top: 20px;
+  background: #eef2ff;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+/* INPUT FIELDS */
+.payment-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+}
+
+.payment-row {
+  display: flex;
+  gap: 12px;
+}
+
+.payment-terms-box {
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* BUTTON */
+.payment-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #0046ff, #336dff);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.payment-btn:hover {
+  transform: scale(1.03);
+  background: #0033cc;
+}
