@@ -9,6 +9,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -25,9 +26,10 @@ export default function Login() {
     }
 
     try {
+      setLoading(true);
       await signInWithEmailAndPassword(auth, form.email, form.password);
-      setMsg("✓ Login successful!");
-    
+      setMsg("✓ Login successful! Redirecting...");
+      setTimeout(() => navigate("/dashboard"), 1500);
     } catch (error) {
       console.error("Login error:", error.message);
       if (error.code === "auth/user-not-found") {
@@ -37,6 +39,8 @@ export default function Login() {
       } else {
         setMsg("✗ Login failed. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -59,8 +63,14 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
           />
-          <button type="submit">Login</button>
-          {msg && <p className={`msg ${msg.startsWith("✓") ? "success" : "error"}`}>{msg}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+          {msg && (
+            <p className={`msg ${msg.startsWith("✓") ? "success" : "error"}`}>
+              {msg}
+            </p>
+          )}
         </form>
 
         <p className="forgot">
