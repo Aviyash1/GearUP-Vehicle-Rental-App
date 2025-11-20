@@ -113,33 +113,60 @@ function SearchPage() {
     <div className="search-container">
 
       {/* HEADER BAR */}
-      <header className="header">
-        <img src={logoImage} alt="Logo" className="logo-img" />
+      <div className="search-bar">
 
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Pick-up Location"
-            value={pickupLocation}
-            onChange={(e) => setPickupLocation(e.target.value)}
-          />
-          <div className="input-icon"><FaMapMarkerAlt /></div>
+  <div className="input-group">
+    <label>Pickup Location</label>
+    <input
+      type="text"
+      placeholder="Pick-up Location"
+      value={pickupLocation}
+      onChange={(e) => setPickupLocation(e.target.value)}
+    />
+  </div>
 
-          <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
-          <div className="input-icon"><FaCalendarAlt /></div>
+  <div className="input-group">
+    <label>Pickup Date</label>
+    <input
+      type="date"
+      value={pickupDate}
+      onChange={(e) => setPickupDate(e.target.value)}
+    />
+  </div>
 
-          <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
-          <div className="input-icon"><FaClock /></div>
+  <div className="input-group">
+    <label>Pickup Time</label>
+    <input
+      type="time"
+      value={pickupTime}
+      onChange={(e) => setPickupTime(e.target.value)}
+    />
+  </div>
 
-          <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
-          <div className="input-icon"><FaCalendarAlt /></div>
+  <div className="input-group">
+    <label>Dropoff Date</label>
+    <input
+      type="date"
+      value={returnDate}
+      onChange={(e) => setReturnDate(e.target.value)}
+    />
+  </div>
 
-          <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
-          <div className="input-icon"><FaClock /></div>
+  <div className="input-group">
+    <label>Dropoff Time</label>
+    <input
+      type="time"
+      value={returnTime}
+      onChange={(e) => setReturnTime(e.target.value)}
+    />
+  </div>
 
-          <button className="search-btn"><FaSearch /> Search</button>
-        </div>
-      </header>
+  <button className="search-btn">
+    <FaSearch /> Search
+  </button>
+
+</div>
+
 
       {/* MAIN CONTENT */}
       <main className="main-layout">
