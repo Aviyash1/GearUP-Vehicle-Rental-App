@@ -80,7 +80,7 @@ export default function Register() {
           )}
         </form>
 
-        {/* ✅ Display text only — not an active link */}
+        {/*  Display text only — not an active link */}
         <p className="switch">
           Already have an account? <span>Login here</span>
         </p>

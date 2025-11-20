@@ -13,7 +13,7 @@
   --ok: #27ae60;
 }
 
-/* ✅ Layout container */
+/* Layout container */
 .login-container {
   position: relative;
   min-height: 100vh;
@@ -21,7 +21,7 @@
   place-items: center;
 }
 
-/* ✅ Background overlay */
+/*  Background overlay */
 .login-container::before {
   content: "";
   position: absolute;
@@ -33,7 +33,7 @@
   z-index: 0;
 }
 
-/* ✅ Card styling */
+/*  Card styling */
 .login-card {
   position: relative;
   z-index: 1;
@@ -71,7 +71,7 @@
   border-color: var(--primary);
 }
 
-/* ✅ Button styling */
+/* Button styling */
 .login-card button {
   padding: 12px;
   border: none;
@@ -88,7 +88,7 @@
   background: var(--accent);
 }
 
-/* ✅ Messages */
+/*  Messages */
 .msg {
   text-align: center;
   margin-top: 10px;
@@ -104,7 +104,7 @@
   color: var(--error);
 }
 
-/* ✅ “Already have an account?” section */
+/*  “Already have an account?” section */
 .switch {
   text-align: center;
   margin-top: 15px;
@@ -123,7 +123,7 @@
   color: var(--accent);
 }
 
-/* ✅ Responsie tweaks */
+/*  Responsie tweaks */
 @media (max-width: 480px) {
   .login-card {
     padding: 25px;
