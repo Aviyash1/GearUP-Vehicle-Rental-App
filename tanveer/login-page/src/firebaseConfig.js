@@ -4,13 +4,14 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB9JFUnEW-rcO1eZOAooSOBqrj_5uDrkHs",
-  authDomain: "gearup-vehicle-rental-app.firebaseapp.com",
-  projectId: "gearup-vehicle-rental-app",
-  storageBucket: "gearup-vehicle-rental-app.appspot.com",
-  messagingSenderId: "703653860985",
-  appId: "1:703653860985:web:a3def9a62af93ec811e6a8",
+  apiKey: "AIzaSyA605kF0jgwYuzPiAlQmcy44E2Rkkb4d_c",
+  authDomain: "gearup-1aae6.firebaseapp.com",
+  projectId: "gearup-1aae6",
+  storageBucket: "gearup-1aae6.firebasestorage.app",
+  messagingSenderId: "592275706488",
+  appId: "1:592275706488:web:eba0b4fddeb9afdd27938d"
 };
+
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
