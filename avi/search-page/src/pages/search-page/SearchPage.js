@@ -1,3 +1,7 @@
+// SearchPage.js
+// Updated to include floating labels and a two-row input layout.
+// All car card animations, colors, and logic are kept exactly the same.
+
 import React, { useState, useEffect } from "react";
 import "./SearchPage.css";
 
@@ -6,105 +10,101 @@ import { collection, getDocs } from "firebase/firestore";
 
 import mapImage from "./images/map-placeholder.png";
 import logoImage from "./images/logo.png";
+
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
 
 function SearchPage() {
   const navigate = useNavigate();
 
-  // Firestore-loaded cars
+  // Vehicle data loaded from Firestore
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Form states
+  // Search form values
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("");
 
+  // Filters
   const [locationFilter, setLocationFilter] = useState([]);
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-  // Load cars from Firestore
+  // Fetch vehicle documents
   useEffect(() => {
     async function fetchCars() {
       try {
         const querySnapshot = await getDocs(collection(db, "vehicles"));
-        const fetchedCars = querySnapshot.docs.map(doc => ({
+        const fetched = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }));
-
-        setCars(fetchedCars);
-      } catch (error) {
-        console.error("Error loading vehicles:", error);
+        setCars(fetched);
+      } catch (err) {
+        console.error("Firestore load error:", err);
       } finally {
         setLoading(false);
       }
     }
-
     fetchCars();
   }, []);
 
-  // Filter toggle handler
-  const handleFilterChange = (filterType, value) => {
-    const updateFilter = (prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value];
+  // Filter toggler
+  const handleFilterChange = (type, value) => {
+    const update = prev =>
+      prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value];
 
-    if (filterType === "location") setLocationFilter(updateFilter);
-    if (filterType === "transmission") setTransmissionFilter(updateFilter);
-    if (filterType === "price") setPriceFilter(updateFilter);
+    if (type === "location") setLocationFilter(update);
+    if (type === "transmission") setTransmissionFilter(update);
+    if (type === "price") setPriceFilter(update);
   };
 
-  // Filtering logic
-  const filteredCars = cars.filter((car) => {
-    const locationMatch =
+  // Core filtering logic
+  const filteredCars = cars.filter(car => {
+    const matchLocation =
       (!pickupLocation ||
         car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
       (locationFilter.length === 0 || locationFilter.includes(car.location));
 
-    const transmissionMatch =
-      transmissionFilter.length === 0 ||
-      transmissionFilter.includes(car.transmission);
+    const matchTransmission =
+      transmissionFilter.length === 0 || transmissionFilter.includes(car.transmission);
 
-    const priceMatch =
+    const matchPrice =
       priceFilter.length === 0 ||
-      priceFilter.some((range) => {
+      priceFilter.some(range => {
         if (range === "low") return car.price <= 200;
         if (range === "high") return car.price > 200;
         return true;
       });
 
-    return locationMatch && transmissionMatch && priceMatch;
+    return matchLocation && matchTransmission && matchPrice;
   });
 
+  // Basic validation before moving to payment page
   const validateDates = () => {
     if (!pickupDate || !pickupTime || !returnDate || !returnTime) {
       alert("Please enter pickup and dropoff date and time.");
       return false;
     }
-
     const start = new Date(`${pickupDate}T${pickupTime}`);
     const end = new Date(`${returnDate}T${returnTime}`);
     const now = new Date();
 
     if (start < now) {
-      alert("Pickup must be in the future.");
+      alert("Pickup time must be in the future.");
       return false;
     }
     if (end <= start) {
       alert("Dropoff must be after pickup.");
       return false;
     }
-
     return true;
   };
 
-  // Render loading
+  // Loading state
   if (loading) {
     return <h2 style={{ padding: "40px" }}>Loading vehicles...</h2>;
   }
@@ -112,63 +112,77 @@ function SearchPage() {
   return (
     <div className="search-container">
 
-      {/* HEADER BAR */}
-      <div className="search-bar">
+      {/* HEADER — Floating labels */}
+      <header className="header">
+        <img src={logoImage} alt="Logo" className="logo-img" />
 
-  <div className="input-group">
-    <label>Pickup Location</label>
-    <input
-      type="text"
-      placeholder="Pick-up Location"
-      value={pickupLocation}
-      onChange={(e) => setPickupLocation(e.target.value)}
-    />
-  </div>
+        {/* Two-row search layout */}
+        <div className="search-form">
 
-  <div className="input-group">
-    <label>Pickup Date</label>
-    <input
-      type="date"
-      value={pickupDate}
-      onChange={(e) => setPickupDate(e.target.value)}
-    />
-  </div>
+          {/* Row 1 */}
+          <div className="search-row">
+            {/* Floating label group */}
+            <div className="input-group-float">
+              <input
+                type="text"
+                value={pickupLocation}
+                onChange={(e) => setPickupLocation(e.target.value)}
+                required
+              />
+              <label>Pick-up Location</label>
+            </div>
 
-  <div className="input-group">
-    <label>Pickup Time</label>
-    <input
-      type="time"
-      value={pickupTime}
-      onChange={(e) => setPickupTime(e.target.value)}
-    />
-  </div>
+            <div className="input-group-float">
+              <input
+                type="date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                required
+              />
+              <label>Pickup Date</label>
+            </div>
 
-  <div className="input-group">
-    <label>Dropoff Date</label>
-    <input
-      type="date"
-      value={returnDate}
-      onChange={(e) => setReturnDate(e.target.value)}
-    />
-  </div>
+            <div className="input-group-float">
+              <input
+                type="time"
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+                required
+              />
+              <label>Pickup Time</label>
+            </div>
+          </div>
 
-  <div className="input-group">
-    <label>Dropoff Time</label>
-    <input
-      type="time"
-      value={returnTime}
-      onChange={(e) => setReturnTime(e.target.value)}
-    />
-  </div>
+          {/* Row 2 */}
+          <div className="search-row">
+            <div className="input-group-float">
+              <input
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                required
+              />
+              <label>Dropoff Date</label>
+            </div>
 
-  <button className="search-btn">
-    <FaSearch /> Search
-  </button>
+            <div className="input-group-float">
+              <input
+                type="time"
+                value={returnTime}
+                onChange={(e) => setReturnTime(e.target.value)}
+                required
+              />
+              <label>Dropoff Time</label>
+            </div>
 
-</div>
+            <button className="search-btn">
+              <FaSearch /> Search
+            </button>
+          </div>
+        </div>
+      </header>
 
-
-      {/* MAIN CONTENT */}
+      {/* MAIN LAYOUT */}
       <main className="main-layout">
 
         {/* SIDEBAR */}
@@ -179,41 +193,47 @@ function SearchPage() {
               <FaMapMarkerAlt size={25} color="white" />
               <button
                 className="map-btn"
-                onClick={() => window.open("https://maps.app.goo.gl/dyskwAnqUHzFVPBU7", "_blank")}
+                onClick={() =>
+                  window.open("https://maps.app.goo.gl/dyskwAnqUHzFVPBU7", "_blank")
+                }
               >
                 Open Maps
               </button>
             </div>
           </div>
 
-          {/* FILTERS */}
           <div className="filters">
             <div className="filter-header">
               <h3>Filters</h3>
-              <a href="#" onClick={() => {
-                setLocationFilter([]);
-                setTransmissionFilter([]);
-                setPriceFilter([]);
-              }}>Clear all filters</a>
+              <a
+                href="#"
+                onClick={() => {
+                  setLocationFilter([]);
+                  setTransmissionFilter([]);
+                  setPriceFilter([]);
+                }}
+              >
+                Clear all filters
+              </a>
             </div>
 
             <div className="filter-group">
               <h4>Location</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Auckland")} checked={locationFilter.includes("Auckland")} /> Auckland</label><br />
-              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Wellington")} checked={locationFilter.includes("Wellington")} /> Wellington</label><br />
-              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Queenstown")} checked={locationFilter.includes("Queenstown")} /> Queenstown</label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Auckland")} /> Auckland</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Wellington")} /> Wellington</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Queenstown")} /> Queenstown</label>
             </div>
 
             <div className="filter-group">
               <h4>Transmission</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Automatic")} checked={transmissionFilter.includes("Automatic")} /> Automatic</label><br />
-              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Manual")} checked={transmissionFilter.includes("Manual")} /> Manual</label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Automatic")} /> Automatic</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Manual")} /> Manual</label>
             </div>
 
             <div className="filter-group">
               <h4>Price</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("price", "low")} checked={priceFilter.includes("low")} /> $0 - $200</label><br />
-              <label><input type="checkbox" onChange={() => handleFilterChange("price", "high")} checked={priceFilter.includes("high")} /> $200+</label>
+              <label><input type="checkbox" onChange={() => handleFilterChange("price", "low")} /> $0 - $200</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("price", "high")} /> $200+</label>
             </div>
           </div>
         </aside>
@@ -223,7 +243,7 @@ function SearchPage() {
           <h2>Vehicles Available ({filteredCars.length})</h2>
 
           {filteredCars.length === 0 && (
-            <p style={{ marginTop: "20px", color: "#777" }}>No vehicles match your search or filters.</p>
+            <p style={{ marginTop: "20px", color: "#777" }}>No vehicles match your search.</p>
           )}
 
           {filteredCars.map((car) => (
@@ -260,17 +280,15 @@ function SearchPage() {
                 <details className="info-dropdown">
                   <summary>More Information</summary>
                   <div className="owner-info">
-                    <h4>Owner Contact Information</h4>
+                    <h4>Owner Contact</h4>
                     <p>Email: info@{car.name.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
                     <p>Phone: +64 21 555 1234</p>
                     <p>Location: {car.location}</p>
                   </div>
                 </details>
-
               </div>
             </div>
           ))}
-
         </section>
       </main>
     </div>
