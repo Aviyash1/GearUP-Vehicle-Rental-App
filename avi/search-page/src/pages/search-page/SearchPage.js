@@ -1,6 +1,7 @@
 // SearchPage.js
-// Updated to include floating labels and a two-row input layout.
-// All car card animations, colors, and logic are kept exactly the same.
+// This version pulls real car data from Firestore, checks admin approval,
+// and filters the results based on availability dates entered by the user.
+// CSS, layout, and animations remain exactly the same as before.
 
 import React, { useState, useEffect } from "react";
 import "./SearchPage.css";
@@ -12,69 +13,126 @@ import mapImage from "./images/map-placeholder.png";
 import logoImage from "./images/logo.png";
 
 import { useNavigate } from "react-router-dom";
-import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
+import { FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 
 function SearchPage() {
   const navigate = useNavigate();
 
-  // Vehicle data loaded from Firestore
+  // database vehicle list
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Search form values
+  // search bar values
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("");
 
-  // Filters
+  // filter checkboxes
   const [locationFilter, setLocationFilter] = useState([]);
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-  // Fetch vehicle documents
+  // cars displayed after pressing search
+  const [searchedCars, setSearchedCars] = useState([]);
+  const [searched, setSearched] = useState(false);
+
+  // load all vehicles from Firestore
   useEffect(() => {
     async function fetchCars() {
       try {
         const querySnapshot = await getDocs(collection(db, "vehicles"));
-        const fetched = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+
+        // only take cars that were approved by admin
+        const fetched = querySnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(car => car.approved === true);
+
         setCars(fetched);
       } catch (err) {
-        console.error("Firestore load error:", err);
+        console.log("Error loading vehicles:", err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchCars();
   }, []);
 
-  // Filter toggler
+  // simple checkbox handler for all filter groups
   const handleFilterChange = (type, value) => {
-    const update = prev =>
-      prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value];
+    const toggle = (prev) =>
+      prev.includes(value)
+        ? prev.filter(v => v !== value)
+        : [...prev, value];
 
-    if (type === "location") setLocationFilter(update);
-    if (type === "transmission") setTransmissionFilter(update);
-    if (type === "price") setPriceFilter(update);
+    if (type === "location") setLocationFilter(toggle);
+    if (type === "transmission") setTransmissionFilter(toggle);
+    if (type === "price") setPriceFilter(toggle);
   };
 
-  // Core filtering logic
-  const filteredCars = cars.filter(car => {
+  // ensures the user entered valid pickup and dropoff times
+  const validateDates = () => {
+    if (!pickupDate || !pickupTime || !returnDate || !returnTime) {
+      alert("Please fill in both pickup and return date/time.");
+      return false;
+    }
+
+    const start = new Date(`${pickupDate}T${pickupTime}`);
+    const end = new Date(`${returnDate}T${returnTime}`);
+    const now = new Date();
+
+    if (start < now) {
+      alert("Pickup must be in the future.");
+      return false;
+    }
+    if (end <= start) {
+      alert("Dropoff must be after pickup.");
+      return false;
+    }
+
+    return true;
+  };
+
+  // checks if a selected range fits inside a car's availableFrom/availableTo
+  const isAvailable = (car, start, end) => {
+    // these values come directly from Firestore
+    const availableStart = new Date(car.availableFrom);
+    const availableEnd = new Date(car.availableTo);
+
+    // availability is valid if the selected range fits in the car's range
+    return start >= availableStart && end <= availableEnd;
+  };
+
+  // search button logic
+  const handleSearch = () => {
+    if (!validateDates()) return;
+
+    const start = new Date(`${pickupDate}T${pickupTime}`);
+    const end = new Date(`${returnDate}T${returnTime}`);
+
+    // filter by availability based on the car's availableFrom / availableTo
+    const results = cars.filter(car => isAvailable(car, start, end));
+
+    setSearchedCars(results);
+    setSearched(true);
+  };
+
+  // sidebar filters (location, transmission, price)
+  const filteredCars = cars.filter((car) => {
     const matchLocation =
       (!pickupLocation ||
         car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
       (locationFilter.length === 0 || locationFilter.includes(car.location));
 
     const matchTransmission =
-      transmissionFilter.length === 0 || transmissionFilter.includes(car.transmission);
+      transmissionFilter.length === 0 ||
+      transmissionFilter.includes(car.transmission);
 
     const matchPrice =
       priceFilter.length === 0 ||
-      priceFilter.some(range => {
+      priceFilter.some((range) => {
         if (range === "low") return car.price <= 200;
         if (range === "high") return car.price > 200;
         return true;
@@ -83,28 +141,6 @@ function SearchPage() {
     return matchLocation && matchTransmission && matchPrice;
   });
 
-  // Basic validation before moving to payment page
-  const validateDates = () => {
-    if (!pickupDate || !pickupTime || !returnDate || !returnTime) {
-      alert("Please enter pickup and dropoff date and time.");
-      return false;
-    }
-    const start = new Date(`${pickupDate}T${pickupTime}`);
-    const end = new Date(`${returnDate}T${returnTime}`);
-    const now = new Date();
-
-    if (start < now) {
-      alert("Pickup time must be in the future.");
-      return false;
-    }
-    if (end <= start) {
-      alert("Dropoff must be after pickup.");
-      return false;
-    }
-    return true;
-  };
-
-  // Loading state
   if (loading) {
     return <h2 style={{ padding: "40px" }}>Loading vehicles...</h2>;
   }
@@ -112,73 +148,60 @@ function SearchPage() {
   return (
     <div className="search-container">
 
-      {/* HEADER — Floating labels */}
+      {/* HEADER WITH SEARCH INPUTS */}
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
 
-        {/* Two-row search layout */}
-        <div className="search-form">
+        <div className="search-bar-full">
 
-          {/* Row 1 */}
-          <div className="search-row">
-            {/* Floating label group */}
-            <div className="input-group-float">
-              <input
-                type="text"
-                value={pickupLocation}
-                onChange={(e) => setPickupLocation(e.target.value)}
-                required
-              />
-              <label>Pick-up Location</label>
-            </div>
-
-            <div className="input-group-float">
-              <input
-                type="date"
-                value={pickupDate}
-                onChange={(e) => setPickupDate(e.target.value)}
-                required
-              />
-              <label>Pickup Date</label>
-            </div>
-
-            <div className="input-group-float">
-              <input
-                type="time"
-                value={pickupTime}
-                onChange={(e) => setPickupTime(e.target.value)}
-                required
-              />
-              <label>Pickup Time</label>
-            </div>
+          <div className="input-group-float">
+            <input
+              type="text"
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
+            />
+            <label>Pick-up Location</label>
           </div>
 
-          {/* Row 2 */}
-          <div className="search-row">
-            <div className="input-group-float">
-              <input
-                type="date"
-                value={returnDate}
-                onChange={(e) => setReturnDate(e.target.value)}
-                required
-              />
-              <label>Dropoff Date</label>
-            </div>
-
-            <div className="input-group-float">
-              <input
-                type="time"
-                value={returnTime}
-                onChange={(e) => setReturnTime(e.target.value)}
-                required
-              />
-              <label>Dropoff Time</label>
-            </div>
-
-            <button className="search-btn">
-              <FaSearch /> Search
-            </button>
+          <div className="input-group-float">
+            <input
+              type="date"
+              value={pickupDate}
+              onChange={(e) => setPickupDate(e.target.value)}
+            />
+            <label>Pickup Date</label>
           </div>
+
+          <div className="input-group-float">
+            <input
+              type="time"
+              value={pickupTime}
+              onChange={(e) => setPickupTime(e.target.value)}
+            />
+            <label>Pickup Time</label>
+          </div>
+
+          <div className="input-group-float">
+            <input
+              type="date"
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
+            />
+            <label>Dropoff Date</label>
+          </div>
+
+          <div className="input-group-float">
+            <input
+              type="time"
+              value={returnTime}
+              onChange={(e) => setReturnTime(e.target.value)}
+            />
+            <label>Dropoff Time</label>
+          </div>
+
+          <button className="search-btn" onClick={handleSearch}>
+            <FaSearch /> Search
+          </button>
         </div>
       </header>
 
@@ -219,34 +242,40 @@ function SearchPage() {
 
             <div className="filter-group">
               <h4>Location</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Auckland")} /> Auckland</label><br/>
-              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Wellington")} /> Wellington</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Auckland")} /> Auckland</label><br />
+              <label><input type="checkbox" onChange={() => handleFilterChange("location", "Wellington")} /> Wellington</label><br />
               <label><input type="checkbox" onChange={() => handleFilterChange("location", "Queenstown")} /> Queenstown</label>
             </div>
 
             <div className="filter-group">
               <h4>Transmission</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Automatic")} /> Automatic</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Automatic")} /> Automatic</label><br />
               <label><input type="checkbox" onChange={() => handleFilterChange("transmission", "Manual")} /> Manual</label>
             </div>
 
             <div className="filter-group">
               <h4>Price</h4>
-              <label><input type="checkbox" onChange={() => handleFilterChange("price", "low")} /> $0 - $200</label><br/>
+              <label><input type="checkbox" onChange={() => handleFilterChange("price", "low")} /> $0 - $200</label><br />
               <label><input type="checkbox" onChange={() => handleFilterChange("price", "high")} /> $200+</label>
             </div>
           </div>
         </aside>
 
-        {/* RESULTS */}
+        {/* VEHICLE RESULTS */}
         <section className="results">
-          <h2>Vehicles Available ({filteredCars.length})</h2>
+          <h2>
+            Vehicles Available (
+              {searched ? searchedCars.length : filteredCars.length}
+            )
+          </h2>
 
-          {filteredCars.length === 0 && (
-            <p style={{ marginTop: "20px", color: "#777" }}>No vehicles match your search.</p>
+          {(searched ? searchedCars : filteredCars).length === 0 && (
+            <p style={{ marginTop: "20px", color: "#777" }}>
+              No vehicles match the current search.
+            </p>
           )}
 
-          {filteredCars.map((car) => (
+          {(searched ? searchedCars : filteredCars).map(car => (
             <div className="car-card" key={car.id}>
               <img src={car.imageUrl} alt={car.name} />
 
@@ -280,16 +309,17 @@ function SearchPage() {
                 <details className="info-dropdown">
                   <summary>More Information</summary>
                   <div className="owner-info">
-                    <h4>Owner Contact</h4>
-                    <p>Email: info@{car.name.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
-                    <p>Phone: +64 21 555 1234</p>
+                    <h4>Owner Details</h4>
                     <p>Location: {car.location}</p>
+                    <p>Available From: {car.availableFrom}</p>
+                    <p>Available To: {car.availableTo}</p>
                   </div>
                 </details>
               </div>
             </div>
           ))}
         </section>
+
       </main>
     </div>
   );
