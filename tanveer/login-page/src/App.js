@@ -12,6 +12,7 @@ import PaymentPage from "./pages/PaymentPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import MyBookings from "./pages/MyBookings";
 import MyProfile from "./pages/MyProfile";
+import Notifications from "./pages/Notifications";
 function App() {
   return (
     <Router>
@@ -29,6 +30,7 @@ function App() {
 <Route path="/feedback" element={<FeedbackPage />} />
   <Route path="/my-bookings" element={<MyBookings />} />
   <Route path="/my-profile" element={<MyProfile />} />
+  <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </Router>
   );
