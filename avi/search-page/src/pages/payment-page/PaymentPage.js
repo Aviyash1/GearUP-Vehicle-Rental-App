@@ -78,11 +78,11 @@ function PaymentPage() {
                 <div className="pickup-map-overlay"></div>
 
                 <img
-                  src="https://i.pinimg.com/736x/5f/61/8c/5f618cb6468ca8717794bb5ddb4e4795.jpg"   
+                  src="https://www.apple.com/v/maps/d/images/overview/background_light_alt__bdgrj5s9pwqq_xlarge.jpg"   
                   alt="Pickup Map"
                   className="pickup-map"
                 />
-              </div>
+              </div>your
             </div>
 
             {/* RIGHT DETAILS */}
