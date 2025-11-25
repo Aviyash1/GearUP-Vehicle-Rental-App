@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { auth, db } from "../firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/register.css";
@@ -21,7 +21,12 @@ export default function Register() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
@@ -32,10 +37,12 @@ export default function Register() {
         createdAt: new Date().toISOString(),
       });
 
-      //  Redirect based on role
-      if (role === "User") navigate("/Dashboard");
-      if (role === "CarOwner") navigate("/carowner-dashboard");
-      if (role === "Admin") navigate("/admin-dashboard");
+      // 🔥 Firebase automatically logs user in after signup.
+      // So we force logout to prevent redirecting to dashboard.
+      await signOut(auth);
+
+      alert("Account created successfully. Please log in.");
+      navigate("/"); // back to login page
 
     } catch (err) {
       alert(err.message);
@@ -47,26 +54,48 @@ export default function Register() {
       <div className="register-card">
         <h2 className="register-title">Create Account</h2>
 
-        <input className="input-field" placeholder="Full Name"
-          value={name} onChange={(e) => setName(e.target.value)} />
+        <input
+          className="input-field"
+          placeholder="Full Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-        <input className="input-field" placeholder="Email"
-          value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          className="input-field"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <input className="input-field" placeholder="Phone"
-          value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <input
+          className="input-field"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
 
-        {/* 🔥 Role selection */}
-        <select className="input-field" value={role} onChange={(e) => setRole(e.target.value)}>
+        <select
+          className="input-field"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        >
           <option value="User">User</option>
           <option value="CarOwner">Car Owner</option>
           <option value="Admin">Admin</option>
         </select>
 
-        <input type="password" className="input-field" placeholder="Password"
-          value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input
+          type="password"
+          className="input-field"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <button className="register-btn" onClick={handleRegister}>Sign Up</button>
+        <button className="register-btn" onClick={handleRegister}>
+          Sign Up
+        </button>
 
         <p className="login-link">
           Already have an account? <Link to="/">Login</Link>

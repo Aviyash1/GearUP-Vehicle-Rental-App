@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
 
-import UserDashboard from "./pages/Dashboard";
 //import CarOwnerDashboard from "./pages/CarOwnerDashboard";
 //import AdminDashboard from "./pages/AdminDashboard";
 
@@ -36,3 +36,5 @@ function App() {
     </Router>
   );
 }
+
+export default App;
