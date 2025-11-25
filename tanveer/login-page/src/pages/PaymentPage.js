@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/PaymentPage.css";
 import { auth, db } from "../firebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 export default function PaymentPage() {
   const { state } = useLocation();
@@ -15,13 +15,14 @@ export default function PaymentPage() {
   const endDate = state?.endDate;
   const pickupTime = state?.pickupTime;
   const dropoffTime = state?.dropoffTime;
+  const bookingId = state?.bookingId;    // 🔥 Get real booking id
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (!vehicle || !total || !startDate || !endDate) {
+  if (!vehicle || !total || !bookingId) {
     return (
       <div className="payment-page">
         <div className="payment-card">
@@ -51,25 +52,19 @@ export default function PaymentPage() {
     try {
       setLoading(true);
 
-      // 🔥 Save booking ONLY AFTER "payment" success
-      await addDoc(collection(db, "bookings"), {
-        userId: user.uid,
-        vehicleName: vehicle.name,
-        vehicleImg: vehicle.img || "", // used in MyBookings
-        startDate,
-        endDate,
-        pickupTime,
-        dropoffTime,
-        totalCost: total,
-        status: "Confirmed",
-        createdAt: new Date().toISOString(),
+      // 🔥 UPDATE EXISTING BOOKING INSTEAD OF CREATING A NEW ONE
+      await updateDoc(doc(db, "bookings", bookingId), {
+        status: "Paid",
+        paymentCompletedAt: new Date().toISOString(),
       });
 
-      alert("Payment Successful! Booking confirmed.");
+      alert("Payment Successful! Booking updated.");
+
       navigate("/feedback", { state: { vehicle } });
+
     } catch (err) {
-      console.error("Error saving booking:", err);
-      alert("Payment succeeded but booking could not be saved. Please contact support.");
+      console.error("Payment error:", err);
+      alert("Payment succeeded but updating booking failed.");
     } finally {
       setLoading(false);
     }
@@ -88,8 +83,8 @@ export default function PaymentPage() {
             <strong>From:</strong> {startDate} &nbsp; <strong>To:</strong> {endDate}
           </p>
           <p>
-            <strong>Pickup:</strong> {pickupTime || "-"} &nbsp;
-            <strong>Drop-off:</strong> {dropoffTime || "-"}
+            <strong>Pickup:</strong> {pickupTime} &nbsp;
+            <strong>Drop-off:</strong> {dropoffTime}
           </p>
         </div>
 

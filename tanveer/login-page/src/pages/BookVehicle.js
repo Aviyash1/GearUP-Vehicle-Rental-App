@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "../firebaseConfig";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { doc, collection, addDoc } from "firebase/firestore";
 import "../styles/BookVehicle.css";
 
 export default function BookVehicle() {
@@ -15,6 +15,7 @@ export default function BookVehicle() {
   const [pickupTime, setPickupTime] = useState("");
   const [dropoffTime, setDropoffTime] = useState("");
   const [total, setTotal] = useState(null);
+  const [loading, setLoading] = useState(false); // 🔥 PREVENT DOUBLE SUBMIT
 
   if (!vehicle) {
     return (
@@ -48,13 +49,18 @@ export default function BookVehicle() {
   };
 
   const handleCheckout = async () => {
+    if (loading) return;              // 🔥 BLOCK MULTIPLE CLICKS
+    setLoading(true);
+
     if (!pickupTime || !dropoffTime) {
       alert("Please select pickup and drop-off times!");
+      setLoading(false);
       return;
     }
 
     if (!total) {
       alert("Please calculate total before proceeding.");
+      setLoading(false);
       return;
     }
 
@@ -62,17 +68,15 @@ export default function BookVehicle() {
     if (!user) {
       alert("Please log in first.");
       navigate("/");
+      setLoading(false);
       return;
     }
 
     try {
-      // Create booking document
-      const bookingId = Date.now().toString();
-
       const bookingData = {
         userId: user.uid,
         vehicleName: vehicle.name,
-        vehicleImg: vehicle.img || "",    // 🔥 store image for MyBookings
+        vehicleImg: vehicle.img || "",
         startDate,
         endDate,
         pickupTime,
@@ -82,9 +86,11 @@ export default function BookVehicle() {
         createdAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, "bookings", bookingId), bookingData);
+      // 🔥 FIRESTORE AUTO-ID (Fixes duplicate bookings)
+      const bookingRef = await addDoc(collection(db, "bookings"), bookingData);
+      const bookingId = bookingRef.id;
 
-      // Create notification for this user
+      // Create notification
       await addDoc(collection(db, "notifications"), {
         userId: user.uid,
         bookingId,
@@ -110,6 +116,8 @@ export default function BookVehicle() {
     } catch (err) {
       console.error("Error creating booking:", err);
       alert("Something went wrong while creating your booking.");
+    } finally {
+      setLoading(false); // 🔥 ENABLE BUTTON AGAIN AFTER FINISH
     }
   };
 
@@ -168,8 +176,13 @@ export default function BookVehicle() {
             <h3>
               Total: <span>NZ${total}</span>
             </h3>
-            <button className="checkout-btn" onClick={handleCheckout}>
-              Proceed to Checkout
+
+            <button
+              className="checkout-btn"
+              disabled={loading}
+              onClick={handleCheckout}
+            >
+              {loading ? "Processing..." : "Proceed to Checkout"}
             </button>
           </div>
         )}

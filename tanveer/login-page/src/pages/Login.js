@@ -8,6 +8,7 @@ import "../styles/Login.css";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -18,10 +19,8 @@ export default function Login() {
       const snap = await getDoc(doc(db, "users", user.uid));
       const role = snap.data().role;
 
-      // 🔥 Redirect based on role
-      if (role === "User") navigate("/user-dashboard");
-      if (role === "CarOwner") navigate("/carowner-dashboard");
-      if (role === "Admin") navigate("/admin-dashboard");
+      // ✔ All roles → same dashboard (you can separate later)
+      navigate("/dashboard");
 
     } catch (err) {
       alert("Invalid credentials");
@@ -39,7 +38,9 @@ export default function Login() {
         <input type="password" className="input-field" placeholder="Password"
           value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <button className="login-btn" onClick={handleLogin}>Login</button>
+        <button className="login-btn" onClick={handleLogin}>
+          Login
+        </button>
 
         <p className="login-link">
           Don't have an account? <Link to="/register">Sign Up</Link>

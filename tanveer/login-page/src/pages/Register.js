@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { auth, db } from "../firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/register.css";
@@ -21,7 +24,11 @@ export default function Register() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
@@ -29,13 +36,14 @@ export default function Register() {
         phone,
         email,
         role,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       });
 
-      //  Redirect based on role
-      if (role === "User") navigate("/Dashboard");
-      if (role === "CarOwner") navigate("/carowner-dashboard");
-      if (role === "Admin") navigate("/admin-dashboard");
+      // ✔ Stop Firebase auto-login
+      await signOut(auth);
+
+      // ✔ Redirect user to login instead of dashboard
+      navigate("/login");
 
     } catch (err) {
       alert(err.message);
@@ -56,8 +64,8 @@ export default function Register() {
         <input className="input-field" placeholder="Phone"
           value={phone} onChange={(e) => setPhone(e.target.value)} />
 
-        {/* 🔥 Role selection */}
-        <select className="input-field" value={role} onChange={(e) => setRole(e.target.value)}>
+        <select className="input-field"
+          value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="User">User</option>
           <option value="CarOwner">Car Owner</option>
           <option value="Admin">Admin</option>
@@ -66,10 +74,12 @@ export default function Register() {
         <input type="password" className="input-field" placeholder="Password"
           value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <button className="register-btn" onClick={handleRegister}>Sign Up</button>
+        <button className="register-btn" onClick={handleRegister}>
+          Sign Up
+        </button>
 
         <p className="login-link">
-          Already have an account? <Link to="/">Login</Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>
