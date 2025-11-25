@@ -224,9 +224,24 @@
     gap: 10px;
   }
 
-  .admin/sidebar li {
-    white-space: nowrap;
-  }
+}
+/* Notification badge */
+.notif-badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+/* Notification item */
+.admin-notification-item {
+  background: #0d0d0d;
+  padding: 18px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  margin-bottom: 12px;
 }
 
 

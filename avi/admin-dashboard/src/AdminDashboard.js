@@ -4,71 +4,91 @@
 // tools for reviewing verification requests, car postings, and payment approvals.
 // All data inside this file is temporary and will later be replaced by Firebase.
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AdminDashboard.css";
 import Lexus from "./images/lexus.png";
 import Porsche from "./images/porsche.png";
 
 function AdminDashboard() {
 
-  // Tracks which section of the admin dashboard is currently active.
   const [activeSection, setActiveSection] = useState("overview");
-
-  // Tracks which item is currently sliding out during animation.
   const [slidingItem, setSlidingItem] = useState(null);
 
-  // Dummy data for verification requests.
-  const [verificationRequests, setVerificationRequests] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", license: "DLX1111" },
-    { id: 2, name: "Sarah Lee", email: "sarah@example.com", license: "DLX2222" },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
-  // Dummy data for car approval requests.
-  const [carRequests, setCarRequests] = useState([
-    {
-      id: 1,
-      model: "Lexus IS 350",
-      owner: "John Doe",
-      rent: "$140/day",
-      image: Lexus
-    },
-    {
-      id: 2,
-      model: "Porsche 911 Carrera",
-      owner: "Sarah Lee",
-      rent: "$90/day",
-      image: Porsche
-    }
-  ]);
+  const [verificationRequests, setVerificationRequests] = useState([]);
+  const [carRequests, setCarRequests] = useState([]);
+  const [paymentRequests, setPaymentRequests] = useState([]);
 
-  // Dummy data for payments that require admin approval.
-  const [paymentRequests, setPaymentRequests] = useState([
-    { id: 1, user: "Michael", amount: "$150", method: "Visa" },
-    { id: 2, user: "Emma", amount: "$60", method: "Mastercard" },
-  ]);
+  const addNotification = (msg, type) => {
+    const newNote = {
+      id: Date.now(),
+      message: msg,
+      type: type,
+      time: "Just now"
+    };
+    setNotifications(prev => [newNote, ...prev]);
+  };
 
-  // Handles approving or denying an item with a slide-out animation.
   const handleSlideOut = (type, id) => {
-
-    // Marks the item as currently sliding out.
     setSlidingItem(id);
 
-    // Removes the item after animation completes.
     setTimeout(() => {
       if (type === "verification") {
         setVerificationRequests(prev => prev.filter(req => req.id !== id));
+        addNotification("Verification request reviewed", "verification");
       }
       if (type === "car") {
         setCarRequests(prev => prev.filter(car => car.id !== id));
+        addNotification("Car listing reviewed", "car");
       }
       if (type === "payment") {
         setPaymentRequests(prev => prev.filter(pay => pay.id !== id));
+        addNotification("Payment processed", "payment");
       }
       setSlidingItem(null);
-    }, 300); // Matches the 300ms animation duration
+    }, 300);
   };
 
-  // Renders content based on admin's selected section.
+  const placeholderListenForCarRequests = () => {
+    const incoming = [
+      { id: 1, model: "Lexus IS 350", owner: "John Doe", rent: "$140/day", image: Lexus },
+      { id: 2, model: "Porsche 911 Carrera", owner: "Sarah Lee", rent: "$90/day", image: Porsche }
+    ];
+    setCarRequests(incoming);
+    incoming.forEach(() =>
+      addNotification("New car added for approval", "car")
+    );
+  };
+
+  const placeholderListenForVerificationRequests = () => {
+    const incoming = [
+      { id: 1, name: "John Doe", email: "john@example.com", license: "DLX1111" },
+      { id: 2, name: "Sarah Lee", email: "sarah@example.com", license: "DLX2222" }
+    ];
+    setVerificationRequests(incoming);
+    incoming.forEach(() =>
+      addNotification("New verification request submitted", "verification")
+    );
+  };
+
+  const placeholderListenForPayments = () => {
+    const incoming = [
+      { id: 1, user: "Michael", amount: "$150", method: "Visa" },
+      { id: 2, user: "Emma", amount: "$60", method: "Mastercard" },
+    ];
+    setPaymentRequests(incoming);
+    incoming.forEach(() =>
+      addNotification("New payment awaiting approval", "payment")
+    );
+  };
+
+  useEffect(() => {
+    placeholderListenForCarRequests();
+    placeholderListenForVerificationRequests();
+    placeholderListenForPayments();
+  }, []);
+
   const renderSection = () => {
 
     if (activeSection === "overview") {
@@ -94,6 +114,27 @@ function AdminDashboard() {
               <p>Payments Waiting</p>
             </div>
           </div>
+        </div>
+      );
+    }
+
+    if (activeSection === "notifications") {
+      return (
+        <div className="admin-content-box fade-up">
+          <h2 className="admin-heading">Notifications</h2>
+          <p className="admin-subheading">System Alerts & New Events</p>
+          <div className="admin-divider"></div>
+
+          {notifications.length === 0 && <p>No notifications available.</p>}
+
+          {notifications.map(note => (
+            <div key={note.id} className="admin-notification-item fade-up">
+              <div>
+                <strong>{note.message}</strong>
+                <p style={{ color: "#bbbbbb", marginTop: 4 }}>{note.time}</p>
+              </div>
+            </div>
+          ))}
         </div>
       );
     }
@@ -233,26 +274,30 @@ function AdminDashboard() {
     );
   };
 
-  // Main UI structure: sidebar + top header + content.
   return (
     <div className="admin-dashboard-container">
 
-      {/* Sidebar Navigation */}
       <aside className="admin-sidebar">
         <div className="admin-brand">GearUP Admin</div>
 
         <ul>
           <li className={activeSection === "overview" ? "active" : ""} onClick={() => setActiveSection("overview")}>Overview</li>
+
+          <li className={activeSection === "notifications" ? "active" : ""} onClick={() => setActiveSection("notifications")}>
+            Notifications {notifications.length > 0 && <span className="notif-badge"></span>}
+          </li>
+
           <li className={activeSection === "verification" ? "active" : ""} onClick={() => setActiveSection("verification")}>Verification</li>
+
           <li className={activeSection === "cars" ? "active" : ""} onClick={() => setActiveSection("cars")}>Car Approvals</li>
+
           <li className={activeSection === "payments" ? "active" : ""} onClick={() => setActiveSection("payments")}>Payments</li>
+
           <li className={activeSection === "settings" ? "active" : ""} onClick={() => setActiveSection("settings")}>Settings</li>
         </ul>
       </aside>
 
-      {/* Main Panel */}
       <main className="admin-main">
-        {/* Top header bar */}
         <header className="admin-top-header">
           <h1>GearUP Administration</h1>
         </header>
