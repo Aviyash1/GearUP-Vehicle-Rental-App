@@ -34,7 +34,7 @@ export default function FeedbackPage() {
         ) : (
           <div className="thankyou-section">
             <h2>✅ Thank you for your feedback!</h2>
-            <p>Have a safe and enjoyable trip 🚗💨</p>
+            <p>Have a safe and enjoyable trip </p>
           </div>
         )}
       </div>
