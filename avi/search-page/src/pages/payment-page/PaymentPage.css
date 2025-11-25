@@ -1,0 +1,360 @@
+/* MAIN WRAPPER */
+.payment-wrapper {
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+  background: #f9fbff;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Blur when popup is shown */
+.blur-active {
+  filter: blur(6px) brightness(0.7);
+  pointer-events: none;
+}
+
+/* LEFT COLUMN */
+.left-column {
+  width: 62%;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* RIGHT COLUMN — WIDER TO PREVENT SQUISH */
+.right-column {
+  width: 38%;
+  min-width: 380px;
+  position: sticky;
+  top: 20px;
+}
+
+/* CAR CARD */
+.payment-card {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  margin-bottom: 25px;
+}
+
+/* IMAGE STACK */
+.image-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* CAR IMAGE */
+.payment-car-img {
+  width: 260px;
+  height: 160px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* PICKUP MAP CONTAINER */
+.pickup-map-container {
+  width: 260px;
+  flex: 1;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* FIXED MAP CARD */
+.pickup-map-container {
+  width: 280px;           
+  height: 260px;          
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  flex-shrink: 0;         /* prevents squishing */
+}
+
+/* Header label */
+.pickup-map-header {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.95);
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 3;
+}
+
+/* Overlay tint */
+.pickup-map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  z-index: 2;
+}
+
+/* Map  */
+.pickup-map {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* ensures full coverage */
+  opacity: 0.5;
+  z-index: 1;
+}
+
+
+/* VEHICLE DETAILS */
+.payment-car-details {
+  flex: 1;
+}
+
+.car-features-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+}
+
+/* Verification */
+.verification-box {
+  margin-top: 15px;
+  background: #f4f4f4;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* Included box */
+.included-box {
+  margin-top: 20px;
+}
+
+.fuel-box {
+  background: #eef2ff;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* BOOKING SECTION */
+.payment-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.payment-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.payment-breakdown {
+  margin-top: 15px;
+  background: #eef2ff;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* PAYMENT BOX */
+.payment-box {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  margin-bottom: 25px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* PAYMENT LOGOS */
+.payment-logos {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.payment-logos img {
+  height: 22px;
+  width: auto;
+}
+
+/* BADGES */
+.secure-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+
+/* INPUT FIELDS */
+.payment-input {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+  box-sizing: border-box;   /* FIX for overflow */
+}
+
+.card-input-wrapper {
+  position: relative;
+}
+
+.card-with-icon {
+  padding-left: 36px !important;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+}
+
+.payment-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* PAYMENT BUTTON */
+.payment-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #0046ff, #336dff);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  margin-top: 10px;
+}
+
+/* NOTES */
+.processor-note {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* SUPPORT BOX */
+.support-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.assistant-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.assistant-buttons {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.assistant-buttons button {
+  padding: 10px;
+  border: 1px solid #0046ff;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #0046ff;
+  transition: 0.2s;
+}
+
+.assistant-buttons button:hover {
+  background: #0046ff;
+  color: white;
+}
+
+.support-response {
+  margin-top: 16px;
+  padding: 12px;
+  min-height: 60px;
+  border-radius: 10px;
+  background: #eef3ff;
+  font-size: 0.9rem;
+}
+
+/* SUCCESS POPUP */
+.payment-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.payment-success-box {
+  background: white;
+  padding: 30px 35px;
+  width: 380px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.success-btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.success-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.success-btn.dashboard {
+  background: #0046ff;
+  color: white;
+}
+
+.success-btn.search {
+  background: #efefef;
+}
+
+/* POPUP ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
