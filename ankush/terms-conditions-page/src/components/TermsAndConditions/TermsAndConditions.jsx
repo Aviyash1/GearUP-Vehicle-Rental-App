@@ -41,7 +41,7 @@ const TermsAndConditions = () => {
           <li>Allowing unauthorized drivers</li>
         </ul>
 
-        <h2>5. Payments</h2>
+        <h2>5.Payments</h2>
         <p>
           Renters authorize GearUP to charge rental fees, late fees, fines, damage
           charges, and any additional applicable costs. GearUP earns a commission
