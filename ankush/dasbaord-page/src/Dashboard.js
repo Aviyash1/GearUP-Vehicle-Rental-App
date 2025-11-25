@@ -3,17 +3,23 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.css";
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  /* ======================================= */
+  /* STATE */
+  /* ======================================= */
+
   const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isAddCarModalOpen, setAddCarModalOpen] = useState(false);
   const [isCarDetailOpen, setCarDetailOpen] = useState(false);
+
   const [selectedCar, setSelectedCar] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [lastBlobUrl, setLastBlobUrl] = useState(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const [profile, setProfile] = useState({
     name: "Tanveer Singh",
@@ -65,7 +71,7 @@ function Dashboard() {
     },
   ]);
 
-  const [bookings, setBookings] = useState([
+  const [bookings] = useState([
     {
       id: 101,
       carId: 1,
@@ -77,8 +83,18 @@ function Dashboard() {
   ]);
 
   const [notifications, setNotifications] = useState([
-    { id: 1, message: "New booking request for Toyota Corolla", date: "2024-12-01", read: false },
-    { id: 2, message: "Car approval pending for Tesla Model 3", date: "2024-12-02", read: false },
+    {
+      id: 1,
+      message: "New booking request for Toyota Corolla",
+      date: "2024-12-01",
+      read: false,
+    },
+    {
+      id: 2,
+      message: "Car approval pending for Tesla Model 3",
+      date: "2024-12-02",
+      read: false,
+    },
   ]);
 
   const [newCar, setNewCar] = useState({
@@ -96,14 +112,19 @@ function Dashboard() {
     image: "",
   });
 
+  /* ======================================= */
+  /* DISABLE SCROLL WHEN MODAL OPEN */
+  /* ======================================= */
   useEffect(() => {
-    document.body.style.overflow =
-      isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen
-        ? "hidden"
-        : "auto";
+    const lock = isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
+    document.body.style.overflow = lock ? "hidden" : "auto";
   }, [isProfileModalOpen, isAddCarModalOpen, isCarDetailOpen]);
 
-  const toggleSidebar = () => setSidebarCollapsed(!isSidebarCollapsed);
+  /* ======================================= */
+  /* HANDLERS */
+  /* ======================================= */
+
+  const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -113,8 +134,10 @@ function Dashboard() {
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const url = URL.createObjectURL(file);
     if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+
     setLastBlobUrl(url);
     setProfile((prev) => ({ ...prev, profileImage: url }));
   };
@@ -132,8 +155,10 @@ function Dashboard() {
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const url = URL.createObjectURL(file);
     if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+
     setLastBlobUrl(url);
     setPreviewImage(url);
     setNewCar((prev) => ({ ...prev, image: url }));
@@ -153,22 +178,23 @@ function Dashboard() {
       "rent",
       "image",
     ];
-    const missing = required.filter((f) => !String(newCar[f]).trim());
+    const missing = required.filter((key) => !String(newCar[key]).trim());
+
     if (missing.length) return `Missing fields: ${missing.join(", ")}`;
     if (!/^\d{4}$/.test(newCar.year)) return "Year must be 4 digits.";
+
     return null;
   };
 
   const handleAddCar = () => {
     const err = validateCar();
-    if (err) {
-      alert(err);
-      return;
-    }
+    if (err) return alert(err);
+
     setCars((prev) => [
       ...prev,
       { id: Date.now(), ...newCar, status: "Pending Admin Approval" },
     ]);
+
     setAddCarModalOpen(false);
     setNewCar({
       model: "",
@@ -185,6 +211,7 @@ function Dashboard() {
       image: "",
     });
     setPreviewImage(null);
+
     alert("Car submitted for admin approval.");
   };
 
@@ -193,114 +220,153 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
+  /* ======================================= */
+  /* MEMO */
+  /* ======================================= */
+
   const pendingCount = useMemo(
     () => cars.filter((c) => c.status === "Pending Admin Approval").length,
     [cars]
   );
 
+  /* ======================================= */
+  /* SECTION RENDERS */
+  /* ======================================= */
+
+  const renderOverview = () => (
+    <div className="content-box fade-in">
+      <h2>Dashboard Overview</h2>
+
+      <div className="overview-cards">
+        <div className="overview-card">
+          <h3>{cars.length}</h3>
+          <p>Total Cars</p>
+        </div>
+
+        <div className="overview-card">
+          <h3>$2,450</h3>
+          <p>Monthly Earnings</p>
+        </div>
+
+        <div className="overview-card">
+          <h3>{bookings.length}</h3>
+          <p>Active Bookings</p>
+        </div>
+
+        <div className="overview-card">
+          <h3>{pendingCount}</h3>
+          <p>Pending Approvals</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCars = () => (
+    <div className="content-box fade-in">
+      <h2>My Cars</h2>
+
+      <div className="car-grid">
+        {cars.map((car) => (
+          <div key={car.id} className="car-card">
+            <img src={car.image} alt={car.model} />
+
+            <h4>{car.model}</h4>
+            <p>
+              {car.year} • {car.type}
+            </p>
+            <p>Rent: {car.rent}</p>
+
+            <span
+              className={`badge ${
+                car.status === "Available" ? "status-available" : "status-pending"
+              }`}
+            >
+              {car.status}
+            </span>
+
+            <button className="btn primary" onClick={() => handleShowDetails(car)}>
+              View Details
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderBookings = () => (
+    <div className="content-box fade-in">
+      <h2>My Bookings</h2>
+
+      <div className="booking-grid">
+        {bookings.map((b) => (
+          <div key={b.id} className="booking-card">
+            <h4>{cars.find((c) => c.id === b.carId)?.model}</h4>
+
+            <p>
+              <strong>Customer:</strong> {b.customer}
+            </p>
+            <p>
+              <strong>Dates:</strong> {b.startDate} to {b.endDate}
+            </p>
+
+            <span className={`badge ${b.status.toLowerCase()}`}>{b.status}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderNotifications = () => (
+    <div className="content-box fade-in">
+      <h2>Notifications</h2>
+
+      <ul className="notification-list">
+        {notifications.map((n) => (
+          <li
+            key={n.id}
+            className={`notification-item ${n.read ? "read" : "unread"}`}
+          >
+            <p>{n.message}</p>
+            <small>{n.date}</small>
+
+            {!n.read && (
+              <button
+                className="btn primary"
+                onClick={() =>
+                  setNotifications((prev) =>
+                    prev.map((x) =>
+                      x.id === n.id ? { ...x, read: true } : x
+                    )
+                  )
+                }
+              >
+                Mark as Read
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   const renderSection = () => {
     switch (activeSection) {
       case "overview":
-        return (
-          <div className="content-box fade-in">
-            <h2>Dashboard Overview</h2>
-            <div className="overview-cards">
-              <div className="overview-card stat-glass">
-                <h3>{cars.length}</h3>
-                <p>Total Cars</p>
-              </div>
-              <div className="overview-card stat-glass">
-                <h3>$2,450</h3>
-                <p>Monthly Earnings</p>
-              </div>
-              <div className="overview-card stat-glass">
-                <h3>{bookings.length}</h3>
-                <p>Active Bookings</p>
-              </div>
-              <div className="overview-card stat-glass">
-                <h3>{pendingCount}</h3>
-                <p>Pending Approvals</p>
-              </div>
-            </div>
-          </div>
-        );
+        return renderOverview();
       case "cars":
-        return (
-          <div className="content-box fade-in">
-            <h2>My Cars</h2>
-            <div className="car-grid">
-              {cars.map((car) => (
-                <div className="car-card hover-lift" key={car.id}>
-                  <img src={car.image} alt={car.model} />
-                  <h4>{car.model}</h4>
-                  <p>{car.year} • {car.type}</p>
-                  <p>Rent: {car.rent}</p>
-                  <span
-                    className={
-                      car.status === "Available"
-                        ? "status-available badge"
-                        : "status-pending badge"
-                    }
-                  >
-                    {car.status}
-                  </span>
-                  <button
-                    className="btn detail-btn"
-                    onClick={() => handleShowDetails(car)}
-                  >
-                    View Details
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return renderCars();
       case "bookings":
-        return (
-          <div className="content-box fade-in">
-            <h2>My Bookings</h2>
-            <div className="booking-grid">
-              {bookings.map((b) => (
-                <div key={b.id} className="booking-card hover-lift">
-                  <h4>{cars.find((c) => c.id === b.carId)?.model}</h4>
-                  <p><strong>Customer:</strong> {b.customer}</p>
-                  <p><strong>Dates:</strong> {b.startDate} to {b.endDate}</p>
-                  <span className={`badge ${b.status.toLowerCase()}`}>{b.status}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return renderBookings();
       case "notifications":
-        return (
-          <div className="content-box fade-in">
-            <h2>Notifications</h2>
-            <ul className="notification-list">
-              {notifications.map((n) => (
-                <li key={n.id} className={`notification-item ${n.read ? "read" : "unread"}`}>
-                  <p>{n.message}</p>
-                  <small>{n.date}</small>
-                  {!n.read && (
-                    <button
-                      className="btn"
-                      onClick={() =>
-                        setNotifications((prev) =>
-                          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
-                        )
-                      }
-                    >
-                      Mark as Read
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
+        return renderNotifications();
       default:
         return <div className="content-box">Feature coming soon...</div>;
     }
   };
+
+  /* ======================================= */
+  /* MAIN RETURN */
+  /* ======================================= */
 
   return (
     <div className="dashboard-container">
@@ -309,71 +375,82 @@ function Dashboard() {
         <div className="brand" onClick={toggleSidebar}>
           {isSidebarCollapsed ? "🚗" : "GearUP"}
         </div>
+
         <ul>
           <li
             onClick={() => setActiveSection("overview")}
             className={activeSection === "overview" ? "active" : ""}
-            data-label="Overview"
           >
             📊 <span>Overview</span>
           </li>
+
           <li
             onClick={() => setActiveSection("cars")}
             className={activeSection === "cars" ? "active" : ""}
-            data-label="My Cars"
           >
             🚗 <span>My Cars</span>
           </li>
+
           <li
             onClick={() => setActiveSection("bookings")}
             className={activeSection === "bookings" ? "active" : ""}
-            data-label="Bookings"
           >
             📘 <span>Bookings</span>
           </li>
+
           <li
             onClick={() => setActiveSection("notifications")}
             className={activeSection === "notifications" ? "active" : ""}
-            data-label="Notifications"
           >
             🔔 <span>Notifications</span>
           </li>
+
           <li
             onClick={() => navigate("/documentation")}
             className={location.pathname === "/documentation" ? "active" : ""}
-            data-label="Car Documentation"
           >
             📖 <span>Car Documentation</span>
           </li>
+
           <li
             onClick={() => navigate("/settings")}
             className={location.pathname === "/settings" ? "active" : ""}
-            data-label="Settings"
           >
             ⚙️ <span>Settings</span>
           </li>
-          <li onClick={() => setProfileModalOpen(true)} data-label="Profile">
+
+          <li onClick={() => setProfileModalOpen(true)}>
             👤 <span>Profile</span>
           </li>
-          <li onClick={() => setAddCarModalOpen(true)} data-label="Add Car">
+
+          <li onClick={() => setAddCarModalOpen(true)}>
             ➕ <span>Add Car</span>
           </li>
         </ul>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <main className="main">{renderSection()}</main>
 
-      {/* Profile Modal */}
+      {/* ================================ */}
+      {/* PROFILE MODAL */}
+      {/* ================================ */}
       {isProfileModalOpen && (
         <div className="modal-overlay" onClick={() => setProfileModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Profile</h2>
+
             <div className="profile-modal-grid">
               <div className="image-upload-section">
                 <input type="file" accept="image/*" onChange={handleProfileImageUpload} />
-                <img src={profile.profileImage} alt="Profile" className="preview-image" />
+
+                <img
+                  src={profile.profileImage}
+                  alt="Profile"
+                  className="preview-image"
+                />
               </div>
+
               {Object.keys(profile).map((key) =>
                 key !== "profileImage" ? (
                   <input
@@ -386,11 +463,15 @@ function Dashboard() {
                 ) : null
               )}
             </div>
+
             <div className="modal-actions">
               <button className="btn primary" onClick={handleSaveProfile}>
                 Save
               </button>
-              <button className="btn cancel" onClick={() => setProfileModalOpen(false)}>
+              <button
+                className="btn cancel"
+                onClick={() => setProfileModalOpen(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -398,11 +479,14 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Add Car Modal */}
+      {/* ================================ */}
+      {/* ADD CAR MODAL */}
+      {/* ================================ */}
       {isAddCarModalOpen && (
         <div className="modal-overlay" onClick={() => setAddCarModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Car</h2>
+
             <div className="add-car-grid">
               {Object.keys(newCar).map((key) =>
                 key !== "image" && key !== "description" ? (
@@ -415,6 +499,7 @@ function Dashboard() {
                   />
                 ) : null
               )}
+
               <textarea
                 name="description"
                 value={newCar.description}
@@ -422,10 +507,12 @@ function Dashboard() {
                 placeholder="Description"
               />
             </div>
+
             <input type="file" accept="image/*" onChange={handleImageUpload} />
             {previewImage && (
               <img src={previewImage} alt="Preview" className="preview-image" />
             )}
+
             <div className="modal-actions">
               <button className="btn primary" onClick={handleAddCar}>
                 Submit
@@ -438,15 +525,23 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Car Detail Modal */}
+      {/* ================================ */}
+      {/* CAR DETAIL MODAL */}
+      {/* ================================ */}
       {isCarDetailOpen && selectedCar && (
         <div className="modal-overlay" onClick={() => setCarDetailOpen(false)}>
-          <div className="modal car-detail-modal fade-in" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal car-detail-modal fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="car-detail-header">
               <h2>{selectedCar.model}</h2>
+
               <span
                 className={`badge ${
-                  selectedCar.status === "Available" ? "status-available" : "status-pending"
+                  selectedCar.status === "Available"
+                    ? "status-available"
+                    : "status-pending"
                 }`}
               >
                 {selectedCar.status}
@@ -480,12 +575,10 @@ function Dashboard() {
             </div>
 
             <div className="modal-actions">
-              <button
-                className="btn secondary"
-                onClick={() => alert("Edit feature coming soon!")}
-              >
+              <button className="btn secondary" onClick={() => alert("Edit feature coming soon!")}>
                 ✏️ Edit Car
               </button>
+
               <button className="btn cancel" onClick={() => setCarDetailOpen(false)}>
                 Close
               </button>
