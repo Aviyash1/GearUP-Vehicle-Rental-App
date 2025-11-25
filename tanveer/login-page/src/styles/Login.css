@@ -13,7 +13,7 @@
   --ok: #27ae60;
 }
 
-/* ✅ Full-page background using src/assets/bg.jpeg */
+/* FULL SCREEN BACKGROUND */
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -22,26 +22,24 @@ body {
   color: var(--text);
 }
 
-/* ✅ Dark overlay for better readability */
+/* DARK OVERLAY */
 .login-container {
   position: relative;
   min-height: 100vh;
+  width: 100%;
   display: grid;
-  place-items: center;
+  place-items: center;      /* ❤️ CENTERS THE CARD PERFECTLY */
 }
 
 .login-container::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 0;
 }
 
-/* ✅ Form card styling */
+/* LOGIN CARD */
 .login-card {
   position: relative;
   z-index: 1;
@@ -53,27 +51,27 @@ body {
   max-width: 400px;
 }
 
-.login-card h2 {
+.login-title {
   margin-top: 0;
+  margin-bottom: 20px;
   color: var(--primary);
   font-family: Inika, serif;
   text-align: center;
 }
 
-.login-card form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.login-card input {
+/* INPUT STYLING */
+.input-field {
+  width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 15px;
+  margin-bottom: 15px;
 }
 
-.login-card button {
+/* BUTTON */
+.login-btn {
+  width: 100%;
   padding: 12px;
   border: none;
   border-radius: var(--radius);
@@ -85,59 +83,23 @@ body {
   transition: 0.2s ease;
 }
 
-.login-card button:hover {
+.login-btn:hover {
   background: var(--accent);
 }
 
-/* ✅ Messages & helper text */
-.msg {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 15px;
-  color: var(--ok);
-}
-
-.subtext {
-  text-align: center;
-  color: #555;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-/* ✅ Forgot / Back links */
-.forgot,
-.back {
-  margin-top: 10px;
-  text-align: right;
-}
-
-.forgot a,
-.back span {
-  color: var(--primary);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.forgot a:hover,
-.back span:hover {
-  text-decoration: underline;
-}
-
-/* ✅ Page switch links */
-.switch {
+/* SIGN-UP LINK */
+.login-link {
   text-align: center;
   margin-top: 15px;
   font-size: 14px;
 }
 
-.switch span {
+.login-link a {
   color: var(--primary);
   font-weight: 600;
-  cursor: pointer;
+  text-decoration: none;
 }
 
-.switch span:hover {
+.login-link a:hover {
   text-decoration: underline;
 }
