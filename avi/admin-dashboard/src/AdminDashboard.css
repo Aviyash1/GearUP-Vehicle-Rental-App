@@ -1,6 +1,5 @@
 /* AdminDashboard.css
-   Defines the full premium black and gold theme for the GearUP Admin Panel.
-   Ultra minimal, executive-grade, clean spacing, and subtle motions.
+   Black & Gold premium admin UI
 */
 
 :root {
@@ -11,221 +10,99 @@
   --admin-border: #1f1f1f;
 }
 
-/* Overall Layout */
 .admin-dashboard-container {
   display: flex;
   height: 100vh;
-  background: #000000;
+  background: #000;
 }
 
-/* Sidebar Navigation */
+/* Sidebar */
 .admin-sidebar {
   width: 240px;
-  background: var(--admin-bg);
   padding: 30px 20px;
   border-right: 1px solid var(--admin-border);
 }
-
 .admin-brand {
   color: var(--admin-primary);
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 40px;
 }
-
-.admin-sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
 .admin-sidebar li {
   padding: 12px 15px;
   margin-bottom: 12px;
   cursor: pointer;
   color: var(--admin-text);
-  border-left: 3px solid transparent;
-  transition: 0.2s;
 }
-
-.admin-sidebar li:hover {
-  background: #0f0f0f;
-}
-
 .admin-sidebar li.active {
   border-left: 3px solid var(--admin-primary);
-  background: #111111;
+  background: #111;
   font-weight: 600;
 }
 
-/* Main Panel */
+/* Main */
 .admin-main {
   flex: 1;
-  padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* Top Header */
+/* Top header */
 .admin-top-header {
-  background: #0a0a0a;
   padding: 20px 30px;
+  background: #0a0a0a;
   border-bottom: 1px solid var(--admin-border);
 }
-
 .admin-top-header h1 {
-  margin: 0;
   color: var(--admin-primary);
-  font-size: 1.5rem;
-  font-weight: 600;
 }
 
-/* Section Box */
+/* Content section */
 .admin-content-box {
+  margin: 30px;
+  padding: 30px;
+  border-radius: 10px;
   background: #0b0b0b;
   border: 1px solid var(--admin-border);
-  border-radius: 10px;
-  padding: 30px;
-  margin: 30px;
   color: var(--admin-text);
-}
-
-/* Header inside section */
-.admin-heading {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: var(--admin-primary);
-}
-
-.admin-subheading {
-  margin: 8px 0 15px;
-  font-size: 0.95rem;
-  color: #cccccc;
 }
 
 .admin-divider {
   height: 2px;
-  width: 100%;
   background: var(--admin-primary);
-  margin-bottom: 25px;
   opacity: 0.3;
+  margin: 20px 0;
 }
 
-/* Overview Cards */
 .admin-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
 }
-
 .admin-card {
   background: var(--admin-card-bg);
   padding: 25px;
   border-radius: 10px;
   border-bottom: 3px solid var(--admin-primary);
   text-align: center;
-  transition: transform 0.2s ease;
+  transition: 0.2s;
 }
-
 .admin-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
-.admin-card h3 {
-  margin: 0;
-  font-size: 2rem;
-  color: var(--admin-primary);
-}
-
-/* Item Blocks */
+/* Items */
 .admin-item {
-  background: #0d0d0d;
-  border: 1px solid var(--admin-border);
-  padding: 18px;
-  border-radius: 10px;
   display: flex;
-  align-items: center;
-  margin-bottom: 15px;
   justify-content: space-between;
-  transition: all 0.3s ease;
-  color: var(--admin-text);
-  align-items: center;
-}
-
-/* Slide-out Animation */
-.slide-out {
-  opacity: 0;
-  transform: translateX(40px) scale(0.95);
-}
-
-/* Larger, clean, non-cropped premium car images */
-.admin-thumb {
-  width: 200px;
-  height: auto;
+  padding: 18px;
+  background: var(--admin-card-bg);
   border-radius: 10px;
-  object-fit: contain;
-  margin-right: 25px;
+  border: 1px solid var(--admin-border);
+  margin-bottom: 15px;
 }
 
-/* Buttons */
-.approve-btn, .deny-btn {
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  background: #000000;
-  transition: 0.25s;
-}
-
-.approve-btn {
-  border: 2px solid var(--admin-primary);
-  color: var(--admin-primary);
-}
-
-.approve-btn:hover {
-  background: var(--admin-primary);
-  color: #000000;
-}
-
-.deny-btn {
-  border: 2px solid #7a0000;
-  color: #ff4444;
-}
-
-.deny-btn:hover {
-  background: #7a0000;
-  color: white;
-}
-
-/* Subtle Fade-Up Animation for Sections */
-.fade-up {
-  animation: fadeUp 0.25s ease;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mobile Responsive */
-@media (max-width: 900px) {
-  .admin-dashboard-container {
-    flex-direction: column;
-  }
-
-  .admin-sidebar {
-    width: 100%;
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .admin-sidebar ul {
-    display: flex;
-    gap: 10px;
-  }
-
-}
-/* Notification badge */
+/* Notifications */
 .notif-badge {
   display: inline-block;
   width: 10px;
@@ -235,13 +112,47 @@
   margin-left: 8px;
 }
 
-/* Notification item */
 .admin-notification-item {
-  background: #0d0d0d;
   padding: 18px;
+  background: #111;
   border-radius: 10px;
   border: 1px solid var(--admin-border);
   margin-bottom: 12px;
 }
 
+/* Buttons */
+.admin-actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.approve-btn {
+  border: 2px solid var(--admin-primary);
+  color: var(--admin-primary);
+}
+.approve-btn:hover {
+  background: var(--admin-primary);
+  color: #000;
+}
+.deny-btn {
+  border: 2px solid #7a0000;
+  color: #ff4444;
+}
+.deny-btn:hover {
+  background: #7a0000;
+  color: white;
+}
 
+/* Animations */
+.slide-out {
+  opacity: 0;
+  transform: translateX(40px) scale(0.95);
+}
+.fade-up {
+  animation: fadeUp 0.25s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

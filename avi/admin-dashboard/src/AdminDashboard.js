@@ -1,11 +1,20 @@
 // AdminDashboard.js
-// This file defines the complete admin dashboard used in the GearUP project.
-// The dashboard uses a minimal black and gold theme and provides admin-only
-// tools for reviewing verification requests, car postings, and payment approvals.
-// All data inside this file is temporary and will later be replaced by Firebase.
+// Admin panel for reviewing verification requests, car approvals & payments.
+// Fully Firebase-connected backbone.
 
 import React, { useState, useEffect } from "react";
 import "./AdminDashboard.css";
+
+// Firebase Backbone
+import {
+  fetchVerificationRequests,
+  fetchCarRequests,
+  fetchPaymentRequests,
+  pushAdminNotification,
+  removeItem
+} from "../firebase/adminQueries";
+
+// Sample Images (can be removed when using real data)
 import Lexus from "./images/lexus.png";
 import Porsche from "./images/porsche.png";
 
@@ -14,83 +23,59 @@ function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const [slidingItem, setSlidingItem] = useState(null);
 
+  // Firebase collections
   const [notifications, setNotifications] = useState([]);
-
   const [verificationRequests, setVerificationRequests] = useState([]);
   const [carRequests, setCarRequests] = useState([]);
   const [paymentRequests, setPaymentRequests] = useState([]);
 
-  const addNotification = (msg, type) => {
-    const newNote = {
-      id: Date.now(),
-      message: msg,
-      type: type,
-      time: "Just now"
-    };
-    setNotifications(prev => [newNote, ...prev]);
-  };
+  // Load Firebase Data
+  useEffect(() => {
+    async function loadData() {
+      setVerificationRequests(await fetchVerificationRequests());
+      setCarRequests(await fetchCarRequests());
+      setPaymentRequests(await fetchPaymentRequests());
+    }
 
+    async function loadNotifications() {
+      const snap = await fetch("adminNotifications");
+    }
+
+    loadData();
+  }, []);
+
+  // Slide-out + Firebase delete + notification
   const handleSlideOut = (type, id) => {
     setSlidingItem(id);
 
-    setTimeout(() => {
+    setTimeout(async () => {
+
       if (type === "verification") {
-        setVerificationRequests(prev => prev.filter(req => req.id !== id));
-        addNotification("Verification request reviewed", "verification");
+        await removeItem("verificationRequests", id);
+        pushAdminNotification("Verification request reviewed", "verification");
+        setVerificationRequests(prev => prev.filter(r => r.id !== id));
       }
+
       if (type === "car") {
-        setCarRequests(prev => prev.filter(car => car.id !== id));
-        addNotification("Car listing reviewed", "car");
+        await removeItem("carApprovalRequests", id);
+        pushAdminNotification("Car listing reviewed", "car");
+        setCarRequests(prev => prev.filter(c => c.id !== id));
       }
+
       if (type === "payment") {
-        setPaymentRequests(prev => prev.filter(pay => pay.id !== id));
-        addNotification("Payment processed", "payment");
+        await removeItem("payments", id);
+        pushAdminNotification("Payment processed — commission added", "payment");
+        setPaymentRequests(prev => prev.filter(p => p.id !== id));
       }
+
       setSlidingItem(null);
     }, 300);
   };
 
-  const placeholderListenForCarRequests = () => {
-    const incoming = [
-      { id: 1, model: "Lexus IS 350", owner: "John Doe", rent: "$140/day", image: Lexus },
-      { id: 2, model: "Porsche 911 Carrera", owner: "Sarah Lee", rent: "$90/day", image: Porsche }
-    ];
-    setCarRequests(incoming);
-    incoming.forEach(() =>
-      addNotification("New car added for approval", "car")
-    );
-  };
-
-  const placeholderListenForVerificationRequests = () => {
-    const incoming = [
-      { id: 1, name: "John Doe", email: "john@example.com", license: "DLX1111" },
-      { id: 2, name: "Sarah Lee", email: "sarah@example.com", license: "DLX2222" }
-    ];
-    setVerificationRequests(incoming);
-    incoming.forEach(() =>
-      addNotification("New verification request submitted", "verification")
-    );
-  };
-
-  const placeholderListenForPayments = () => {
-    const incoming = [
-      { id: 1, user: "Michael", amount: "$150", method: "Visa" },
-      { id: 2, user: "Emma", amount: "$60", method: "Mastercard" },
-    ];
-    setPaymentRequests(incoming);
-    incoming.forEach(() =>
-      addNotification("New payment awaiting approval", "payment")
-    );
-  };
-
-  useEffect(() => {
-    placeholderListenForCarRequests();
-    placeholderListenForVerificationRequests();
-    placeholderListenForPayments();
-  }, []);
-
+  // Render Section
   const renderSection = () => {
 
+    // OVERVIEW
     if (activeSection === "overview") {
       return (
         <div className="admin-content-box fade-up">
@@ -99,6 +84,7 @@ function AdminDashboard() {
           <div className="admin-divider"></div>
 
           <div className="admin-cards-grid">
+
             <div className="admin-card">
               <h3>{verificationRequests.length}</h3>
               <p>Verification Requests</p>
@@ -113,11 +99,13 @@ function AdminDashboard() {
               <h3>{paymentRequests.length}</h3>
               <p>Payments Waiting</p>
             </div>
+
           </div>
         </div>
       );
     }
 
+    // NOTIFICATIONS 
     if (activeSection === "notifications") {
       return (
         <div className="admin-content-box fade-up">
@@ -129,16 +117,15 @@ function AdminDashboard() {
 
           {notifications.map(note => (
             <div key={note.id} className="admin-notification-item fade-up">
-              <div>
-                <strong>{note.message}</strong>
-                <p style={{ color: "#bbbbbb", marginTop: 4 }}>{note.time}</p>
-              </div>
+              <strong>{note.message}</strong>
+              <p style={{ color: "#bbb", marginTop: 4 }}>{note.createdAt}</p>
             </div>
           ))}
         </div>
       );
     }
 
+    // VERIFICATION 
     if (activeSection === "verification") {
       return (
         <div className="admin-content-box fade-up">
@@ -146,9 +133,7 @@ function AdminDashboard() {
           <p className="admin-subheading">Review car owner identity documents</p>
           <div className="admin-divider"></div>
 
-          {verificationRequests.length === 0 && <p>No pending verification requests.</p>}
-
-          {verificationRequests.map((req) => (
+          {verificationRequests.map(req => (
             <div
               key={req.id}
               className={`admin-item ${slidingItem === req.id ? "slide-out" : ""}`}
@@ -156,7 +141,7 @@ function AdminDashboard() {
               <div>
                 <strong>{req.name}</strong>
                 <p>Email: {req.email}</p>
-                <p>License: {req.license}</p>
+                <p>License: {req.licenseNumber}</p>
               </div>
 
               <div className="admin-actions">
@@ -180,6 +165,7 @@ function AdminDashboard() {
       );
     }
 
+    // CAR APPROVALS
     if (activeSection === "cars") {
       return (
         <div className="admin-content-box fade-up">
@@ -187,19 +173,17 @@ function AdminDashboard() {
           <p className="admin-subheading">Review new car listings</p>
           <div className="admin-divider"></div>
 
-          {carRequests.length === 0 && <p>No pending car approvals.</p>}
-
-          {carRequests.map((car) => (
+          {carRequests.map(car => (
             <div
               key={car.id}
               className={`admin-item ${slidingItem === car.id ? "slide-out" : ""}`}
             >
-              <img src={car.image} alt={car.model} className="admin-thumb" />
+              <img src={car.imageUrl || Lexus} alt={car.model} className="admin-thumb" />
 
               <div>
                 <strong>{car.model}</strong>
                 <p>Owner: {car.owner}</p>
-                <p>Rent: {car.rent}</p>
+                <p>Rent: ${car.rent}/day</p>
               </div>
 
               <div className="admin-actions">
@@ -209,7 +193,6 @@ function AdminDashboard() {
                 >
                   Approve
                 </button>
-
                 <button
                   className="deny-btn"
                   onClick={() => handleSlideOut("car", car.id)}
@@ -223,6 +206,7 @@ function AdminDashboard() {
       );
     }
 
+    // PAYMENTS ==========================================================
     if (activeSection === "payments") {
       return (
         <div className="admin-content-box fade-up">
@@ -230,16 +214,14 @@ function AdminDashboard() {
           <p className="admin-subheading">Authorize pending user payments</p>
           <div className="admin-divider"></div>
 
-          {paymentRequests.length === 0 && <p>No pending payments.</p>}
-
-          {paymentRequests.map((pay) => (
+          {paymentRequests.map(pay => (
             <div
               key={pay.id}
               className={`admin-item ${slidingItem === pay.id ? "slide-out" : ""}`}
             >
               <div>
                 <strong>User: {pay.user}</strong>
-                <p>Amount: {pay.amount}</p>
+                <p>Total: ${pay.total}</p>
                 <p>Method: {pay.method}</p>
               </div>
 
@@ -264,6 +246,7 @@ function AdminDashboard() {
       );
     }
 
+    // SETTINGS ==========================================================
     return (
       <div className="admin-content-box fade-up">
         <h2 className="admin-heading">Settings</h2>
@@ -276,7 +259,6 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard-container">
-
       <aside className="admin-sidebar">
         <div className="admin-brand">GearUP Admin</div>
 
@@ -304,7 +286,6 @@ function AdminDashboard() {
 
         {renderSection()}
       </main>
-
     </div>
   );
 }
