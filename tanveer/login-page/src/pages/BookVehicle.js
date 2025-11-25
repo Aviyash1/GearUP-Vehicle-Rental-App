@@ -1,6 +1,8 @@
 // src/pages/BookVehicle.js
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { auth, db } from "../firebaseConfig";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 import "../styles/BookVehicle.css";
 
 export default function BookVehicle() {
@@ -29,7 +31,7 @@ export default function BookVehicle() {
 
   const calculateTotal = () => {
     if (!startDate || !endDate) {
-      alert("Please select both start and end dates.");
+      alert("Please select both dates!");
       return;
     }
 
@@ -38,35 +40,77 @@ export default function BookVehicle() {
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
     if (diffDays <= 0) {
-      alert("End date must be after start date.");
+      alert("End date must be after start date!");
       return;
     }
 
     setTotal(diffDays * vehicle.price);
   };
 
-  const handleCheckout = () => {
-    if (!startDate || !endDate || !pickupTime || !dropoffTime) {
-      alert("Please fill all dates and times before checkout.");
+  const handleCheckout = async () => {
+    if (!pickupTime || !dropoffTime) {
+      alert("Please select pickup and drop-off times!");
       return;
     }
 
     if (!total) {
-      alert("Please calculate the total before proceeding.");
+      alert("Please calculate total before proceeding.");
       return;
     }
 
-    // 🔥 Only navigate – booking will be saved in PaymentPage after payment success
-    navigate("/payment", {
-      state: {
-        vehicle,
-        total,
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please log in first.");
+      navigate("/");
+      return;
+    }
+
+    try {
+      // Create booking document
+      const bookingId = Date.now().toString();
+
+      const bookingData = {
+        userId: user.uid,
+        vehicleName: vehicle.name,
+        vehicleImg: vehicle.img || "",    // 🔥 store image for MyBookings
         startDate,
         endDate,
         pickupTime,
         dropoffTime,
-      },
-    });
+        totalCost: total,
+        status: "Confirmed",
+        createdAt: new Date().toISOString(),
+      };
+
+      await setDoc(doc(db, "bookings", bookingId), bookingData);
+
+      // Create notification for this user
+      await addDoc(collection(db, "notifications"), {
+        userId: user.uid,
+        bookingId,
+        type: "BOOKING_CONFIRMED",
+        title: "Booking Confirmed",
+        message: `Your booking for ${vehicle.name} from ${startDate} to ${endDate} is confirmed.`,
+        read: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Go to payment
+      navigate("/payment", {
+        state: {
+          vehicle,
+          total,
+          startDate,
+          endDate,
+          pickupTime,
+          dropoffTime,
+          bookingId,
+        },
+      });
+    } catch (err) {
+      console.error("Error creating booking:", err);
+      alert("Something went wrong while creating your booking.");
+    }
   };
 
   return (
@@ -77,7 +121,6 @@ export default function BookVehicle() {
         <p className="book-type">{vehicle.type}</p>
         <p className="book-price">NZ${vehicle.price}/day</p>
 
-        {/* Dates */}
         <div className="date-row">
           <div className="date-field">
             <label>Start Date</label>
@@ -97,7 +140,6 @@ export default function BookVehicle() {
           </div>
         </div>
 
-        {/* Times */}
         <div className="date-row">
           <div className="date-field">
             <label>Pickup Time</label>

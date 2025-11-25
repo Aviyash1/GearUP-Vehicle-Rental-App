@@ -15,10 +15,8 @@ import PaymentPage from "./pages/PaymentPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import MyBookings from "./pages/MyBookings";
 import MyProfile from "./pages/MyProfile";
-
-import ProtectedRoute from "./components/ProtectedRoute";
-
-export default function App() {
+import Notifications from "./pages/Notifications";
+function App() {
   return (
     <Router>
       <Routes>
@@ -26,84 +24,14 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/reset" element={<ResetPassword />} />
-
-        {/* USER */}
-        <Route
-          path="/Dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["User"]}>
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/vehicles"
-          element={
-            <ProtectedRoute allowedRoles={["User"]}>
-              <Vehicles />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/book/:vehicleName"
-          element={
-            <ProtectedRoute allowedRoles={["User"]}>
-              <BookVehicle />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/payment"
-          element={
-            <ProtectedRoute allowedRoles={["User"]}>
-              <PaymentPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/my-bookings"
-          element={
-            <ProtectedRoute allowedRoles={["User"]}>
-              <MyBookings />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* CAR OWNER */}
-        {/* <Route */}
-          {/* path="/carowner-dashboard" */}
-          {/* element={ */}
-            {/* <ProtectedRoute allowedRoles={["CarOwner"]}> */}
-              {/* <CarOwnerDashboard /> */}
-            {/* </ProtectedRoute> */}
-          {/* } */}
-        {/* /> */}
-
-        {/* ADMIN */}
-        {/* <Route */}
-          {/* path="/admin-dashboard" */}
-          {/* element={ */}
-            {/* <ProtectedRoute allowedRoles={["Admin"]}> */}
-              {/* <AdminDashboard /> */}
-            {/* </ProtectedRoute> */}
-          {/* } */}
-        {/* /> */}
-
-        {/* SHARED */}
-        {/* <Route */}
-          {/* path="/my-profile" */}
-          {/* element={ */}
-            {/* <ProtectedRoute allowedRoles={["User", "CarOwner", "Admin"]}> */}
-              {/* <MyProfile /> */}
-            {/* </ProtectedRoute> */}
-          }
-        {/* /> */}
-
-        <Route path="/unauthorized" element={<h2>Access Denied</h2>} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/vehicles" element={<Vehicles />} /> {/*  Browse vehicles page */}
+        <Route path="/book/:vehicleName" element={<BookVehicle />} />
+        <Route path="/payment" element={<PaymentPage />} />
+<Route path="/feedback" element={<FeedbackPage />} />
+  <Route path="/my-bookings" element={<MyBookings />} />
+  <Route path="/my-profile" element={<MyProfile />} />
+  <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </Router>
   );
