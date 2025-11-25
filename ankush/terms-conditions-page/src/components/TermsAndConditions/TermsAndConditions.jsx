@@ -13,7 +13,7 @@ const TermsAndConditions = () => {
 
         <h2>1. Acceptance of Terms</h2>
         <p>
-          By using the GearUP Vehicle Rental Platform, you agree to these Terms &
+          By using the GearUP, you agree to these Terms &
           Conditions. If you do not agree, you may not use the platform.
         </p>
 
