@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inika:wght@400;700&family=Inter:wght@400;500;600;700&display=swap");
-
+ 
 :root {
   --primary: #1f4e79;
   --accent: #5dade2;
@@ -12,8 +12,8 @@
   --error: #c0392b;
   --ok: #27ae60;
 }
-
-/* FULL SCREEN BACKGROUND */
+ 
+/* Full-screen background */
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -21,58 +21,64 @@ body {
   background-size: cover;
   color: var(--text);
 }
-
-/* DARK OVERLAY */
-.login-container {
-  position: relative;
-  min-height: 100vh;
+ 
+/* Wrapper to center the card */
+.login-page {
+  height: 100vh;
   width: 100%;
-  display: grid;
-  place-items: center;      /* ❤️ CENTERS THE CARD PERFECTLY */
+  display: flex;
+  justify-content: center;    /* center horizontally */
+  align-items: center;        /* center vertically */
+  position: relative;
 }
-
-.login-container::before {
+ 
+/* Dark overlay for readability */
+.login-page::before {
   content: "";
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 0;
 }
-
+ 
 /* LOGIN CARD */
 .login-card {
   position: relative;
   z-index: 1;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.95);
   padding: 40px;
-  border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
-  width: 100%;
-  max-width: 400px;
+  border-radius: 16px;
+  width: 380px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+ 
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* centers button + text */
+  gap: 15px;               /* clean spacing */
 }
-
-.login-title {
+ 
+/* Title */
+.login-card h2 {
   margin-top: 0;
-  margin-bottom: 20px;
   color: var(--primary);
   font-family: Inika, serif;
   text-align: center;
 }
-
-/* INPUT STYLING */
-.input-field {
+ 
+/* Inputs (full width) */
+.login-card input {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 15px;
-  margin-bottom: 15px;
 }
-
-/* BUTTON */
-.login-btn {
-  width: 100%;
+ 
+/* Login Button */
+.login-card button {
   padding: 12px;
+  width: 60%;              /* centered-sized button */
+  margin: 0 auto;          /* center horizontally */
   border: none;
   border-radius: var(--radius);
   background: var(--primary);
@@ -82,24 +88,60 @@ body {
   cursor: pointer;
   transition: 0.2s ease;
 }
-
-.login-btn:hover {
+ 
+.login-card button:hover {
   background: var(--accent);
 }
-
-/* SIGN-UP LINK */
-.login-link {
+ 
+/* Helper text */
+.msg {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--ok);
+}
+ 
+.subtext {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+ 
+/* Forgot password */
+.forgot,
+.back {
+  width: 100%;
+  text-align: right;
+}
+ 
+.forgot a,
+.back span {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+ 
+.forgot a:hover,
+.back span:hover {
+  text-decoration: underline;
+}
+ 
+/* Sign Up link */
+.switch {
+  text-align: center;
+  margin-top: 10px;
   font-size: 14px;
 }
-
-.login-link a {
+ 
+.switch span {
   color: var(--primary);
   font-weight: 600;
-  text-decoration: none;
+  cursor: pointer;
 }
-
-.login-link a:hover {
+ 
+.switch span:hover {
   text-decoration: underline;
 }
