@@ -13,6 +13,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import MyBookings from "./pages/MyBookings";
 import MyProfile from "./pages/MyProfile";
 import Notifications from "./pages/Notifications";
+import Favorites from "./pages/Favorites";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/my-bookings" element={<MyBookings />} />
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/favorites" element={<Favorites />} />
       </Routes>
     </Router>
   );
