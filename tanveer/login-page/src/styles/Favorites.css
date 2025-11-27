@@ -1,0 +1,184 @@
+/* ================================
+   PAGE BACKGROUND (same pattern as bookings)
+================================ */
+.favorites-page {
+  min-height: 100vh;
+  background: url("../assets/bg.jpeg") no-repeat center center / cover;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+}
+
+/* ================================
+   MAIN WHITE CONTAINER
+================================ */
+.favorites-container {
+  width: 85%;
+  max-width: 1100px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  padding: 40px 50px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ================================
+   TITLE
+================================ */
+.favorites-title {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 700;
+  color: #0a335c;
+  margin-bottom: 32px;
+}
+
+/* ================================
+   LOADING / EMPTY
+================================ */
+.favorites-loading,
+.no-favorites {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  padding: 20px;
+}
+
+/* ================================
+   LIST + ITEM CARDS
+================================ */
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.favorite-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.16);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.favorite-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* IMAGE (left) */
+.favorite-image {
+  width: 150px;
+  height: 100px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* INFO (middle) */
+.favorite-info {
+  flex: 1;
+}
+
+.favorite-info h2 {
+  margin: 0 0 6px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0a335c;
+}
+
+.favorite-info p {
+  margin: 3px 0;
+  font-size: 16px;
+  color: #444;
+}
+
+/* ACTION BUTTONS (right) */
+.favorite-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.view-btn,
+.remove-btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Same blue as your other primary buttons */
+.view-btn {
+  background: #0b3d73;
+  color: #ffffff;
+}
+
+.view-btn:hover {
+  background: #0e4c8f;
+}
+
+/* Red for destructive remove */
+.remove-btn {
+  background: #d43535;
+  color: #ffffff;
+}
+
+.remove-btn:hover {
+  background: #b32c2c;
+}
+
+/* ================================
+   BACK BUTTON (bottom)
+================================ */
+.back-btn {
+  margin-top: 30px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #c71f1f;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: #a71a1a;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .favorites-container {
+    width: 92%;
+    padding: 24px 18px;
+  }
+
+  .favorite-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .favorite-image {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+  }
+
+  .favorite-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+}

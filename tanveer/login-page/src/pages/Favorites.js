@@ -1,65 +1,145 @@
+// src/pages/FavoriteVehicles.js
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebaseConfig";
-import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/Favorites.css";
 
-export default function Favorites() {
-  const [favs, setFavs] = useState([]);
+const FavoriteVehicles = () => {
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
+  // Load favorites for current user
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
+    const fetchFavorites = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-    const favRef = collection(db, "users", user.uid, "favorites");
+      try {
+        const favRef = collection(db, "favorites");
+        const q = query(favRef, where("userId", "==", user.uid));
+        const snap = await getDocs(q);
 
-    const unsub = onSnapshot(favRef, (snap) => {
-      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setFavs(data);
-    });
+        const data = snap.docs.map((d) => ({
+          id: d.id,      // document id in favorites
+          ...d.data(),   // { vehicleId, name, price, img, type, createdAt }
+        }));
 
-    return () => unsub();
+        setFavorites(data);
+      } catch (err) {
+        console.error("Error loading favorites:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
   }, []);
 
-  const removeFavorite = async (id) => {
-    const user = auth.currentUser;
-    await deleteDoc(doc(db, "users", user.uid, "favorites", id));
+  const handleRemove = async (fav) => {
+    if (!window.confirm("Remove this vehicle from your favorites?")) return;
+
+    try {
+      await deleteDoc(doc(db, "favorites", fav.id));
+      setFavorites((prev) => prev.filter((f) => f.id !== fav.id));
+    } catch (err) {
+      console.error("Error removing favorite:", err);
+      alert("Could not remove favorite. Please try again.");
+    }
   };
+
+  const handleView = (fav) => {
+    // Optional: send the vehicle to BookVehicle page (or Vehicles detail)
+    navigate("/book/" + encodeURIComponent(fav.name || "vehicle"), {
+      state: {
+        vehicle: {
+          name: fav.name,
+          price: fav.price,
+          img: fav.img,
+          type: fav.type || "Car",
+        },
+      },
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="favorites-page">
+        <div className="favorites-container">
+          <h1 className="favorites-title">My Favorite Vehicles</h1>
+          <p className="favorites-loading">Loading your favorites...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="favorites-page">
-      <h1 className="favorites-title">My Favorite Vehicles</h1>
+      <div className="favorites-container">
+        <h1 className="favorites-title">My Favorite Vehicles</h1>
 
-      {favs.length === 0 ? (
-        <p className="no-fav">You have no favorites yet ❤️</p>
-      ) : (
-        <div className="favorites-grid">
-          {favs.map((v) => (
-            <div className="favorite-card" key={v.id}>
-              <img src={v.img} alt={v.name} className="favorite-img" />
+        {favorites.length === 0 ? (
+          <p className="no-favorites">
+            You haven’t added any favorites yet. Browse vehicles and tap the heart
+            icon to save them here.
+          </p>
+        ) : (
+          <div className="favorites-list">
+            {favorites.map((fav) => (
+              <div className="favorite-card" key={fav.id}>
+                {/* Vehicle image on the left */}
+                {fav.img && (
+                  <img
+                    src={fav.img}
+                    alt={fav.name}
+                    className="favorite-image"
+                  />
+                )}
 
-              <h2>{v.name}</h2>
-              <p>{v.type}</p>
-              <p>NZ${v.price}/day</p>
+                {/* Info in the middle */}
+                <div className="favorite-info">
+                  <h2>{fav.name}</h2>
+                  <p>
+                    <strong>Type:</strong> {fav.type || "Vehicle"}
+                  </p>
+                  <p>
+                    <strong>Price:</strong> NZ${fav.price}/day
+                  </p>
+                </div>
 
-              <div className="fav-actions">
-                <button
-                  className="remove-btn"
-                  onClick={() => removeFavorite(v.id)}
-                >
-                  Remove
-                </button>
-
-                <button
-                  className="book-btn"
-                  onClick={() => (window.location.href = `/book/${v.name}`)}
-                >
-                  Book Now
-                </button>
+                {/* Actions on the right */}
+                <div className="favorite-actions">
+                  <button
+                    className="view-btn"
+                    onClick={() => handleView(fav)}
+                  >
+                    View / Book
+                  </button>
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemove(fav)}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+
+        <button
+          className="back-btn"
+          onClick={() => navigate("/dashboard")}
+        >
+          ← Back to Dashboard
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default FavoriteVehicles;

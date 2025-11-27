@@ -168,6 +168,21 @@
   transition: all 0.3s ease;
 }
 
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.fav-btn.active {
+  transform: scale(1.15);
+}
+
+
 .back-btn:hover {
   background: #c92a3b;
 }

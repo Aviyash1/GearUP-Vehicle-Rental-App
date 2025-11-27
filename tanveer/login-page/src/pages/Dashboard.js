@@ -54,6 +54,25 @@ export default function Dashboard() {
           <button className="primary-btn">Explore Now</button>
         </div>
 
+        {/* FAVORITES CARD */}
+{/* FAVORITES CARD */}
+<div className="card" onClick={() => navigate("/favorites")}>
+  <div className="icon">❤️</div>
+  <h3>Favorites</h3>
+  <p>Your saved vehicles in one place.</p>
+
+  <button
+    className="primary-btn"
+    onClick={(e) => {
+      e.stopPropagation();  // prevents whole card click
+      navigate("/favorites");
+    }}
+  >
+    View Favorites
+  </button>
+</div>
+
+
         <div className="card" onClick={() => navigate("/my-bookings")}>
           <div className="icon"><FaClipboardList /></div>
           <h3>My Bookings</h3>
