@@ -144,7 +144,7 @@ body {
 }
 
 .status-available { background: #ecfdf5; color: #15803d; }
-.status-pending { background: #fff7ed; color: #b45309; }
+.status-pending   { background: #fff7ed; color: #b45309; }
 
 /* ======================================= */
 /* MODALS                                   */
@@ -168,7 +168,6 @@ body {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Car Detail Modal */
 .car-detail-modal {
   width: 750px;
 }
@@ -205,14 +204,12 @@ body {
   gap: 16px;
 }
 
-/* Description takes full width */
 .add-car-grid textarea {
   grid-column: span 3;
   min-height: 90px;
   resize: none;
 }
 
-/* File upload preview */
 .preview-image {
   margin-top: 16px;
   width: 100%;
@@ -253,18 +250,11 @@ textarea:focus {
   font-weight: 600;
 }
 
-.btn.primary { background: var(--primary); color: white; }
+.btn.primary   { background: var(--primary); color: white; }
 .btn.primary:hover { background: var(--primary-hover); }
 
-.btn.cancel {
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.btn.secondary {
-  background: #dbeafe;
-  color: #2563eb;
-}
+.btn.cancel    { background: #e2e8f0; color: #475569; }
+.btn.secondary { background: #dbeafe; color: #2563eb; }
 
 /* ======================================= */
 /* ANIMATIONS                               */

@@ -1,77 +1,44 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { auth } from "./firebaseConfig";
-
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Settings from "./Settings";
 import Documentation from "./Documentation";
-import Login from "./Login";
-import Register from "./Register";
-
-function ProtectedRoute({ children }) {
-  const [loading, setLoading] = useState(true);
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const unsub = auth.onAuthStateChanged((user) => {
-      setLoggedIn(!!user);
-      setLoading(false);
-    });
-    return unsub;
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  return loggedIn ? children : <Navigate to="/" replace />;
-}
+import "./App.css"; // Global styles
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Dashboard is the main route */}
+        <Route path="/" element={<Dashboard />} />
 
-        {/* Auth routes */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Settings page */}
+        <Route path="/settings" element={<Settings />} />
 
-        {/* Protected */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        {/* Documentation page */}
+        <Route path="/documentation" element={<Documentation />} />
 
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/documentation"
-          element={
-            <ProtectedRoute>
-              <Documentation />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Fallback */}
+        {/* Fallback for unknown routes */}
         <Route
           path="*"
           element={
-            <div style={{ textAlign: "center", padding: "50px" }}>
+            <div style={{ padding: "50px", textAlign: "center" }}>
               <h2>404 - Page Not Found</h2>
-              <a href="/">← Back to Login</a>
+              <p>The page you’re looking for doesn’t exist.</p>
+              <a
+                href="/"
+                style={{
+                  display: "inline-block",
+                  marginTop: "20px",
+                  color: "#007bff",
+                  fontWeight: "bold",
+                }}
+              >
+                ← Back to Dashboard
+              </a>
             </div>
           }
         />
-
       </Routes>
     </Router>
   );

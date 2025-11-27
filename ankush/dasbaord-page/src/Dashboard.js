@@ -1,32 +1,11 @@
-// Dashboard.js
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { auth, db, storage } from "./firebaseConfig";
-
-import {
-  ref,
-  onValue,
-  set,
-  push,
-  update,
-} from "firebase/database";
-
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
-
 import "./Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const uid = auth.currentUser?.uid;
 
-  // -----------------------------
-  // STATE
-  // -----------------------------
   const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -35,15 +14,84 @@ function Dashboard() {
   const [isCarDetailOpen, setCarDetailOpen] = useState(false);
 
   const [selectedCar, setSelectedCar] = useState(null);
-  const [profile, setProfile] = useState({});
-  const [cars, setCars] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-
   const [previewImage, setPreviewImage] = useState(null);
-  const [newCarImageFile, setNewCarImageFile] = useState(null);
+  const [lastBlobUrl, setLastBlobUrl] = useState(null);
 
-  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profile, setProfile] = useState({
+    name: "Tanveer Singh",
+    email: "TS@gmail.com",
+    phone: "+64 9876543210",
+    address: "350 Queen Street",
+    city: "Auckland",
+    country: "New Zealand",
+    license: "EF56////7890",
+    bank: "Bank of New Zealand",
+    account: "****5678",
+    profileImage: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+  });
+
+  const [cars, setCars] = useState([
+    {
+      id: 1,
+      model: "Toyota Corolla",
+      type: "Sedan",
+      year: "2023",
+      mileage: "2000",
+      engine: "1800cc",
+      color: "Silver",
+      seats: "5",
+      fuel: "Petrol",
+      transmission: "Automatic",
+      rent: "$40/day",
+      status: "Available",
+      image:
+        "https://cdn.motor1.com/images/mgl/02k1v/s1/2023-toyota-corolla-sedan-front-view.jpg",
+      description: "Comfortable daily car with great mileage.",
+    },
+    {
+      id: 2,
+      model: "Tesla Model 3",
+      type: "Electric",
+      year: "2024",
+      mileage: "20",
+      engine: "Electric Motor",
+      color: "Red",
+      seats: "5",
+      fuel: "Electric",
+      transmission: "Automatic",
+      rent: "$90/day",
+      status: "Pending Admin Approval",
+      image:
+        "https://www.motortrend.com/uploads/sites/5/2023/09/2024-tesla-model-3-european-version-1.jpg",
+      description: "Fully electric car with autopilot and advanced tech.",
+    },
+  ]);
+
+  const [bookings] = useState([
+    {
+      id: 101,
+      carId: 1,
+      customer: "John Doe",
+      startDate: "2024-12-10",
+      endDate: "2024-12-12",
+      status: "Active",
+    },
+  ]);
+
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      message: "New booking request for Toyota Corolla",
+      date: "2024-12-01",
+      read: false,
+    },
+    {
+      id: 2,
+      message: "Car approval pending for Tesla Model 3",
+      date: "2024-12-02",
+      read: false,
+    },
+  ]);
 
   const [newCar, setNewCar] = useState({
     model: "",
@@ -57,101 +105,34 @@ function Dashboard() {
     transmission: "",
     rent: "",
     description: "",
+    image: "",
   });
 
-  // -----------------------------
-  // REALTIME FETCHES
-  // -----------------------------
   useEffect(() => {
-    if (!uid) return;
-
-    // PROFILE
-    onValue(ref(db, `users/${uid}/profile`), (snap) => {
-      if (snap.exists()) setProfile(snap.val());
-    });
-
-    // GLOBAL CARS — filter by owner
-    onValue(ref(db, "cars"), (snap) => {
-      if (!snap.exists()) return setCars([]);
-      const data = snap.val();
-      const list = Object.keys(data)
-        .map((id) => ({ id, ...data[id] }))
-        .filter((car) => car.ownerUid === uid);
-
-      setCars(list);
-    });
-
-    // BOOKINGS (per user)
-    onValue(ref(db, `users/${uid}/bookings`), (snap) => {
-      if (!snap.exists()) return setBookings([]);
-      const data = snap.val();
-      const list = Object.keys(data).map((id) => ({
-        id,
-        ...data[id],
-      }));
-      setBookings(list);
-    });
-
-    // NOTIFICATIONS (per user)
-    onValue(ref(db, `users/${uid}/notifications`), (snap) => {
-      if (!snap.exists()) return setNotifications([]);
-      const data = snap.val();
-      const list = Object.keys(data).map((id) => ({
-        id,
-        ...data[id],
-      }));
-      setNotifications(list);
-    });
-  }, [uid]);
-
-  // -----------------------------
-  // DISABLE SCROLL ON MODALS
-  // -----------------------------
-  useEffect(() => {
-    const lock =
-      isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
+    const lock = isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
     document.body.style.overflow = lock ? "hidden" : "auto";
-  }, [
-    isProfileModalOpen,
-    isAddCarModalOpen,
-    isCarDetailOpen,
-  ]);
+  }, [isProfileModalOpen, isAddCarModalOpen, isCarDetailOpen]);
 
-  // -----------------------------
-  // HANDLERS
-  // -----------------------------
-  const toggleSidebar = () => setSidebarCollapsed((p) => !p);
+  const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setProfile((p) => ({ ...p, [name]: value }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setProfileImageFile(file);
+
+    const url = URL.createObjectURL(file);
+    if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+
+    setLastBlobUrl(url);
+    setProfile((prev) => ({ ...prev, profileImage: url }));
   };
 
-  const handleSaveProfile = async () => {
-    let imageURL = profile.profileImage || "";
-
-    if (profileImageFile) {
-      const imgRef = storageRef(
-        storage,
-        `profiles/${uid}_${profileImageFile.name}`
-      );
-
-      await uploadBytes(imgRef, profileImageFile);
-      imageURL = await getDownloadURL(imgRef);
-    }
-
-    await set(ref(db, `users/${uid}/profile`), {
-      ...profile,
-      profileImage: imageURL,
-    });
-
-    alert("Profile Updated");
+  const handleSaveProfile = () => {
+    alert("Profile updated successfully!");
     setProfileModalOpen(false);
   };
 
@@ -164,10 +145,12 @@ function Dashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setNewCarImageFile(file);
-
     const url = URL.createObjectURL(file);
+    if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+
+    setLastBlobUrl(url);
     setPreviewImage(url);
+    setNewCar((prev) => ({ ...prev, image: url }));
   };
 
   const validateCar = () => {
@@ -182,43 +165,25 @@ function Dashboard() {
       "fuel",
       "transmission",
       "rent",
+      "image",
     ];
-    for (let field of required) {
-      if (!newCar[field]?.trim()) return `${field} is required`;
-    }
-    if (!/^\d{4}$/.test(newCar.year)) return "Year must be 4 digits";
+    const missing = required.filter((key) => !String(newCar[key]).trim());
+
+    if (missing.length) return `Missing fields: ${missing.join(", ")}`;
+    if (!/^\d{4}$/.test(newCar.year)) return "Year must be 4 digits.";
 
     return null;
   };
 
-  const handleAddCar = async () => {
+  const handleAddCar = () => {
     const err = validateCar();
     if (err) return alert(err);
 
-    // Upload image
-    let imageURL = "";
-    if (newCarImageFile) {
-      const imgRef = storageRef(
-        storage,
-        `cars/${Date.now()}_${newCarImageFile.name}`
-      );
-      await uploadBytes(imgRef, newCarImageFile);
-      imageURL = await getDownloadURL(imgRef);
-    }
+    setCars((prev) => [
+      ...prev,
+      { id: Date.now(), ...newCar, status: "Pending Admin Approval" },
+    ]);
 
-    // Create car globally
-    const newCarRef = push(ref(db, "cars"));
-    await set(newCarRef, {
-      ownerUid: uid,
-      ...newCar,
-      image: imageURL,
-      status: "Pending", // Admin approval
-      adminComments: "",
-      approvedBy: "",
-      updatedAt: Date.now(),
-    });
-
-    // Reset
     setAddCarModalOpen(false);
     setNewCar({
       model: "",
@@ -232,6 +197,7 @@ function Dashboard() {
       transmission: "",
       rent: "",
       description: "",
+      image: "",
     });
     setPreviewImage(null);
 
@@ -243,17 +209,11 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
-  // -----------------------------
-  // MEMO
-  // -----------------------------
   const pendingCount = useMemo(
-    () => cars.filter((c) => c.status === "Pending").length,
+    () => cars.filter((c) => c.status === "Pending Admin Approval").length,
     [cars]
   );
 
-  // -----------------------------
-  // SECTION RENDERS
-  // -----------------------------
   const renderOverview = () => (
     <div className="content-box fade-in">
       <h2>Dashboard Overview</h2>
@@ -262,6 +222,11 @@ function Dashboard() {
         <div className="overview-card">
           <h3>{cars.length}</h3>
           <p>Total Cars</p>
+        </div>
+
+        <div className="overview-card">
+          <h3>$2,450</h3>
+          <p>Monthly Earnings</p>
         </div>
 
         <div className="overview-card">
@@ -290,23 +255,17 @@ function Dashboard() {
             <p>
               {car.year} • {car.type}
             </p>
-
             <p>Rent: {car.rent}</p>
 
             <span
               className={`badge ${
-                car.status === "Approved"
-                  ? "status-available"
-                  : "status-pending"
+                car.status === "Available" ? "status-available" : "status-pending"
               }`}
             >
               {car.status}
             </span>
 
-            <button
-              className="btn primary"
-              onClick={() => handleShowDetails(car)}
-            >
+            <button className="btn primary" onClick={() => handleShowDetails(car)}>
               View Details
             </button>
           </div>
@@ -324,16 +283,14 @@ function Dashboard() {
           <div key={b.id} className="booking-card">
             <h4>{cars.find((c) => c.id === b.carId)?.model}</h4>
 
-            <p><strong>Customer:</strong> {b.customer}</p>
+            <p>
+              <strong>Customer:</strong> {b.customer}
+            </p>
             <p>
               <strong>Dates:</strong> {b.startDate} to {b.endDate}
             </p>
 
-            <span
-              className={`badge ${b.status.toLowerCase()}`}
-            >
-              {b.status}
-            </span>
+            <span className={`badge ${b.status.toLowerCase()}`}>{b.status}</span>
           </div>
         ))}
       </div>
@@ -348,9 +305,7 @@ function Dashboard() {
         {notifications.map((n) => (
           <li
             key={n.id}
-            className={`notification-item ${
-              n.read ? "read" : "unread"
-            }`}
+            className={`notification-item ${n.read ? "read" : "unread"}`}
           >
             <p>{n.message}</p>
             <small>{n.date}</small>
@@ -359,9 +314,10 @@ function Dashboard() {
               <button
                 className="btn primary"
                 onClick={() =>
-                  update(
-                    ref(db, `users/${uid}/notifications/${n.id}`),
-                    { read: true }
+                  setNotifications((prev) =>
+                    prev.map((x) =>
+                      x.id === n.id ? { ...x, read: true } : x
+                    )
                   )
                 }
               >
@@ -389,12 +345,8 @@ function Dashboard() {
     }
   };
 
-  // -----------------------------
-  // RETURN UI
-  // -----------------------------
   return (
     <div className="dashboard-container">
-      {/* SIDEBAR */}
       <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="brand" onClick={toggleSidebar}>
           {isSidebarCollapsed ? "🚗" : "GearUP"}
@@ -453,21 +405,11 @@ function Dashboard() {
         </ul>
       </aside>
 
-      {/* MAIN CONTENT */}
       <main className="main">{renderSection()}</main>
 
-      {/* ------------------------------- */}
-      {/* PROFILE MODAL */}
-      {/* ------------------------------- */}
       {isProfileModalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => setProfileModalOpen(false)}
-        >
-          <div
-            className="modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay" onClick={() => setProfileModalOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Profile</h2>
 
             <div className="profile-modal-grid">
@@ -498,7 +440,10 @@ function Dashboard() {
               <button className="btn primary" onClick={handleSaveProfile}>
                 Save
               </button>
-              <button className="btn cancel" onClick={() => setProfileModalOpen(false)}>
+              <button
+                className="btn cancel"
+                onClick={() => setProfileModalOpen(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -506,20 +451,14 @@ function Dashboard() {
         </div>
       )}
 
-      {/* ------------------------------- */}
-      {/* ADD CAR MODAL */}
-      {/* ------------------------------- */}
       {isAddCarModalOpen && (
         <div className="modal-overlay" onClick={() => setAddCarModalOpen(false)}>
-          <div
-            className="modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Car</h2>
 
             <div className="add-car-grid">
               {Object.keys(newCar).map((key) =>
-                key !== "description" ? (
+                key !== "image" && key !== "description" ? (
                   <input
                     key={key}
                     name={key}
@@ -539,7 +478,6 @@ function Dashboard() {
             </div>
 
             <input type="file" accept="image/*" onChange={handleImageUpload} />
-
             {previewImage && (
               <img src={previewImage} alt="Preview" className="preview-image" />
             )}
@@ -556,14 +494,8 @@ function Dashboard() {
         </div>
       )}
 
-      {/* ------------------------------- */}
-      {/* CAR DETAIL MODAL */}
-      {/* ------------------------------- */}
       {isCarDetailOpen && selectedCar && (
-        <div
-          className="modal-overlay"
-          onClick={() => setCarDetailOpen(false)}
-        >
+        <div className="modal-overlay" onClick={() => setCarDetailOpen(false)}>
           <div
             className="modal car-detail-modal fade-in"
             onClick={(e) => e.stopPropagation()}
@@ -573,7 +505,7 @@ function Dashboard() {
 
               <span
                 className={`badge ${
-                  selectedCar.status === "Approved"
+                  selectedCar.status === "Available"
                     ? "status-available"
                     : "status-pending"
                 }`}
@@ -609,6 +541,10 @@ function Dashboard() {
             </div>
 
             <div className="modal-actions">
+              <button className="btn secondary" onClick={() => alert("Edit feature coming soon!")}>
+                ✏️ Edit Car
+              </button>
+
               <button className="btn cancel" onClick={() => setCarDetailOpen(false)}>
                 Close
               </button>
@@ -616,7 +552,6 @@ function Dashboard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

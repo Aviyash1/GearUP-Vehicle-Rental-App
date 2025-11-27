@@ -1,88 +1,23 @@
-// Settings.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { auth, db } from "./firebaseConfig";
-import { ref, onValue, update, set } from "firebase/database";
-
 import "./Settings.css";
 
 function Settings() {
-  const uid = auth.currentUser?.uid;
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("profile");
 
-  // All settings pulled from DB
   const [settings, setSettings] = useState({
-    name: "",
-    email: "",
-    phone: "",
+    name: "Tanveer Singh",
+    email: "TS@gmail.com",
+    phone: "+64 9876543210",
     language: "English",
     darkMode: false,
-    twoFactorAuth: false,
+    twoFactorAuth: true,
     emailNotifications: true,
     smsNotifications: false,
   });
 
-  // --------------------------------------------------------
-  // LOAD USER SETTINGS IN REALTIME
-  // --------------------------------------------------------
-  useEffect(() => {
-    if (!uid) return;
-
-    onValue(ref(db, `users/${uid}/settings`), (snap) => {
-      if (snap.exists()) {
-        setSettings((prev) => ({
-          ...prev,
-          ...snap.val(),
-        }));
-      }
-    });
-
-    // Also load profile for name/email/phone defaults
-    onValue(ref(db, `users/${uid}/profile`), (snap) => {
-      if (snap.exists()) {
-        const p = snap.val();
-        setSettings((prev) => ({
-          ...prev,
-          name: p.name || prev.name,
-          email: p.email || prev.email,
-          phone: p.phone || prev.phone,
-        }));
-      }
-    });
-  }, [uid]);
-
-  // --------------------------------------------------------
-  // UPDATE LOCAL STATE
-  // --------------------------------------------------------
-  const handleChange = (e) => {
-    const { name, type, value, checked } = e.target;
-
-    setSettings((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  // --------------------------------------------------------
-  // SAVE SETTINGS TO REALTIME DB
-  // --------------------------------------------------------
-  const handleSave = async () => {
-    await set(ref(db, `users/${uid}/settings`), settings);
-
-    // Also sync basic profile fields to profile node
-    await update(ref(db, `users/${uid}/profile`), {
-      name: settings.name,
-      email: settings.email,
-      phone: settings.phone,
-    });
-
-    alert("Settings saved successfully!");
-  };
-
-  // Dark mode toggle (UI effect)
   useEffect(() => {
     const root = document.documentElement;
     if (settings.darkMode) {
@@ -92,9 +27,18 @@ function Settings() {
     }
   }, [settings.darkMode]);
 
-  // --------------------------------------------------------
-  // TAB RENDER
-  // --------------------------------------------------------
+  const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    setSettings((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSave = () => {
+    alert("✅ Settings saved successfully!");
+  };
+
   const renderTab = () => {
     switch (activeTab) {
       case "profile":
@@ -138,7 +82,6 @@ function Settings() {
       case "security":
         return (
           <div className="tab-content fade-in">
-
             <label className="checkbox-row">
               <input
                 type="checkbox"
@@ -149,7 +92,7 @@ function Settings() {
               Enable Two-Factor Authentication
             </label>
             <p className="info-text">
-              Adds an extra layer of account security.
+              Adds an extra layer of security to your account.
             </p>
 
             <label className="checkbox-row">
@@ -162,9 +105,8 @@ function Settings() {
               Enable Dark Mode
             </label>
             <p className="info-text">
-              Instant dark UI theme.
+              Instantly toggles the dashboard to a dark theme.
             </p>
-
           </div>
         );
 
@@ -202,7 +144,7 @@ function Settings() {
     <div className="settings-container fade-in">
       <div className="settings-header">
         <h2 className="settings-title">Settings</h2>
-        <button className="back-btn" onClick={() => navigate("/dashboard")}>
+        <button className="back-btn" onClick={() => navigate("/")}>
           ← Back to Dashboard
         </button>
       </div>
@@ -214,14 +156,12 @@ function Settings() {
         >
           👤 Profile
         </button>
-
         <button
           className={activeTab === "security" ? "tab active" : "tab"}
           onClick={() => setActiveTab("security")}
         >
           🔒 Security
         </button>
-
         <button
           className={activeTab === "notifications" ? "tab active" : "tab"}
           onClick={() => setActiveTab("notifications")}

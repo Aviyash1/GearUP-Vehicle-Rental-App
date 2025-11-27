@@ -126,7 +126,6 @@
   transform: translateY(-1px);
 }
 
-/* Back Button (matches Finance page style) */
 .back-btn {
   background: linear-gradient(135deg, #2563eb, #1e40af);
   color: #fff !important;
@@ -144,7 +143,6 @@
   transform: translateY(-1.5px);
 }
 
-/* Dark Mode Theme */
 .dark-mode {
   --panel: #0f172a;
   --white: #1e293b;
@@ -169,7 +167,6 @@
   color: #fff;
 }
 
-/* Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
