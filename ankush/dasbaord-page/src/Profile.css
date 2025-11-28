@@ -1,0 +1,115 @@
+/* ===== Overlay ===== */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+/* ===== Modal Box ===== */
+.profile-modal {
+  width: 720px;
+  max-width: 95%;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+}
+
+.profile-modal h2 {
+  margin: 0 0 20px;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ===== Layout Grid ===== */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+/* ===== LEFT SIDE — PROFILE IMAGE ===== */
+.profile-image-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.profile-preview {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+}
+
+/* ===== RIGHT SIDE — FORM FIELDS ===== */
+.profile-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Make name & address full width */
+.input-full {
+  grid-column: span 2;
+}
+
+.profile-right input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.95rem;
+  transition: 0.25s;
+}
+
+.profile-right input:focus {
+  background: white;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== ACTION BUTTONS ===== */
+.profile-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.profile-actions .btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.25s;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn.primary:hover {
+  background: #1e40af;
+}
+
+.btn.cancel {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn.cancel:hover {
+  background: #cbd5e1;
+}

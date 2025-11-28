@@ -13,14 +13,15 @@
   --shadow-lg: 0 10px 30px rgba(2, 6, 23, 0.12);
 }
 
-/* ============= GLOBAL ============= */
+/* GLOBAL */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -31,10 +32,14 @@ body {
   overflow: hidden;
 }
 
-/* ============= SIDEBAR ============= */
+/* SIDEBAR */
 .sidebar {
   width: 260px;
-  background: radial-gradient(1200px 800px at -10% -10%, #172554 10%, #0b1220 60%);
+  background: radial-gradient(
+    1200px 800px at -10% -10%,
+    #172554 10%,
+    #0b1220 60%
+  );
   color: var(--white);
   padding: 28px 20px;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -80,14 +85,14 @@ body {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
 }
 
-/* ============= MAIN ============= */
+/* MAIN */
 .main {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
 }
 
-/* ============= CONTENT BOX ============= */
+/* CONTENT BOX */
 .content-box {
   background: var(--panel);
   margin: 20px;
@@ -96,7 +101,7 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-/* ============= OVERVIEW CARDS ============= */
+/* OVERVIEW CARDS */
 .overview-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -115,7 +120,7 @@ body {
   color: var(--primary);
 }
 
-/* ============= CAR GRID ============= */
+/* CAR GRID */
 .car-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -155,7 +160,7 @@ body {
   color: #b45309;
 }
 
-/* ============= BOOKINGS ============= */
+/* BOOKINGS */
 .booking-grid {
   display: grid;
   gap: 1rem;
@@ -175,7 +180,7 @@ body {
   margin: 4px 0;
 }
 
-/* ============= NOTIFICATIONS ============= */
+/* NOTIFICATIONS */
 .notification-list {
   list-style: none;
   padding: 0;
@@ -205,7 +210,7 @@ body {
   padding: 4px;
 }
 
-/* ============= MODALS & BUTTONS ============= */
+/* MODALS */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -223,6 +228,7 @@ body {
   width: 860px;
 }
 
+/* BUTTONS */
 .btn {
   padding: 10px 16px;
   border-radius: 10px;

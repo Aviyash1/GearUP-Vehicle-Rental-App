@@ -3,22 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Settings from "./Settings";
 import Documentation from "./Documentation";
-import "./App.css"; // Global styles
+import "./App.css";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Dashboard is the main route */}
         <Route path="/" element={<Dashboard />} />
-
-        {/* Settings page */}
         <Route path="/settings" element={<Settings />} />
-
-        {/* Documentation page */}
         <Route path="/documentation" element={<Documentation />} />
 
-        {/* Fallback for unknown routes */}
         <Route
           path="*"
           element={
@@ -30,7 +24,7 @@ function App() {
                 style={{
                   display: "inline-block",
                   marginTop: "20px",
-                  color: "#007bff",
+                  color: "#2563eb",
                   fontWeight: "bold",
                 }}
               >
