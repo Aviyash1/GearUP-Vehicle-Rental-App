@@ -1,81 +1,57 @@
 // AdminDashboard.js
-// Admin panel for reviewing verification requests, car approvals & payments.
-// Fully Firebase-connected backbone.
+// Minimal system version (Option B).
+// Fully working Car Approvals. Other tabs show placeholders.
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./AdminDashboard.css";
 
-// Firebase Backbone
+// Car approval Firestore queries
 import {
-  fetchVerificationRequests,
-  fetchCarRequests,
-  fetchPaymentRequests,
-  pushAdminNotification,
-  removeItem
+  fetchPendingVehicles,
+  approveVehicle,
+  denyVehicle
 } from "./firebase/adminQueries";
 
-// Sample Images 
-import Lexus from "./images/lexus.png";
-import Porsche from "./images/porsche.png";
-
 function AdminDashboard() {
-
   const [activeSection, setActiveSection] = useState("overview");
   const [slidingItem, setSlidingItem] = useState(null);
 
-  // Firebase collections
-  const [notifications, setNotifications] = useState([]);
-  const [verificationRequests, setVerificationRequests] = useState([]);
+  // State for only the car approval feature
   const [carRequests, setCarRequests] = useState([]);
-  const [paymentRequests, setPaymentRequests] = useState([]);
 
-  // Load Firebase Data
+  // Everything else must exist to prevent errors
+  const [notifications] = useState([]);
+  const [verificationRequests] = useState([]);
+  const [paymentRequests] = useState([]);
+
+  // Load Firestore cars on start
   useEffect(() => {
-    async function loadData() {
-      setVerificationRequests(await fetchVerificationRequests());
-      setCarRequests(await fetchCarRequests());
-      setPaymentRequests(await fetchPaymentRequests());
-    }
-
-    async function loadNotifications() {
-      const snap = await fetch("adminNotifications");
-    }
-
-    loadData();
+    const loadCars = async () => {
+      const cars = await fetchPendingVehicles();
+      setCarRequests(cars);
+    };
+    loadCars();
   }, []);
 
-  // Slide-out + Firebase delete + notification
-  const handleSlideOut = (type, id) => {
-    setSlidingItem(id);
+  // Handles approval / denial with animation
+  const handleVehicleDecision = async (vehicleId, decision) => {
+    setSlidingItem(vehicleId);
 
     setTimeout(async () => {
-
-      if (type === "verification") {
-        await removeItem("verificationRequests", id);
-        pushAdminNotification("Verification request reviewed", "verification");
-        setVerificationRequests(prev => prev.filter(r => r.id !== id));
+      if (decision === "approve") {
+        await approveVehicle(vehicleId);
+      } else {
+        await denyVehicle(vehicleId);
       }
 
-      if (type === "car") {
-        await removeItem("carApprovalRequests", id);
-        pushAdminNotification("Car listing reviewed", "car");
-        setCarRequests(prev => prev.filter(c => c.id !== id));
-      }
-
-      if (type === "payment") {
-        await removeItem("payments", id);
-        pushAdminNotification("Payment processed — commission added", "payment");
-        setPaymentRequests(prev => prev.filter(p => p.id !== id));
-      }
-
+      setCarRequests((prev) => prev.filter((c) => c.id !== vehicleId));
       setSlidingItem(null);
     }, 300);
   };
 
-  // Render Section
+  // Page renderer
   const renderSection = () => {
-
-    // OVERVIEW
+    // ------------------ OVERVIEW ------------------
     if (activeSection === "overview") {
       return (
         <div className="admin-content-box fade-up">
@@ -84,9 +60,8 @@ function AdminDashboard() {
           <div className="admin-divider"></div>
 
           <div className="admin-cards-grid">
-
             <div className="admin-card">
-              <h3>{verificationRequests.length}</h3>
+              <h3>-</h3>
               <p>Verification Requests</p>
             </div>
 
@@ -96,76 +71,39 @@ function AdminDashboard() {
             </div>
 
             <div className="admin-card">
-              <h3>{paymentRequests.length}</h3>
+              <h3>-</h3>
               <p>Payments Waiting</p>
             </div>
-
           </div>
         </div>
       );
     }
 
-    // NOTIFICATIONS 
+    // ------------------ NOTIFICATIONS ------------------
     if (activeSection === "notifications") {
       return (
         <div className="admin-content-box fade-up">
           <h2 className="admin-heading">Notifications</h2>
-          <p className="admin-subheading">System Alerts & New Events</p>
+          <p className="admin-subheading">Feature not available yet.</p>
           <div className="admin-divider"></div>
-
-          {notifications.length === 0 && <p>No notifications available.</p>}
-
-          {notifications.map(note => (
-            <div key={note.id} className="admin-notification-item fade-up">
-              <strong>{note.message}</strong>
-              <p style={{ color: "#bbb", marginTop: 4 }}>{note.createdAt}</p>
-            </div>
-          ))}
         </div>
       );
     }
 
-    // VERIFICATION 
+    // ------------------ VERIFICATION ------------------
     if (activeSection === "verification") {
       return (
         <div className="admin-content-box fade-up">
           <h2 className="admin-heading">Verification Requests</h2>
-          <p className="admin-subheading">Review car owner identity documents</p>
+          <p className="admin-subheading">
+            This feature will be implemented after merge.
+          </p>
           <div className="admin-divider"></div>
-
-          {verificationRequests.map(req => (
-            <div
-              key={req.id}
-              className={`admin-item ${slidingItem === req.id ? "slide-out" : ""}`}
-            >
-              <div>
-                <strong>{req.name}</strong>
-                <p>Email: {req.email}</p>
-                <p>License: {req.licenseNumber}</p>
-              </div>
-
-              <div className="admin-actions">
-                <button
-                  className="approve-btn"
-                  onClick={() => handleSlideOut("verification", req.id)}
-                >
-                  Approve
-                </button>
-
-                <button
-                  className="deny-btn"
-                  onClick={() => handleSlideOut("verification", req.id)}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       );
     }
 
-    // CAR APPROVALS
+    // ------------------ CAR APPROVALS (WORKING FEATURE) ------------------
     if (activeSection === "cars") {
       return (
         <div className="admin-content-box fade-up">
@@ -173,29 +111,35 @@ function AdminDashboard() {
           <p className="admin-subheading">Review new car listings</p>
           <div className="admin-divider"></div>
 
-          {carRequests.map(car => (
+          {carRequests.length === 0 && <p>No pending car approvals.</p>}
+
+          {carRequests.map((car) => (
             <div
               key={car.id}
               className={`admin-item ${slidingItem === car.id ? "slide-out" : ""}`}
             >
-              <img src={car.imageUrl || Lexus} alt={car.model} className="admin-thumb" />
-
               <div>
                 <strong>{car.model}</strong>
-                <p>Owner: {car.owner}</p>
+                <p>Year: {car.year}</p>
+                <p>Fuel: {car.fuel}</p>
+                <p>Seats: {car.seats}</p>
+                <p>Transmission: {car.transmission}</p>
                 <p>Rent: ${car.rent}/day</p>
+                <p>Mileage: {car.mileage} km</p>
+                <p style={{ color: "#c9c9c9" }}>Status: {car.status}</p>
               </div>
 
               <div className="admin-actions">
                 <button
                   className="approve-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => handleVehicleDecision(car.id, "approve")}
                 >
                   Approve
                 </button>
+
                 <button
                   className="deny-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => handleVehicleDecision(car.id, "deny")}
                 >
                   Deny
                 </button>
@@ -206,53 +150,23 @@ function AdminDashboard() {
       );
     }
 
-    // PAYMENTS ==========================================================
+    // ------------------ PAYMENTS ------------------
     if (activeSection === "payments") {
       return (
         <div className="admin-content-box fade-up">
-          <h2 className="admin-heading">Payment Approvals</h2>
-          <p className="admin-subheading">Authorize pending user payments</p>
+          <h2 className="admin-heading">Payments</h2>
+          <p className="admin-subheading">Feature not available yet.</p>
           <div className="admin-divider"></div>
-
-          {paymentRequests.map(pay => (
-            <div
-              key={pay.id}
-              className={`admin-item ${slidingItem === pay.id ? "slide-out" : ""}`}
-            >
-              <div>
-                <strong>User: {pay.user}</strong>
-                <p>Total: ${pay.total}</p>
-                <p>Method: {pay.method}</p>
-              </div>
-
-              <div className="admin-actions">
-                <button
-                  className="approve-btn"
-                  onClick={() => handleSlideOut("payment", pay.id)}
-                >
-                  Approve
-                </button>
-
-                <button
-                  className="deny-btn"
-                  onClick={() => handleSlideOut("payment", pay.id)}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       );
     }
 
-    // SETTINGS ==========================================================
+    // ------------------ SETTINGS ------------------
     return (
       <div className="admin-content-box fade-up">
         <h2 className="admin-heading">Settings</h2>
         <p className="admin-subheading">General administrative configurations</p>
         <div className="admin-divider"></div>
-        <p>Settings will be implemented later.</p>
       </div>
     );
   };
@@ -263,19 +177,47 @@ function AdminDashboard() {
         <div className="admin-brand">GearUP Admin</div>
 
         <ul>
-          <li className={activeSection === "overview" ? "active" : ""} onClick={() => setActiveSection("overview")}>Overview</li>
-
-          <li className={activeSection === "notifications" ? "active" : ""} onClick={() => setActiveSection("notifications")}>
-            Notifications {notifications.length > 0 && <span className="notif-badge"></span>}
+          <li
+            className={activeSection === "overview" ? "active" : ""}
+            onClick={() => setActiveSection("overview")}
+          >
+            Overview
           </li>
 
-          <li className={activeSection === "verification" ? "active" : ""} onClick={() => setActiveSection("verification")}>Verification</li>
+          <li
+            className={activeSection === "notifications" ? "active" : ""}
+            onClick={() => setActiveSection("notifications")}
+          >
+            Notifications
+          </li>
 
-          <li className={activeSection === "cars" ? "active" : ""} onClick={() => setActiveSection("cars")}>Car Approvals</li>
+          <li
+            className={activeSection === "verification" ? "active" : ""}
+            onClick={() => setActiveSection("verification")}
+          >
+            Verification
+          </li>
 
-          <li className={activeSection === "payments" ? "active" : ""} onClick={() => setActiveSection("payments")}>Payments</li>
+          <li
+            className={activeSection === "cars" ? "active" : ""}
+            onClick={() => setActiveSection("cars")}
+          >
+            Car Approvals
+          </li>
 
-          <li className={activeSection === "settings" ? "active" : ""} onClick={() => setActiveSection("settings")}>Settings</li>
+          <li
+            className={activeSection === "payments" ? "active" : ""}
+            onClick={() => setActiveSection("payments")}
+          >
+            Payments
+          </li>
+
+          <li
+            className={activeSection === "settings" ? "active" : ""}
+            onClick={() => setActiveSection("settings")}
+          >
+            Settings
+          </li>
         </ul>
       </aside>
 
