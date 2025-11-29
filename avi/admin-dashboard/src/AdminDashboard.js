@@ -1,144 +1,110 @@
 // AdminDashboard.js
-// This file defines the complete admin dashboard used in the GearUP project.
-// The dashboard uses a minimal black and gold theme and provides admin-only
-// tools for reviewing verification requests, car postings, and payment approvals.
-// All data inside this file is temporary and will later be replaced by Firebase.
+// Complete Admin Dashboard for GearUP
+// Includes Overview, Car Approvals, Payments (graph-only), Settings
+// Uses Firestore (fetchAllBookings + fetchPendingVehicles)
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AdminDashboard.css";
-import Lexus from "./images/lexus.png";
-import Porsche from "./images/porsche.png";
+
+// Firebase queries
+import {
+  fetchAllBookings,
+  fetchPendingVehicles,
+  approveVehicle,
+  denyVehicle
+} from "./firebase/adminQueries";
+
+// Graph imports
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 
 function AdminDashboard() {
-
-  // Tracks which section of the admin dashboard is currently active.
   const [activeSection, setActiveSection] = useState("overview");
 
-  // Tracks which item is currently sliding out during animation.
   const [slidingItem, setSlidingItem] = useState(null);
 
-  // Dummy data for verification requests.
-  const [verificationRequests, setVerificationRequests] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", license: "DLX1111" },
-    { id: 2, name: "Sarah Lee", email: "sarah@example.com", license: "DLX2222" },
-  ]);
+  // FIREBASE STATE
+  const [bookings, setBookings] = useState([]);
+  const [carRequests, setCarRequests] = useState([]);
 
-  // Dummy data for car approval requests.
-  const [carRequests, setCarRequests] = useState([
-    {
-      id: 1,
-      model: "Lexus IS 350",
-      owner: "John Doe",
-      rent: "$140/day",
-      image: Lexus
-    },
-    {
-      id: 2,
-      model: "Porsche 911 Carrera",
-      owner: "Sarah Lee",
-      rent: "$90/day",
-      image: Porsche
-    }
-  ]);
+  // Load data once
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  // Dummy data for payments that require admin approval.
-  const [paymentRequests, setPaymentRequests] = useState([
-    { id: 1, user: "Michael", amount: "$150", method: "Visa" },
-    { id: 2, user: "Emma", amount: "$60", method: "Mastercard" },
-  ]);
+  const loadData = async () => {
+    const bookingsData = await fetchAllBookings();
+    const pendingCars = await fetchPendingVehicles();
 
-  // Handles approving or denying an item with a slide-out animation.
-  const handleSlideOut = (type, id) => {
-
-    // Marks the item as currently sliding out.
-    setSlidingItem(id);
-
-    // Removes the item after animation completes.
-    setTimeout(() => {
-      if (type === "verification") {
-        setVerificationRequests(prev => prev.filter(req => req.id !== id));
-      }
-      if (type === "car") {
-        setCarRequests(prev => prev.filter(car => car.id !== id));
-      }
-      if (type === "payment") {
-        setPaymentRequests(prev => prev.filter(pay => pay.id !== id));
-      }
-      setSlidingItem(null);
-    }, 300); // Matches the 300ms animation duration
+    setBookings(bookingsData);
+    setCarRequests(pendingCars);
   };
 
-  // Renders content based on admin's selected section.
-  const renderSection = () => {
+  // FOR CAR APPROVALS – Approve / Deny
+  const handleVehicleDecision = async (id, decision) => {
+    setSlidingItem(id);
 
+    setTimeout(async () => {
+      if (decision === "approve") {
+        await approveVehicle(id);
+      } else {
+        await denyVehicle(id);
+      }
+
+      setCarRequests((prev) => prev.filter((c) => c.id !== id));
+      setSlidingItem(null);
+    }, 300);
+  };
+
+  // ---------------- PAYMENT GRAPH DATA ----------------
+  const graphData = bookings.map((b, index) => ({
+    label: b.vehicleName || `Booking ${index + 1}`,
+    commission: Number(b.totalCost || 0) * 0.1, // 10% Commission
+  }));
+
+  const totalCommission = graphData.reduce(
+    (sum, d) => sum + d.commission,
+    0
+  );
+
+  // ---------------- SECTION RENDERING ----------------
+  const renderSection = () => {
+    // OVERVIEW
     if (activeSection === "overview") {
       return (
         <div className="admin-content-box fade-up">
           <h2 className="admin-heading">Administrator Control Center</h2>
-          <p className="admin-subheading">System Authority Dashboard</p>
+          <p className="admin-subheading">System-level insight dashboard</p>
           <div className="admin-divider"></div>
 
           <div className="admin-cards-grid">
             <div className="admin-card">
-              <h3>{verificationRequests.length}</h3>
-              <p>Verification Requests</p>
-            </div>
-
-            <div className="admin-card">
               <h3>{carRequests.length}</h3>
-              <p>Car Approvals Pending</p>
+              <p>Cars Pending Approval</p>
             </div>
 
             <div className="admin-card">
-              <h3>{paymentRequests.length}</h3>
-              <p>Payments Waiting</p>
+              <h3>{bookings.length}</h3>
+              <p>Total Bookings</p>
+            </div>
+
+            <div className="admin-card">
+              <h3>${totalCommission.toFixed(2)}</h3>
+              <p>Total Commission Earned</p>
             </div>
           </div>
         </div>
       );
     }
 
-    if (activeSection === "verification") {
-      return (
-        <div className="admin-content-box fade-up">
-          <h2 className="admin-heading">Verification Requests</h2>
-          <p className="admin-subheading">Review car owner identity documents</p>
-          <div className="admin-divider"></div>
-
-          {verificationRequests.length === 0 && <p>No pending verification requests.</p>}
-
-          {verificationRequests.map((req) => (
-            <div
-              key={req.id}
-              className={`admin-item ${slidingItem === req.id ? "slide-out" : ""}`}
-            >
-              <div>
-                <strong>{req.name}</strong>
-                <p>Email: {req.email}</p>
-                <p>License: {req.license}</p>
-              </div>
-
-              <div className="admin-actions">
-                <button
-                  className="approve-btn"
-                  onClick={() => handleSlideOut("verification", req.id)}
-                >
-                  Approve
-                </button>
-
-                <button
-                  className="deny-btn"
-                  onClick={() => handleSlideOut("verification", req.id)}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
+    // CAR APPROVALS
     if (activeSection === "cars") {
       return (
         <div className="admin-content-box fade-up">
@@ -146,32 +112,39 @@ function AdminDashboard() {
           <p className="admin-subheading">Review new car listings</p>
           <div className="admin-divider"></div>
 
-          {carRequests.length === 0 && <p>No pending car approvals.</p>}
+          {carRequests.length === 0 && (
+            <p>No pending car approvals.</p>
+          )}
 
           {carRequests.map((car) => (
             <div
               key={car.id}
-              className={`admin-item ${slidingItem === car.id ? "slide-out" : ""}`}
+              className={`admin-item ${
+                slidingItem === car.id ? "slide-out" : ""
+              }`}
             >
-              <img src={car.image} alt={car.model} className="admin-thumb" />
-
               <div>
                 <strong>{car.model}</strong>
-                <p>Owner: {car.owner}</p>
-                <p>Rent: {car.rent}</p>
+                <p>Year: {car.year}</p>
+                <p>Fuel: {car.fuel}</p>
+                <p>Seats: {car.seats}</p>
+                <p>Transmission: {car.transmission}</p>
+                <p>Rent: ${car.rent}/day</p>
+                <p>Mileage: {car.mileage} km</p>
+                <p style={{ color: "#c9c9c9" }}>Status: {car.status}</p>
               </div>
 
               <div className="admin-actions">
                 <button
                   className="approve-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => handleVehicleDecision(car.id, "approve")}
                 >
                   Approve
                 </button>
 
                 <button
                   className="deny-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => handleVehicleDecision(car.id, "deny")}
                 >
                   Deny
                 </button>
@@ -182,84 +155,116 @@ function AdminDashboard() {
       );
     }
 
+    // PAYMENTS → GRAPH ONLY
     if (activeSection === "payments") {
       return (
         <div className="admin-content-box fade-up">
-          <h2 className="admin-heading">Payment Approvals</h2>
-          <p className="admin-subheading">Authorize pending user payments</p>
+          <h2 className="admin-heading">Payments Overview</h2>
+          <p className="admin-subheading">
+            Commission earnings across all user bookings
+          </p>
           <div className="admin-divider"></div>
 
-          {paymentRequests.length === 0 && <p>No pending payments.</p>}
+          {/* GRAPH */}
+          <div style={{ height: "350px", width: "100%" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={graphData}>
+                <CartesianGrid stroke="#333" strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: "#c9c9c9", fontSize: 12 }}
+                />
+                <YAxis tick={{ fill: "#c9c9c9" }} />
+                <Tooltip
+                  contentStyle={{
+                    background: "#1a1a1a",
+                    border: "1px solid #444",
+                  }}
+                  labelStyle={{ color: "#fff" }}
+                  itemStyle={{ color: "#D4AF37" }}
+                />
 
-          {paymentRequests.map((pay) => (
-            <div
-              key={pay.id}
-              className={`admin-item ${slidingItem === pay.id ? "slide-out" : ""}`}
-            >
-              <div>
-                <strong>User: {pay.user}</strong>
-                <p>Amount: {pay.amount}</p>
-                <p>Method: {pay.method}</p>
-              </div>
+                <Line
+                  type="monotone"
+                  dataKey="commission"
+                  stroke="#D4AF37"
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: "#D4AF37" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-              <div className="admin-actions">
-                <button
-                  className="approve-btn"
-                  onClick={() => handleSlideOut("payment", pay.id)}
-                >
-                  Approve
-                </button>
-
-                <button
-                  className="deny-btn"
-                  onClick={() => handleSlideOut("payment", pay.id)}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))}
+          {/* Total Commission */}
+          <h3
+            style={{
+              marginTop: "30px",
+              color: "var(--admin-primary)",
+              fontSize: "1.3rem",
+              fontWeight: "600",
+            }}
+          >
+            Total Commission Earned: ${totalCommission.toFixed(2)}
+          </h3>
         </div>
       );
     }
 
+    // SETTINGS
     return (
       <div className="admin-content-box fade-up">
         <h2 className="admin-heading">Settings</h2>
-        <p className="admin-subheading">General administrative configurations</p>
+        <p className="admin-subheading">Administrative configuration tools</p>
         <div className="admin-divider"></div>
-        <p>Settings will be implemented later.</p>
+        <p>Settings will be added later.</p>
       </div>
     );
   };
 
-  // Main UI structure: sidebar + top header + content.
+  // MAIN LAYOUT
   return (
     <div className="admin-dashboard-container">
-
-      {/* Sidebar Navigation */}
       <aside className="admin-sidebar">
         <div className="admin-brand">GearUP Admin</div>
 
         <ul>
-          <li className={activeSection === "overview" ? "active" : ""} onClick={() => setActiveSection("overview")}>Overview</li>
-          <li className={activeSection === "verification" ? "active" : ""} onClick={() => setActiveSection("verification")}>Verification</li>
-          <li className={activeSection === "cars" ? "active" : ""} onClick={() => setActiveSection("cars")}>Car Approvals</li>
-          <li className={activeSection === "payments" ? "active" : ""} onClick={() => setActiveSection("payments")}>Payments</li>
-          <li className={activeSection === "settings" ? "active" : ""} onClick={() => setActiveSection("settings")}>Settings</li>
+          <li
+            className={activeSection === "overview" ? "active" : ""}
+            onClick={() => setActiveSection("overview")}
+          >
+            Overview
+          </li>
+
+          <li
+            className={activeSection === "cars" ? "active" : ""}
+            onClick={() => setActiveSection("cars")}
+          >
+            Car Approvals
+          </li>
+
+          <li
+            className={activeSection === "payments" ? "active" : ""}
+            onClick={() => setActiveSection("payments")}
+          >
+            Payments
+          </li>
+
+          <li
+            className={activeSection === "settings" ? "active" : ""}
+            onClick={() => setActiveSection("settings")}
+          >
+            Settings
+          </li>
         </ul>
       </aside>
 
-      {/* Main Panel */}
       <main className="admin-main">
-        {/* Top header bar */}
         <header className="admin-top-header">
           <h1>GearUP Administration</h1>
         </header>
 
         {renderSection()}
       </main>
-
     </div>
   );
 }
