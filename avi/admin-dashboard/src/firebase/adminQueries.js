@@ -1,42 +1,45 @@
-import {
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc,
+// src/firebase/adminQueries.js
+// Backbone functions for Admin Dashboard
+
+import { 
+  getDocs, 
+  collection, 
+  deleteDoc, 
+  updateDoc, 
+  addDoc, 
+  doc 
 } from "firebase/firestore";
+
 import { db } from "./firebaseConfig";
 
-/* FETCH — VERIFICATION REQUESTS */
+// READ verification requests
 export async function fetchVerificationRequests() {
-  const snapshot = await getDocs(collection(db, "verificationRequests"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const snap = await getDocs(collection(db, "verificationRequests"));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-/* FETCH — CAR APPROVAL REQUESTS */
+// READ car approval requests
 export async function fetchCarRequests() {
-  const snapshot = await getDocs(collection(db, "carApprovalRequests"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const snap = await getDocs(collection(db, "carRequests"));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-/* FETCH — PAYMENT REQUESTS */
+// READ pending payments
 export async function fetchPaymentRequests() {
-  const snapshot = await getDocs(collection(db, "payments"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const snap = await getDocs(collection(db, "paymentRequests"));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-/* PUSH — ADMIN NOTIFICATION */
+// Add notification to Firestore (future connection)
 export async function pushAdminNotification(message, type) {
   await addDoc(collection(db, "adminNotifications"), {
     message,
     type,
-    createdAt: new Date(),
-    read: false,
+    timestamp: Date.now()
   });
 }
 
-/* ACTION — REMOVE ITEM ON APPROVAL/DENIAL */
+// Delete from any collection
 export async function removeItem(collectionName, id) {
   await deleteDoc(doc(db, collectionName, id));
 }

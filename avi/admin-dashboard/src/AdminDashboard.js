@@ -12,9 +12,9 @@ import {
   fetchPaymentRequests,
   pushAdminNotification,
   removeItem
-} from "../firebase/adminQueries";
+} from "./firebase/adminQueries";
 
-// Sample Images (can be removed when using real data)
+// Sample Images 
 import Lexus from "./images/lexus.png";
 import Porsche from "./images/porsche.png";
 
