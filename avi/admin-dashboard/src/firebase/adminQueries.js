@@ -20,7 +20,7 @@ export async function fetchVerificationRequests() {
 
 // READ car approval requests
 export async function fetchCarRequests() {
-  const snap = await getDocs(collection(db, "carRequests"));
+  const snap = await getDocs(collection(db, "vehicles"));
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
