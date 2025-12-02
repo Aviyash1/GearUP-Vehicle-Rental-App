@@ -1,45 +1,105 @@
 // src/firebase/adminQueries.js
-// Backbone functions for Admin Dashboard
+// Admin → Firestore actions (verification, vehicles, payments, notifications)
 
 import { 
-  getDocs, 
-  collection, 
-  deleteDoc, 
-  updateDoc, 
-  addDoc, 
+  getDocs,
+  collection,
+  deleteDoc,
+  updateDoc,
+  addDoc,
   doc 
 } from "firebase/firestore";
 
 import { db } from "./firebaseConfig";
 
-// READ verification requests
+/* ------------------------------
+   FETCH VERIFICATION REQUESTS
+-------------------------------- */
 export async function fetchVerificationRequests() {
   const snap = await getDocs(collection(db, "verificationRequests"));
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-// READ car approval requests
+/* ------------------------------
+   FETCH VEHICLES WAITING APPROVAL
+-------------------------------- */
 export async function fetchCarRequests() {
-  const snap = await getDocs(collection(db, "vehicles"));
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const ref = collection(db, "vehicles");
+  const snap = await getDocs(ref);
+
+  return snap.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((v) => v.status === "Pending Admin Approval");
 }
 
-// READ pending payments
+/* ------------------------------
+   FETCH PAYMENTS
+-------------------------------- */
 export async function fetchPaymentRequests() {
   const snap = await getDocs(collection(db, "paymentRequests"));
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-// Add notification to Firestore (future connection)
-export async function pushAdminNotification(message, type) {
-  await addDoc(collection(db, "adminNotifications"), {
+/* ------------------------------
+   SEND NOTIFICATION TO SPECIFIC USER
+-------------------------------- */
+export async function pushAdminNotification({
+  ownerId,
+  message,
+  title = "Notification",
+  type = "GENERAL"
+}) {
+  if (!ownerId) return;
+
+  await addDoc(collection(db, "notifications"), {
+    ownerId,
     message,
+    title,
     type,
-    timestamp: Date.now()
+    read: false,
+    createdAt: Date.now()
   });
 }
 
-// Delete from any collection
+/* ------------------------------
+   APPROVE VEHICLE
+-------------------------------- */
+export async function approveVehicle(vehicleId, ownerId) {
+  const ref = doc(db, "vehicles", vehicleId);
+
+  await updateDoc(ref, {
+    status: "Approved"
+  });
+
+  await pushAdminNotification({
+    ownerId,
+    message: "Your vehicle has been approved!",
+    title: "Car Approved",
+    type: "CAR_APPROVED"
+  });
+}
+
+/* ------------------------------
+   DENY VEHICLE
+-------------------------------- */
+export async function denyVehicle(vehicleId, ownerId) {
+  const ref = doc(db, "vehicles", vehicleId);
+
+  await updateDoc(ref, {
+    status: "Denied"
+  });
+
+  await pushAdminNotification({
+    ownerId,
+    message: "Your vehicle has been denied.",
+    title: "Car Denied",
+    type: "CAR_DENIED"
+  });
+}
+
+/* ------------------------------
+   DELETE ANY ITEM
+-------------------------------- */
 export async function removeItem(collectionName, id) {
   await deleteDoc(doc(db, collectionName, id));
 }

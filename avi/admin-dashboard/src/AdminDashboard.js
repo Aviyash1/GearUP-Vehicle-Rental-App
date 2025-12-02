@@ -11,7 +11,9 @@ import {
   fetchCarRequests,
   fetchPaymentRequests,
   pushAdminNotification,
-  removeItem
+  removeItem,
+  approveVehicle,
+  denyVehicle
 } from "./firebase/adminQueries";
 
 // Sample Images 
@@ -23,13 +25,11 @@ function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const [slidingItem, setSlidingItem] = useState(null);
 
-  // Firebase collections
   const [notifications, setNotifications] = useState([]);
   const [verificationRequests, setVerificationRequests] = useState([]);
   const [carRequests, setCarRequests] = useState([]);
   const [paymentRequests, setPaymentRequests] = useState([]);
 
-  // Load Firebase Data
   useEffect(() => {
     async function loadData() {
       setVerificationRequests(await fetchVerificationRequests());
@@ -37,14 +37,9 @@ function AdminDashboard() {
       setPaymentRequests(await fetchPaymentRequests());
     }
 
-    async function loadNotifications() {
-      const snap = await fetch("adminNotifications");
-    }
-
     loadData();
   }, []);
 
-  // Slide-out + Firebase delete + notification
   const handleSlideOut = (type, id) => {
     setSlidingItem(id);
 
@@ -56,14 +51,8 @@ function AdminDashboard() {
         setVerificationRequests(prev => prev.filter(r => r.id !== id));
       }
 
-      if (type === "car") {
-        await removeItem("carApprovalRequests", id);
-        pushAdminNotification("Car listing reviewed", "car");
-        setCarRequests(prev => prev.filter(c => c.id !== id));
-      }
-
       if (type === "payment") {
-        await removeItem("payments", id);
+        await removeItem("paymentRequests", id);
         pushAdminNotification("Payment processed — commission added", "payment");
         setPaymentRequests(prev => prev.filter(p => p.id !== id));
       }
@@ -72,10 +61,8 @@ function AdminDashboard() {
     }, 300);
   };
 
-  // Render Section
   const renderSection = () => {
 
-    // OVERVIEW
     if (activeSection === "overview") {
       return (
         <div className="admin-content-box fade-up">
@@ -105,7 +92,6 @@ function AdminDashboard() {
       );
     }
 
-    // NOTIFICATIONS 
     if (activeSection === "notifications") {
       return (
         <div className="admin-content-box fade-up">
@@ -125,7 +111,6 @@ function AdminDashboard() {
       );
     }
 
-    // VERIFICATION 
     if (activeSection === "verification") {
       return (
         <div className="admin-content-box fade-up">
@@ -165,7 +150,6 @@ function AdminDashboard() {
       );
     }
 
-    // CAR APPROVALS
     if (activeSection === "cars") {
       return (
         <div className="admin-content-box fade-up">
@@ -189,13 +173,13 @@ function AdminDashboard() {
               <div className="admin-actions">
                 <button
                   className="approve-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => approveVehicle(car.id, car.ownerId)}
                 >
                   Approve
                 </button>
                 <button
                   className="deny-btn"
-                  onClick={() => handleSlideOut("car", car.id)}
+                  onClick={() => denyVehicle(car.id, car.ownerId)}
                 >
                   Deny
                 </button>
@@ -206,7 +190,6 @@ function AdminDashboard() {
       );
     }
 
-    // PAYMENTS ==========================================================
     if (activeSection === "payments") {
       return (
         <div className="admin-content-box fade-up">
@@ -246,7 +229,6 @@ function AdminDashboard() {
       );
     }
 
-    // SETTINGS ==========================================================
     return (
       <div className="admin-content-box fade-up">
         <h2 className="admin-heading">Settings</h2>
