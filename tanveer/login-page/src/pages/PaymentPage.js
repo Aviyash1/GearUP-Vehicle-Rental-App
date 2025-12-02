@@ -76,6 +76,17 @@ export default function PaymentPage() {
         createdAt: new Date().toISOString(),
       });
 
+      // 🔔 Create notification
+await addDoc(collection(db, "notifications"), {
+  userId: user.uid,
+  type: "BOOKING_CONFIRMED",
+  title: "Booking Confirmed",
+  message: `Your booking for ${vehicle.name} from ${startDate} to ${endDate} is confirmed.`,
+  read: false,
+  createdAt: new Date().toISOString()
+});
+
+
       alert("Payment Successful! Booking Confirmed.");
 
       navigate("/feedback", {
