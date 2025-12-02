@@ -1,8 +1,6 @@
 // src/pages/BookVehicle.js
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebaseConfig";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 import "../styles/BookVehicle.css";
 
 export default function BookVehicle() {
@@ -47,70 +45,22 @@ export default function BookVehicle() {
     setTotal(diffDays * vehicle.price);
   };
 
-  const handleCheckout = async () => {
-    if (!pickupTime || !dropoffTime) {
-      alert("Please select pickup and drop-off times!");
+  const goToPayment = () => {
+    if (!pickupTime || !dropoffTime || !total) {
+      alert("Please complete all fields + calculate total.");
       return;
     }
 
-    if (!total) {
-      alert("Please calculate total before proceeding.");
-      return;
-    }
-
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in first.");
-      navigate("/");
-      return;
-    }
-
-    try {
-      // Create booking document
-      const bookingId = Date.now().toString();
-
-      const bookingData = {
-        userId: user.uid,
-        vehicleName: vehicle.name,
-        vehicleImg: vehicle.img || "",    // 🔥 store image for MyBookings
+    navigate("/payment", {
+      state: {
+        vehicle,
         startDate,
         endDate,
         pickupTime,
         dropoffTime,
-        totalCost: total,
-        status: "Confirmed",
-        createdAt: new Date().toISOString(),
-      };
-
-      await setDoc(doc(db, "bookings", bookingId), bookingData);
-
-      // Create notification for this user
-      await addDoc(collection(db, "notifications"), {
-        userId: user.uid,
-        bookingId,
-        type: "BOOKING_CONFIRMED",
-        title: "Booking Confirmed",
-        message: `Your booking for ${vehicle.name} from ${startDate} to ${endDate} is confirmed.`,
-        read: false,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Go to payment
-      navigate("/payment", {
-        state: {
-          vehicle,
-          total,
-          startDate,
-          endDate,
-          pickupTime,
-          dropoffTime,
-          bookingId,
-        },
-      });
-    } catch (err) {
-      console.error("Error creating booking:", err);
-      alert("Something went wrong while creating your booking.");
-    }
+        total,
+      },
+    });
   };
 
   return (
@@ -121,41 +71,29 @@ export default function BookVehicle() {
         <p className="book-type">{vehicle.type}</p>
         <p className="book-price">NZ${vehicle.price}/day</p>
 
+        {/* date inputs */}
         <div className="date-row">
           <div className="date-field">
             <label>Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
+
           <div className="date-field">
             <label>End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
 
+        {/* time inputs */}
         <div className="date-row">
           <div className="date-field">
             <label>Pickup Time</label>
-            <input
-              type="time"
-              value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-            />
+            <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
           </div>
+
           <div className="date-field">
             <label>Drop-off Time</label>
-            <input
-              type="time"
-              value={dropoffTime}
-              onChange={(e) => setDropoffTime(e.target.value)}
-            />
+            <input type="time" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} />
           </div>
         </div>
 
@@ -165,11 +103,9 @@ export default function BookVehicle() {
 
         {total && (
           <div className="total-section">
-            <h3>
-              Total: <span>NZ${total}</span>
-            </h3>
-            <button className="checkout-btn" onClick={handleCheckout}>
-              Proceed to Checkout
+            <h3>Total: <span>NZ${total}</span></h3>
+            <button className="checkout-btn" onClick={goToPayment}>
+              Proceed to Payment
             </button>
           </div>
         )}
