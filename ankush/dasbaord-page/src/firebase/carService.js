@@ -18,6 +18,5 @@ export async function fetchCars() {
   const ref = collection(db, "vehicles");
   const q = query(ref, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }

@@ -1,8 +1,7 @@
-// src/AddNewCar.js
+// AddNewCar.js
 import React, { useState } from "react";
 import "./AddNewCar.css";
 import { addCarToDatabase, fetchCars } from "./firebase/carService";
-import { auth } from "./firebase/firebaseConfig";
 
 export default function AddNewCar({ open, onClose, onCarAdded }) {
   const [car, setCar] = useState({
@@ -49,15 +48,11 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
 
   const handleSubmit = async () => {
     const err = validateCar();
-    if (err) {
-      alert(err);
-      return;
-    }
+    if (err) return alert(err);
 
     try {
       await addCarToDatabase({
         ...car,
-        ownerId: auth.currentUser.uid,
         status: "Pending Admin Approval",
         createdAt: Date.now(),
       });
