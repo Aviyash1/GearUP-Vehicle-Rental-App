@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SearchPage.css";
 import mapImage from "./images/map-placeholder.png";
 import gmcImage from "./images/gmc.jpg";
@@ -7,62 +7,11 @@ import mercedesImage from "./images/mercedes.jpg";
 import mazdaImage from "./images/mazda.jpg";
 import logoImage from "./images/logo.png";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch } from "react-icons/fa";
+import { fetchCars } from "./firebase/carService";
 
 function SearchPage() {
-  // All car listings (simulated data)
-  const allCars = [
-    {
-      id: 1,
-      name: "GMC Denali 2025",
-      seats: 5,
-      transmission: "Automatic",
-      bags: 3,
-      price: 180,
-      location: "Auckland",
-      availableFrom: "2025-11-11T08:00",
-      availableTo: "2025-11-25T23:00",
-      image: gmcImage,
-    },
-    {
-      id: 2,
-      name: "Porsche 2025",
-      seats: 4,
-      transmission: "Automatic",
-      bags: 3,
-      price: 250,
-      location: "Queenstown",
-      availableFrom: "2025-11-10T10:00",
-      availableTo: "2025-11-20T22:00",
-      image: porscheImage,
-    },
-    {
-      id: 3,
-      name: "Mercedes GTR 2025",
-      seats: 4,
-      transmission: "Automatic",
-      bags: 2,
-      price: 300,
-      location: "Auckland",
-      availableFrom: "2025-11-15T09:00",
-      availableTo: "2025-12-01T21:00",
-      image: mercedesImage,
-    },
-    {
-      id: 4,
-      name: "Mazda CX-5 2024",
-      seats: 5,
-      transmission: "Manual",
-      bags: 3,
-      price: 150,
-      location: "Queenstown",
-      availableFrom: "2025-11-01T07:00",
-      availableTo: "2025-11-30T23:00",
-      image: mazdaImage, 
-    },
-  ];
 
-  // States
-  const [cars] = useState(allCars);
+  const [cars, setCars] = useState([]);
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("");
@@ -72,7 +21,14 @@ function SearchPage() {
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-  // Filter toggle handler
+  useEffect(() => {
+    async function loadCars() {
+      const result = await fetchCars();
+      setCars(result);
+    }
+    loadCars();
+  }, []);
+
   const handleFilterChange = (filterType, value) => {
     const updateFilter = (prev) =>
       prev.includes(value)
@@ -84,10 +40,9 @@ function SearchPage() {
     if (filterType === "price") setPriceFilter(updateFilter);
   };
 
-  // Main filtering logic
   const filteredCars = cars.filter((car) => {
     const locationMatch =
-      (pickupLocation === "" || car.location.toLowerCase().includes(pickupLocation.toLowerCase())) &&
+      (pickupLocation === "" || car.location?.toLowerCase().includes(pickupLocation.toLowerCase())) &&
       (locationFilter.length === 0 || locationFilter.includes(car.location));
 
     const transmissionMatch =
@@ -97,12 +52,11 @@ function SearchPage() {
     const priceMatch =
       priceFilter.length === 0 ||
       priceFilter.some((range) => {
-        if (range === "low") return car.price <= 200;
-        if (range === "high") return car.price > 200;
+        if (range === "low") return car.rent <= 200;
+        if (range === "high") return car.rent > 200;
         return true;
       });
 
-    // Combine date & time into a full datetime string
     const pickupDateTime = pickupDate && pickupTime ? `${pickupDate}T${pickupTime}` : null;
     const returnDateTime = returnDate && returnTime ? `${returnDate}T${returnTime}` : null;
 
@@ -116,7 +70,7 @@ function SearchPage() {
 
   return (
     <div className="search-container">
-      {/* HEADER BAR */}
+
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
         <div className="search-bar">
@@ -146,9 +100,8 @@ function SearchPage() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="main-layout">
-        {/* SIDEBAR */}
+
         <aside className="sidebar">
           <div className="map-box">
             <img src={mapImage} alt="Map" className="map-img" />
@@ -165,7 +118,6 @@ function SearchPage() {
             </div>
           </div>
 
-          {/* FILTERS */}
           <div className="filters">
             <div className="filter-header">
               <h3>Filters</h3>
@@ -232,19 +184,18 @@ function SearchPage() {
           </div>
         </aside>
 
-        {/* RESULTS */}
         <section className="results">
           <h2>Vehicles Available ({filteredCars.length})</h2>
 
           {filteredCars.map((car) => (
             <div className="car-card" key={car.id}>
-              <img src={car.image} alt={car.name} />
+              <img src={car.imageUrl} alt={car.model} />
               <div className="car-info">
-                <h3>{car.name}</h3>
+                <h3>{car.model}</h3>
                 <p>{car.seats} Seats • {car.transmission} • {car.bags} Bags</p>
 
                 <div className="price-section">
-                  <h4>${car.price} / day</h4>
+                  <h4>${car.rent} / day</h4>
                   <button className="rent-btn">Rent Now</button>
                 </div>
 
@@ -252,7 +203,7 @@ function SearchPage() {
                   <summary>More Information</summary>
                   <div className="owner-info">
                     <h4>Owner Contact Information</h4>
-                    <p>Email: info@{car.name.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
+                    <p>Email: info@{car.model?.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
                     <p>Phone: +64 21 555 1234</p>
                     <p>Location: {car.location}</p>
                   </div>
