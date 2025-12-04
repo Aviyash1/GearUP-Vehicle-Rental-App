@@ -126,3 +126,6 @@
 .primary-btn:hover {
   background: #072a52;
 }
+.cards-section {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
