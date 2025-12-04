@@ -1,0 +1,60 @@
+.feedback-page {
+  background: url("../images/bg.jpeg") no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.feedback-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  padding: 25px;
+}
+
+.feedback-title {
+  color: #0c356a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  border: 2px solid #0c356a;
+  padding: 10px;
+  font-size: 1rem;
+  resize: none;
+  color: #0c356a;
+}
+
+.submit-btn {
+  background-color: #0c356a;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.submit-btn:hover {
+  background-color: #09254a;
+}
+
+.thankyou-section h2 {
+  color: #0c356a;
+}
+.thankyou-section p {
+  color: #333;
+  margin-top: 10px;
+}

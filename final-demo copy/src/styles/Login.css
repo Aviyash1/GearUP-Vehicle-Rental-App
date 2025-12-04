@@ -1,0 +1,147 @@
+@import url("https://fonts.googleapis.com/css2?family=Inika:wght@400;700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --primary: #1f4e79;
+  --accent: #5dade2;
+  --bg: #eaeaea;
+  --surface: #ffffff;
+  --border: #dbdbdb;
+  --text: #000000;
+  --radius: 14px;
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --error: #c0392b;
+  --ok: #27ae60;
+}
+
+/* Full-screen background */
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: url("../images/bg.jpeg") no-repeat center center fixed;
+  background-size: cover;
+  color: var(--text);
+}
+
+/* Wrapper to center the card */
+.login-page {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;    /* center horizontally */
+  align-items: center;        /* center vertically */
+  position: relative;
+}
+
+/* Dark overlay for readability */
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 0;
+}
+
+/* LOGIN CARD */
+.login-card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 16px;
+  width: 380px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* centers button + text */
+  gap: 15px;               /* clean spacing */
+}
+
+/* Title */
+.login-card h2 {
+  margin-top: 0;
+  color: var(--primary);
+  font-family: Inika, serif;
+  text-align: center;
+}
+
+/* Inputs (full width) */
+.login-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+}
+
+/* Login Button */
+.login-card button {
+  padding: 12px;
+  width: 60%;              /* centered-sized button */
+  margin: 0 auto;          /* center horizontally */
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.login-card button:hover {
+  background: var(--accent);
+}
+
+/* Helper text */
+.msg {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--ok);
+}
+
+.subtext {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* Forgot password */
+.forgot,
+.back {
+  width: 100%;
+  text-align: right;
+}
+
+.forgot a,
+.back span {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.forgot a:hover,
+.back span:hover {
+  text-decoration: underline;
+}
+
+/* Sign Up link */
+.switch {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.switch span {
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.switch span:hover {
+  text-decoration: underline;
+}
