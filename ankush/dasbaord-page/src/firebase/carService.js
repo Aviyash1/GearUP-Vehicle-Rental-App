@@ -1,5 +1,7 @@
-// src/firebase/carService.js
+// Firestore database instance
 import { db } from "./firebaseConfig";
+
+// Firestore functions
 import {
   collection,
   addDoc,
@@ -10,20 +12,23 @@ import {
   deleteDoc
 } from "firebase/firestore";
 
+// Add a new vehicle to Firestore
 export async function addCarToDatabase(vehicleData) {
-  const ref = collection(db, "vehicles");
-  const docRef = await addDoc(ref, vehicleData);
-  return { id: docRef.id };
+  const ref = collection(db, "vehicles"); // Collection path
+  const docRef = await addDoc(ref, vehicleData); // Create new document
+  return { id: docRef.id }; // Return ID of new car
 }
 
+// Fetch all vehicles from Firestore
 export async function fetchCars() {
-  const ref = collection(db, "vehicles");
-  const q = query(ref, orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const ref = collection(db, "vehicles"); // Collection reference
+  const q = query(ref, orderBy("createdAt", "desc")); // Sort newest first
+  const snap = await getDocs(q); // Get all documents
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() })); // Convert to array
 }
 
+// Delete a vehicle by ID
 export async function deleteCarFromDatabase(carId) {
-  const ref = doc(db, "vehicles", carId);
-  await deleteDoc(ref);
+  const ref = doc(db, "vehicles", carId); // Path to specific document
+  await deleteDoc(ref); // Delete document
 }

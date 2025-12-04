@@ -8,16 +8,20 @@ export default function ProfileModal({
   onChange,
   onSave,
 }) {
+  // Do not show modal if open is false
   if (!open) return null;
 
   return (
+    // Clicking the overlay closes the modal
     <div className="profile-overlay" onClick={onClose}>
+      
+      {/* Stop modal from closing when clicking inside */}
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
         <h2>Edit Profile</h2>
 
         <div className="profile-grid">
 
-          {/* LEFT SIDE — JUST IMAGE */}
+          {/* Left side: profile image preview */}
           <div className="profile-image-section">
             <img
               src={profile.profileImage}
@@ -26,8 +30,10 @@ export default function ProfileModal({
             />
           </div>
 
-          {/* RIGHT SIDE — FIELDS */}
+          {/* Right side: form inputs */}
           <div className="profile-right">
+
+            {/* Full Name */}
             <input
               className="input-full"
               name="name"
@@ -36,6 +42,7 @@ export default function ProfileModal({
               placeholder="Full Name"
             />
 
+            {/* Email */}
             <input
               name="email"
               value={profile.email}
@@ -43,6 +50,7 @@ export default function ProfileModal({
               placeholder="Email"
             />
 
+            {/* Phone */}
             <input
               name="phone"
               value={profile.phone}
@@ -50,6 +58,7 @@ export default function ProfileModal({
               placeholder="Phone"
             />
 
+            {/* Address */}
             <input
               name="address"
               value={profile.address}
@@ -58,6 +67,7 @@ export default function ProfileModal({
               className="input-full"
             />
 
+            {/* City */}
             <input
               name="city"
               value={profile.city}
@@ -65,6 +75,7 @@ export default function ProfileModal({
               placeholder="City"
             />
 
+            {/* Country */}
             <input
               name="country"
               value={profile.country}
@@ -72,6 +83,7 @@ export default function ProfileModal({
               placeholder="Country"
             />
 
+            {/* License */}
             <input
               name="license"
               value={profile.license}
@@ -79,6 +91,7 @@ export default function ProfileModal({
               placeholder="License"
             />
 
+            {/* Bank */}
             <input
               name="bank"
               value={profile.bank}
@@ -86,6 +99,7 @@ export default function ProfileModal({
               placeholder="Bank"
             />
 
+            {/* Account */}
             <input
               name="account"
               value={profile.account}
@@ -95,10 +109,12 @@ export default function ProfileModal({
           </div>
         </div>
 
+        {/* Buttons */}
         <div className="profile-actions">
           <button className="btn primary" onClick={onSave}>Save</button>
           <button className="btn cancel" onClick={onClose}>Cancel</button>
         </div>
+
       </div>
     </div>
   );
