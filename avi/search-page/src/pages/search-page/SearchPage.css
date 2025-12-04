@@ -31,58 +31,57 @@
   transform: scale(1.08);
 }
 
-/* Spread-out top search inputs */
-.search-bar-full {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 18px;
-  width: 80%;
-}
-
-/* Floating label container */
-.input-group-float {
-  position: relative;
+/* Search bar container */
+.search-bar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: #f3f3f3;
+  padding: 10px;
+  border-radius: 12px;
 }
 
-/* Search inputs */
-.input-group-float input {
-  padding: 12px;
-  padding-top: 18px;
-  border-radius: 8px;
+/* Input with icon inside */
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 160px;
+  padding: 12px 12px 12px 36px;
   border: 1px solid #ccc;
-  background: #f3f3f3;
-  outline: none;
+  border-radius: 8px;
+  background: #fdfdfd;
   transition: 0.25s;
 }
 
-/* Change style on focus */
-.input-group-float input:focus {
-  background: white;
+.input-wrapper input:focus {
   border-color: #0046ff;
+  background: white;
 }
 
-/* Floating label text */
-.input-group-float label {
+/* Icon inside input */
+.input-icon {
   position: absolute;
-  top: 8px;
-  left: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  color: #444;
-  pointer-events: none;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #555;
+  font-size: 14px;
 }
 
-/* SEARCH BUTTON (same styling as before) */
+/* Search button */
 .search-btn {
   background-color: #0046ff;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 12px 18px;
+  padding: 12px 20px;
   cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: all 0.3s ease;
 }
 
@@ -91,7 +90,7 @@
   transform: scale(1.05);
 }
 
-/* Main layout: sidebar + cars */
+/* Layout: sidebar + results */
 .main-layout {
   display: grid;
   grid-template-columns: 330px 1fr;
@@ -99,39 +98,40 @@
   padding: 30px;
 }
 
-/* Sidebar */
+/* Sidebar structure */
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
 }
 
-/* Map block */
+/* MAP BLOCK */
 .map-box {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
+  height: 250px; 
 }
 
 .map-img {
   width: 100%;
-  border-radius: 12px;
+  height: 100%;
+  object-fit: cover;
 }
 
+/* Overlay + floating button restored */
 .map-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.7);
+  inset: 0;
+  background: rgba(0,0,0,0.25);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  gap: 10px;
 }
 
-/* Map Button (you wanted animations preserved) */
+/* Open Maps button */
 .map-btn {
   background: linear-gradient(135deg, #00b894, #00e676);
   color: white;
@@ -153,7 +153,7 @@
   left: -75%;
   width: 50%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255,255,255,0.25);
   transform: skewX(-25deg);
   transition: 0.6s;
 }
@@ -167,55 +167,96 @@
   background: linear-gradient(135deg, #00c853, #00e676);
 }
 
-/* Filters */
+/* FILTER PANEL */
 .filters {
-  background: #f0f0f0;
-  padding: 15px;
-  border-radius: 12px;
+  background: white;
+  padding: 22px 20px;
+  border-radius: 14px;
+  border: 1px solid #e3e6ee;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .filter-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
 }
 
-/* Scrolls only car list */
+.filter-header a {
+  color: #2563eb;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+/* Group title */
+.filter-group h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Checkbox label layout */
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* Checkbox UI */
+.filter-group input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #2563eb;
+}
+
+/* Divider between filter sections */
+.filter-group {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f5;
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+}
+
+/* Results scrolling */
 .results {
-  height: calc(200vh - 150px);
+  height: 160vh;
   overflow-y: auto;
 }
 
-/* --- VEHICLE CARDS (unchanged animations) --- */
-
+/* Vehicle Cards */
 .car-card {
   display: flex;
   align-items: center;
   background: white;
   border-radius: 12px;
+  padding: 10px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   margin-bottom: 20px;
   transition: 0.3s ease;
-  overflow: hidden;
 }
 
 .car-card:hover {
   transform: scale(1.01);
 }
 
-/* Large car image */
 .car-card img {
   width: 300px;
   object-fit: contain;
-  margin: 10px;
+  margin-right: 20px;
 }
 
 .car-info {
   flex: 1;
-  padding: 15px 25px;
+  padding-right: 20px;
 }
 
-/* Price section */
 .price-section {
   background: #f2f5ff;
   border-radius: 10px;
@@ -226,7 +267,7 @@
   border: 1px solid #dbe3ff;
 }
 
-/* Rent Now button — animations preserved */
+/* Rent Now button */
 .rent-btn {
   background: linear-gradient(135deg, #0046ff, #336dff);
   color: white;
@@ -257,10 +298,9 @@
 
 .rent-btn:hover {
   transform: scale(1.07);
-  background: linear-gradient(135deg, #0033cc, #005bff);
 }
 
-/* More Information section */
+/* More info dropdown */
 .info-dropdown summary {
   background: #0046ff;
   color: white;
@@ -272,4 +312,6 @@
 .owner-info {
   background: #e2e0e0;
   padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
 }
