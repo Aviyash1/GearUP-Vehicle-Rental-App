@@ -4,6 +4,7 @@ import "./Dashboard.css";
 
 import { fetchCars, deleteCarFromDatabase } from "./firebase/carService";
 import { listenToNotifications } from "./firebase/notificationService";
+import { fetchProfile, saveProfile } from "./firebase/profileService"; // ✅ NEW
 
 import AddNewCar from "./AddNewCar";
 import ProfileModal from "./Profile";
@@ -11,6 +12,10 @@ import ProfileModal from "./Profile";
 function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ Replace this with your real user ID from Firebase Auth
+  // e.g. const USER_ID = auth.currentUser.uid;
+  const USER_ID = "demo-user-id";
 
   const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -27,6 +32,9 @@ function Dashboard() {
 
   const [notifications, setNotifications] = useState([]);
 
+  const [loadingProfile, setLoadingProfile] = useState(true); // ✅ NEW
+
+  //  initial default profile – will be overwritten by Firestore if exists
   const [profile, setProfile] = useState({
     name: "Tanveer Singh",
     email: "TS@gmail.com",
@@ -72,6 +80,26 @@ function Dashboard() {
     loadCars();
   }, []);
 
+  // ✅ Fetch profile from Firestore on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await fetchProfile(USER_ID);
+        if (data) {
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error("Error loading profile:", err);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    if (USER_ID) {
+      loadProfile();
+    }
+  }, [USER_ID]);
+
   // Real-time notifications
   useEffect(() => {
     const unsubscribe = listenToNotifications((data) => {
@@ -105,9 +133,16 @@ function Dashboard() {
     setProfile((prev) => ({ ...prev, profileImage: url }));
   };
 
-  const handleSaveProfile = () => {
-    alert("Profile updated successfully!");
-    setProfileModalOpen(false);
+  // ✅ Save profile to Firestore + notify admin dashboard automatically
+  const handleSaveProfile = async () => {
+    try {
+      await saveProfile(USER_ID, profile);
+      alert("Profile updated & saved to Firebase!");
+      setProfileModalOpen(false);
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      alert("Failed to save profile. Check console for details.");
+    }
   };
 
   const handleShowDetails = (car) => {
@@ -115,7 +150,7 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
-  // ✅ DELETE HANDLER ADDED HERE
+  // DELETE HANDLER
   const handleDeleteCar = async (id) => {
     if (!window.confirm("Are you sure you want to delete this car?")) return;
 
@@ -172,7 +207,9 @@ function Dashboard() {
             <div key={car.id} className="car-card">
               {car.image && <img src={car.image} alt={car.model} />}
               <h4>{car.model}</h4>
-              <p>{car.year} • {car.type}</p>
+              <p>
+                {car.year} • {car.type}
+              </p>
               <p>Rent: {car.rent}</p>
 
               <span
@@ -192,7 +229,6 @@ function Dashboard() {
                 View Details
               </button>
 
-              {/* ✅ DELETE BUTTON */}
               <button
                 className="btn danger"
                 onClick={() => handleDeleteCar(car.id)}
@@ -213,9 +249,15 @@ function Dashboard() {
         {bookings.map((b) => (
           <div key={b.id} className="booking-card">
             <h4>{cars.find((c) => c.id === b.carId)?.model || "Car"}</h4>
-            <p><strong>Customer:</strong> {b.customer}</p>
-            <p><strong>Dates:</strong> {b.startDate} to {b.endDate}</p>
-            <span className={`badge ${b.status.toLowerCase()}`}>{b.status}</span>
+            <p>
+              <strong>Customer:</strong> {b.customer}
+            </p>
+            <p>
+              <strong>Dates:</strong> {b.startDate} to {b.endDate}
+            </p>
+            <span className={`badge ${b.status.toLowerCase()}`}>
+              {b.status}
+            </span>
           </div>
         ))}
       </div>
@@ -262,11 +304,16 @@ function Dashboard() {
 
   const renderSection = () => {
     switch (activeSection) {
-      case "overview": return renderOverview();
-      case "cars": return renderCars();
-      case "bookings": return renderBookings();
-      case "notifications": return renderNotifications();
-      default: return <div className="content-box">Feature coming soon...</div>;
+      case "overview":
+        return renderOverview();
+      case "cars":
+        return renderCars();
+      case "bookings":
+        return renderBookings();
+      case "notifications":
+        return renderNotifications();
+      default:
+        return <div className="content-box">Feature coming soon...</div>;
     }
   };
 
@@ -279,24 +326,58 @@ function Dashboard() {
         </div>
 
         <ul>
-          <li onClick={() => setActiveSection("overview")} className={activeSection === "overview" ? "active" : ""}>📊 <span>Overview</span></li>
-          <li onClick={() => setActiveSection("cars")} className={activeSection === "cars" ? "active" : ""}>🚗 <span>My Cars</span></li>
-          <li onClick={() => setActiveSection("bookings")} className={activeSection === "bookings" ? "active" : ""}>📘 <span>Bookings</span></li>
-          <li onClick={() => setActiveSection("notifications")} className={activeSection === "notifications" ? "active" : ""}>🔔 <span>Notifications</span></li>
+          <li
+            onClick={() => setActiveSection("overview")}
+            className={activeSection === "overview" ? "active" : ""}
+          >
+            📊 <span>Overview</span>
+          </li>
+          <li
+            onClick={() => setActiveSection("cars")}
+            className={activeSection === "cars" ? "active" : ""}
+          >
+            🚗 <span>My Cars</span>
+          </li>
+          <li
+            onClick={() => setActiveSection("bookings")}
+            className={activeSection === "bookings" ? "active" : ""}
+          >
+            📘 <span>Bookings</span>
+          </li>
+          <li
+            onClick={() => setActiveSection("notifications")}
+            className={activeSection === "notifications" ? "active" : ""}
+          >
+            🔔 <span>Notifications</span>
+          </li>
 
-          <li onClick={() => navigate("/documentation")}>📖 <span>Car Documentation</span></li>
-          <li onClick={() => navigate("/settings")}>⚙️ <span>Settings</span></li>
+          <li onClick={() => navigate("/documentation")}>
+            📖 <span>Car Documentation</span>
+          </li>
+          <li onClick={() => navigate("/settings")}>
+            ⚙️ <span>Settings</span>
+          </li>
 
-          <li onClick={() => setProfileModalOpen(true)}>👤 <span>Profile</span></li>
-          <li onClick={() => setAddCarModalOpen(true)}>➕ <span>Add Car</span></li>
+          <li onClick={() => setProfileModalOpen(true)}>
+            👤 <span>Profile</span>
+          </li>
+          <li onClick={() => setAddCarModalOpen(true)}>
+            ➕ <span>Add Car</span>
+          </li>
         </ul>
 
-        <button className="logout-btn" onClick={() => (window.location.href = "/login")}>
+        <button
+          className="logout-btn"
+          onClick={() => (window.location.href = "/login")}
+        >
           🚪 Logout
         </button>
       </aside>
 
-      <main className="main">{renderSection()}</main>
+      <main className="main">
+        {/* Optional: show profile loading state somewhere if you want */}
+        {loadingProfile ? <p>Loading profile...</p> : renderSection()}
+      </main>
 
       {/* Profile Modal */}
       <ProfileModal
@@ -305,7 +386,7 @@ function Dashboard() {
         onClose={() => setProfileModalOpen(false)}
         onChange={handleProfileChange}
         onImageUpload={handleProfileImageUpload}
-        onSave={handleSaveProfile}
+        onSave={handleSaveProfile} // ✅ now saves to Firebase
       />
 
       {/* Add New Car Modal */}
@@ -317,8 +398,14 @@ function Dashboard() {
 
       {/* Car Details */}
       {isCarDetailOpen && selectedCar && (
-        <div className="modal-overlay" onClick={() => setCarDetailOpen(false)}>
-          <div className="modal car-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal-overlay"
+          onClick={() => setCarDetailOpen(false)}
+        >
+          <div
+            className="modal car-detail-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2>{selectedCar.model}</h2>
 
             {selectedCar.image && (
@@ -332,25 +419,43 @@ function Dashboard() {
             <p className="car-description">{selectedCar.description}</p>
 
             <div className="info-grid">
-              <div><strong>Type:</strong> {selectedCar.type}</div>
-              <div><strong>Year:</strong> {selectedCar.year}</div>
-              <div><strong>Mileage:</strong> {selectedCar.mileage} km</div>
-              <div><strong>Engine:</strong> {selectedCar.engine}</div>
-              <div><strong>Fuel:</strong> {selectedCar.fuel}</div>
-              <div><strong>Transmission:</strong> {selectedCar.transmission}</div>
-              <div><strong>Seats:</strong> {selectedCar.seats}</div>
-              <div><strong>Color:</strong> {selectedCar.color}</div>
+              <div>
+                <strong>Type:</strong> {selectedCar.type}
+              </div>
+              <div>
+                <strong>Year:</strong> {selectedCar.year}
+              </div>
+              <div>
+                <strong>Mileage:</strong> {selectedCar.mileage} km
+              </div>
+              <div>
+                <strong>Engine:</strong> {selectedCar.engine}
+              </div>
+              <div>
+                <strong>Fuel:</strong> {selectedCar.fuel}
+              </div>
+              <div>
+                <strong>Transmission:</strong> {selectedCar.transmission}
+              </div>
+              <div>
+                <strong>Seats:</strong> {selectedCar.seats}
+              </div>
+              <div>
+                <strong>Color:</strong> {selectedCar.color}
+              </div>
             </div>
 
             <div className="modal-actions">
-              <button className="btn cancel" onClick={() => setCarDetailOpen(false)}>
+              <button
+                className="btn cancel"
+                onClick={() => setCarDetailOpen(false)}
+              >
                 Close
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }
