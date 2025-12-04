@@ -1,10 +1,11 @@
+// src/pages/Dashboard.js
 import React from "react";
 import "./Dashboard.css";
 import { auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { FaCar, FaUserCircle, FaClipboardList, FaBell } from "react-icons/fa";
-import dashboardBanner from "../assets/Toyota Crown Klugar.jpg"; // ✅ Local image
+import { FaCar, FaUserCircle, FaClipboardList, FaBell, FaStar } from "react-icons/fa";
+import dashboardBanner from "../assets/Toyota Crown Klugar.jpg";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -38,15 +39,13 @@ export default function Dashboard() {
           <h1>Welcome back 👋</h1>
           <p>Manage your rentals, vehicles, and account all in one place.</p>
         </div>
-        <img
-          src={dashboardBanner}
-          alt="Dashboard Banner"
-          className="banner-img"
-        />
+        <img src={dashboardBanner} alt="Dashboard Banner" className="banner-img" />
       </header>
 
       {/* Dashboard Cards */}
       <section className="cards-section">
+
+        {/* Browse Vehicles */}
         <div className="card" onClick={() => navigate("/vehicles")}>
           <div className="icon"><FaCar /></div>
           <h3>Browse Vehicles</h3>
@@ -54,6 +53,7 @@ export default function Dashboard() {
           <button className="primary-btn">Explore Now</button>
         </div>
 
+        {/* My Bookings */}
         <div className="card" onClick={() => navigate("/my-bookings")}>
           <div className="icon"><FaClipboardList /></div>
           <h3>My Bookings</h3>
@@ -61,6 +61,7 @@ export default function Dashboard() {
           <button className="primary-btn">View Bookings</button>
         </div>
 
+        {/* My Profile */}
         <div className="card" onClick={() => navigate("/my-profile")}>
           <div className="icon"><FaUserCircle /></div>
           <h3>My Profile</h3>
@@ -68,12 +69,22 @@ export default function Dashboard() {
           <button className="primary-btn">Edit Profile</button>
         </div>
 
+        {/* Notifications */}
         <div className="card" onClick={() => navigate("/notifications")}>
           <div className="icon"><FaBell /></div>
           <h3>Notifications</h3>
           <p>Stay informed with your latest booking updates.</p>
           <button className="primary-btn">Check Alerts</button>
         </div>
+
+        {/* ⭐ Favorite Bookings */}
+        <div className="card" onClick={() => navigate("/favorite-bookings")}>
+          <div className="icon"><FaStar style={{ color: "#eab308" }} /></div>
+          <h3>Favorite Bookings</h3>
+          <p>Your saved bookings for easy access anytime.</p>
+          <button className="primary-btn">View Favorites</button>
+        </div>
+
       </section>
     </div>
   );
