@@ -1,48 +1,38 @@
 // src/firebase/adminQueries.js
-// Admin → Firestore actions (verification, vehicles, payments, notifications)
+// Centralised backend helpers for all admin actions.
 
-import { 
+import {
   getDocs,
   collection,
   deleteDoc,
   updateDoc,
   addDoc,
-  doc 
+  doc
 } from "firebase/firestore";
 
 import { db } from "./firebaseConfig";
 
-/* ------------------------------
-   FETCH VERIFICATION REQUESTS
--------------------------------- */
+/* Load identity verification submissions */
 export async function fetchVerificationRequests() {
   const snap = await getDocs(collection(db, "verificationRequests"));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-/* ------------------------------
-   FETCH VEHICLES WAITING APPROVAL
--------------------------------- */
+/* Load vehicles sitting in review, waiting for admin decision */
 export async function fetchCarRequests() {
-  const ref = collection(db, "vehicles");
-  const snap = await getDocs(ref);
-
+  const snap = await getDocs(collection(db, "vehicles"));
   return snap.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .filter((v) => v.status === "Pending Admin Approval");
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(v => v.status === "Pending Admin Approval");
 }
 
-/* ------------------------------
-   FETCH PAYMENTS
--------------------------------- */
+/* Load pending payment confirmations */
 export async function fetchPaymentRequests() {
   const snap = await getDocs(collection(db, "paymentRequests"));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-/* ------------------------------
-   SEND NOTIFICATION TO SPECIFIC USER
--------------------------------- */
+/* Send a targeted push notification to a specific owner */
 export async function pushAdminNotification({
   ownerId,
   message,
@@ -61,33 +51,21 @@ export async function pushAdminNotification({
   });
 }
 
-/* ------------------------------
-   APPROVE VEHICLE
--------------------------------- */
+/* Approve a car listing */
 export async function approveVehicle(vehicleId, ownerId) {
-  const ref = doc(db, "vehicles", vehicleId);
-
-  await updateDoc(ref, {
-    status: "Approved"
-  });
+  await updateDoc(doc(db, "vehicles", vehicleId), { status: "Approved" });
 
   await pushAdminNotification({
     ownerId,
-    message: "Your vehicle has been approved!",
+    message: "Your vehicle has been approved.",
     title: "Car Approved",
     type: "CAR_APPROVED"
   });
 }
 
-/* ------------------------------
-   DENY VEHICLE
--------------------------------- */
+/* Deny a car listing */
 export async function denyVehicle(vehicleId, ownerId) {
-  const ref = doc(db, "vehicles", vehicleId);
-
-  await updateDoc(ref, {
-    status: "Denied"
-  });
+  await updateDoc(doc(db, "vehicles", vehicleId), { status: "Denied" });
 
   await pushAdminNotification({
     ownerId,
@@ -97,9 +75,7 @@ export async function denyVehicle(vehicleId, ownerId) {
   });
 }
 
-/* ------------------------------
-   DELETE ANY ITEM
--------------------------------- */
+/* Removes a record from any collection when admin resolves it */
 export async function removeItem(collectionName, id) {
   await deleteDoc(doc(db, collectionName, id));
 }
