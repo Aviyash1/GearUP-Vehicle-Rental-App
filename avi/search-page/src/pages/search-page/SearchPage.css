@@ -1,4 +1,4 @@
-/* General page styling */
+/* GENERAL PAGE */
 .search-container {
   font-family: "Poppins", sans-serif;
   background-color: #f9fbff;
@@ -6,7 +6,7 @@
   color: #333;
 }
 
-/* Header bar */
+/* HEADER */
 .header {
   display: flex;
   align-items: center;
@@ -19,58 +19,48 @@
   z-index: 1000;
 }
 
-/* Logo stays clean and left-aligned */
 .logo-img {
   width: 120px;
-  height: auto;
   cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
-.logo-img:hover {
-  transform: scale(1.08);
-}
-
-/* Search bar container */
+/* SEARCH BAR */
 .search-bar {
   display: flex;
   align-items: center;
   gap: 14px;
   background: #f3f3f3;
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 12px;
 }
 
-/* Input with icon inside */
 .input-wrapper {
   position: relative;
 }
 
 .input-wrapper input {
-  width: 160px;
+  width: 150px;
   padding: 12px 12px 12px 36px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: #fdfdfd;
+  background: white;
   transition: 0.25s;
 }
 
 .input-wrapper input:focus {
   border-color: #0046ff;
-  background: white;
+  background: #fefefe;
 }
 
-/* Icon inside input */
 .input-icon {
   position: absolute;
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  color: #555;
+  color: #444;
   font-size: 14px;
 }
 
-/* Search button */
 .search-btn {
   background-color: #0046ff;
   color: white;
@@ -86,31 +76,32 @@
 }
 
 .search-btn:hover {
-  background-color: #0033cc;
+  background-color: #0034cc;
   transform: scale(1.05);
 }
 
-/* Layout: sidebar + results */
+/* MAIN LAYOUT */
 .main-layout {
   display: grid;
-  grid-template-columns: 330px 1fr;
-  gap: 20px;
+  grid-template-columns: 320px 1fr;
+  gap: 30px;
   padding: 30px;
 }
 
-/* Sidebar structure */
+/* SIDEBAR */
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
 
-/* MAP BLOCK */
+/* MAP BOX */
 .map-box {
   position: relative;
-  border-radius: 12px;
+  height: 250px;
+  border-radius: 14px;
   overflow: hidden;
-  height: 250px; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .map-img {
@@ -119,7 +110,6 @@
   object-fit: cover;
 }
 
-/* Overlay + floating button restored */
 .map-overlay {
   position: absolute;
   inset: 0;
@@ -128,54 +118,31 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 10px;
 }
 
-/* Open Maps button */
 .map-btn {
-  background: linear-gradient(135deg, #00b894, #00e676);
+  background: #00c853;
   color: white;
   border: none;
+  padding: 10px 22px;
   border-radius: 30px;
-  padding: 10px 24px;
-  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.35s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.map-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: rgba(255,255,255,0.25);
-  transform: skewX(-25deg);
-  transition: 0.6s;
-}
-
-.map-btn:hover::before {
-  left: 130%;
+  transition: 0.3s ease;
 }
 
 .map-btn:hover {
+  background: #00b347;
   transform: scale(1.07);
-  background: linear-gradient(135deg, #00c853, #00e676);
 }
 
-/* FILTER PANEL */
+/* FILTERS */
 .filters {
   background: white;
-  padding: 22px 20px;
+  padding: 20px;
   border-radius: 14px;
-  border: 1px solid #e3e6ee;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  border: 1px solid #e4e7ef;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07);
 }
 
 .filter-header {
@@ -188,130 +155,129 @@
   color: #2563eb;
   font-weight: 500;
   font-size: 14px;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-/* Group title */
-.filter-group h4 {
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-/* Checkbox label layout */
-.filter-group label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
-
-/* Checkbox UI */
-.filter-group input[type="checkbox"] {
-  width: 17px;
-  height: 17px;
-  accent-color: #2563eb;
-}
-
-/* Divider between filter sections */
 .filter-group {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f5;
+  margin-top: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
 }
 
 .filter-group:last-child {
   border-bottom: none;
 }
 
-/* Results scrolling */
-.results {
-  height: 160vh;
-  overflow-y: auto;
+.filter-group h4 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-/* Vehicle Cards */
-.car-card {
+.filter-group label {
   display: flex;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.filter-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+/* RESULTS */
+.results {
+  width: 100%;
+}
+
+/* GRID DISPLAY FOR CAR CARDS */
+.car-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* CAR CARD */
+.car-card {
   background: white;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
   transition: 0.3s ease;
 }
 
 .car-card:hover {
-  transform: scale(1.01);
+  transform: scale(1.03);
 }
 
 .car-card img {
-  width: 300px;
-  object-fit: contain;
-  margin-right: 20px;
+  width: 100%;
+  height: 165px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 12px;
 }
 
-.car-info {
-  flex: 1;
-  padding-right: 20px;
+.car-card h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
 }
 
+.car-card p {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* PRICE SECTION */
 .price-section {
-  background: #f2f5ff;
+  background: #eef2ff;
+  padding: 10px 12px;
   border-radius: 10px;
-  padding: 10px 16px;
   margin-top: 12px;
   display: flex;
   justify-content: space-between;
-  border: 1px solid #dbe3ff;
+  align-items: center;
+  border: 1px solid #d7defc;
 }
 
-/* Rent Now button */
 .rent-btn {
-  background: linear-gradient(135deg, #0046ff, #336dff);
+  background: #0046ff;
   color: white;
-  border: none;
-  padding: 10px 22px;
+  padding: 8px 18px;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
-  transition: 0.35s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.rent-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: rgba(255,255,255,0.3);
-  transform: skewX(-25deg);
-  transition: 0.75s ease;
-}
-
-.rent-btn:hover::before {
-  left: 130%;
+  transition: 0.3s ease;
 }
 
 .rent-btn:hover {
-  transform: scale(1.07);
+  background: #0033cc;
+  transform: scale(1.06);
 }
 
-/* More info dropdown */
+/* MORE INFO DROPDOWN */
 .info-dropdown summary {
   background: #0046ff;
   color: white;
-  padding: 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 .owner-info {
-  background: #e2e0e0;
+  background: #f1f1f1;
   padding: 12px;
   margin-top: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-size: 14px;
 }

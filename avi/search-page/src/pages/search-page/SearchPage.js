@@ -13,6 +13,7 @@ function SearchPage() {
   const [pickupTime, setPickupTime] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("");
+
   const [locationFilter, setLocationFilter] = useState([]);
   const [transmissionFilter, setTransmissionFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
@@ -22,41 +23,53 @@ function SearchPage() {
   useEffect(() => {
     async function load() {
       const result = await fetchCars();
+      console.log("Fetched cars:", result);
       setCars(result);
     }
     load();
   }, []);
 
+  // Sidebar filters
   const handleFilterChange = (type, value) => {
-    const update = (prev) =>
+    const toggle = (prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value];
 
-    if (type === "location") setLocationFilter(update);
-    if (type === "transmission") setTransmissionFilter(update);
-    if (type === "price") setPriceFilter(update);
+    if (type === "location") setLocationFilter(toggle);
+    if (type === "transmission") setTransmissionFilter(toggle);
+    if (type === "price") setPriceFilter(toggle);
   };
 
+  // FILTERING SYSTEM (fixed)
   const filteredCars = cars.filter((car) => {
-    const locationMatch =
-      (pickupLocation === "" ||
-        car.location?.toLowerCase().includes(pickupLocation.toLowerCase())) &&
-      (locationFilter.length === 0 || locationFilter.includes(car.location));
+    let matches = true;
 
-    const transmissionMatch =
-      transmissionFilter.length === 0 ||
-      transmissionFilter.includes(car.transmission);
+    // SEARCHBAR TYPED LOCATION
+    if (pickupLocation.trim() !== "") {
+      if (!car.location.toLowerCase().includes(pickupLocation.toLowerCase())) {
+        matches = false;
+      }
+    }
 
-    const priceMatch =
-      priceFilter.length === 0 ||
-      priceFilter.some((r) => {
-        if (r === "low") return car.rent <= 200;
-        if (r === "high") return car.rent > 200;
-        return true;
-      });
+    // SIDEBAR LOCATION FILTERS
+    if (locationFilter.length > 0 && !locationFilter.includes(car.location)) {
+      matches = false;
+    }
 
-    return locationMatch && transmissionMatch && priceMatch;
+    // TRANSMISSION FILTER
+    if (transmissionFilter.length > 0 && !transmissionFilter.includes(car.transmission)) {
+      matches = false;
+    }
+
+    // PRICE FILTER
+    if (priceFilter.length > 0) {
+      if (priceFilter.includes("low") && car.rent > 200) matches = false;
+      if (priceFilter.includes("high") && car.rent <= 200) matches = false;
+    }
+
+    return matches;
   });
 
+  // Rented car navigation
   const handleRent = (car) => {
     navigate("/payment", {
       state: { car, pickupDate, pickupTime, returnDate, returnTime },
@@ -66,6 +79,7 @@ function SearchPage() {
   return (
     <div className="search-container">
 
+      {/* HEADER */}
       <header className="header">
         <img src={logoImage} alt="Logo" className="logo-img" />
 
@@ -123,9 +137,13 @@ function SearchPage() {
         </div>
       </header>
 
+      {/* MAIN */}
       <main className="main-layout">
 
+        {/* SIDEBAR */}
         <aside className="sidebar">
+
+          {/* MAP */}
           <div className="map-box">
             <img src={mapImage} alt="Map" className="map-img" />
             <div className="map-overlay">
@@ -141,6 +159,7 @@ function SearchPage() {
             </div>
           </div>
 
+          {/* FILTERS */}
           <div className="filters">
             <div className="filter-header">
               <h3>Filters</h3>
@@ -165,7 +184,6 @@ function SearchPage() {
                   checked={locationFilter.includes("Auckland")}
                 /> Auckland
               </label>
-              <br />
               <label>
                 <input
                   type="checkbox"
@@ -183,7 +201,7 @@ function SearchPage() {
                   onChange={() => handleFilterChange("transmission", "Automatic")}
                   checked={transmissionFilter.includes("Automatic")}
                 /> Automatic
-              </label><br />
+              </label>
               <label>
                 <input
                   type="checkbox"
@@ -201,7 +219,7 @@ function SearchPage() {
                   onChange={() => handleFilterChange("price", "low")}
                   checked={priceFilter.includes("low")}
                 /> $0 - $200
-              </label><br />
+              </label>
               <label>
                 <input
                   type="checkbox"
@@ -213,13 +231,15 @@ function SearchPage() {
           </div>
         </aside>
 
+        {/* RESULTS PANEL */}
         <section className="results">
           <h2>Vehicles Available ({filteredCars.length})</h2>
 
-          {filteredCars.map((car) => (
-            <div className="car-card" key={car.id}>
-              <img src={car.imageUrl} alt={car.model} />
-              <div className="car-info">
+          <div className="car-grid">
+            {filteredCars.map((car) => (
+              <div className="car-card" key={car.id}>
+                <img src={car.imageUrl} alt={car.model} />
+
                 <h3>{car.model}</h3>
                 <p>{car.seats} Seats • {car.transmission} • 2 Bags</p>
 
@@ -236,12 +256,12 @@ function SearchPage() {
                     <h4>Owner Contact Information</h4>
                     <p>Email: info@{car.model.replace(/\s+/g, "").toLowerCase()}.co.nz</p>
                     <p>Phone: +64 21 555 1234</p>
-                    <p>Location: Auckland</p>
+                    <p>Location: {car.location}</p>
                   </div>
                 </details>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
       </main>
     </div>
