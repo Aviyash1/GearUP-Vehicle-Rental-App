@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.css";
 
-import { fetchCars } from "./firebase/carService";
+import { fetchCars, deleteCarFromDatabase } from "./firebase/carService";
 import { listenToNotifications } from "./firebase/notificationService";
 
 import AddNewCar from "./AddNewCar";
@@ -51,10 +51,9 @@ function Dashboard() {
     },
   ]);
 
-  // Disable scrolling when any modal is open
+  // Disable scrolling for modals
   useEffect(() => {
-    const lock =
-      isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
+    const lock = isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
     document.body.style.overflow = lock ? "hidden" : "auto";
   }, [isProfileModalOpen, isAddCarModalOpen, isCarDetailOpen]);
 
@@ -116,6 +115,20 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
+  // ✅ DELETE HANDLER ADDED HERE
+  const handleDeleteCar = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this car?")) return;
+
+    try {
+      await deleteCarFromDatabase(id);
+      setCars((prev) => prev.filter((c) => c.id !== id));
+      alert("Car deleted successfully!");
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete car");
+    }
+  };
+
   const pendingCount = useMemo(
     () => cars.filter((c) => c.status === "Pending Admin Approval").length,
     [cars]
@@ -159,9 +172,7 @@ function Dashboard() {
             <div key={car.id} className="car-card">
               {car.image && <img src={car.image} alt={car.model} />}
               <h4>{car.model}</h4>
-              <p>
-                {car.year} • {car.type}
-              </p>
+              <p>{car.year} • {car.type}</p>
               <p>Rent: {car.rent}</p>
 
               <span
@@ -180,6 +191,14 @@ function Dashboard() {
               >
                 View Details
               </button>
+
+              {/* ✅ DELETE BUTTON */}
+              <button
+                className="btn danger"
+                onClick={() => handleDeleteCar(car.id)}
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
@@ -194,17 +213,9 @@ function Dashboard() {
         {bookings.map((b) => (
           <div key={b.id} className="booking-card">
             <h4>{cars.find((c) => c.id === b.carId)?.model || "Car"}</h4>
-
-            <p>
-              <strong>Customer:</strong> {b.customer}
-            </p>
-            <p>
-              <strong>Dates:</strong> {b.startDate} to {b.endDate}
-            </p>
-
-            <span className={`badge ${b.status.toLowerCase()}`}>
-              {b.status}
-            </span>
+            <p><strong>Customer:</strong> {b.customer}</p>
+            <p><strong>Dates:</strong> {b.startDate} to {b.endDate}</p>
+            <span className={`badge ${b.status.toLowerCase()}`}>{b.status}</span>
           </div>
         ))}
       </div>
@@ -251,16 +262,11 @@ function Dashboard() {
 
   const renderSection = () => {
     switch (activeSection) {
-      case "overview":
-        return renderOverview();
-      case "cars":
-        return renderCars();
-      case "bookings":
-        return renderBookings();
-      case "notifications":
-        return renderNotifications();
-      default:
-        return <div className="content-box">Feature coming soon...</div>;
+      case "overview": return renderOverview();
+      case "cars": return renderCars();
+      case "bookings": return renderBookings();
+      case "notifications": return renderNotifications();
+      default: return <div className="content-box">Feature coming soon...</div>;
     }
   };
 
@@ -309,7 +315,7 @@ function Dashboard() {
         onCarAdded={(updatedCars) => setCars(updatedCars)}
       />
 
-      {/* CAR DETAILS */}
+      {/* Car Details */}
       {isCarDetailOpen && selectedCar && (
         <div className="modal-overlay" onClick={() => setCarDetailOpen(false)}>
           <div className="modal car-detail-modal" onClick={(e) => e.stopPropagation()}>

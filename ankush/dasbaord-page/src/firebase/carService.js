@@ -6,6 +6,8 @@ import {
   getDocs,
   query,
   orderBy,
+  doc,
+  deleteDoc
 } from "firebase/firestore";
 
 export async function addCarToDatabase(vehicleData) {
@@ -19,4 +21,9 @@ export async function fetchCars() {
   const q = query(ref, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function deleteCarFromDatabase(carId) {
+  const ref = doc(db, "vehicles", carId);
+  await deleteDoc(ref);
 }
