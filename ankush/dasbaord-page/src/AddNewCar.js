@@ -15,6 +15,7 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
     fuel: "",
     transmission: "",
     rent: "",
+    imageUrl: "",
     description: "",
   });
 

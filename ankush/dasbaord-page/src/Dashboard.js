@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 import { fetchCars, deleteCarFromDatabase } from "./firebase/carService";
+import { fetchBookings } from "./firebase/bookingService";
 import { listenToNotifications } from "./firebase/notificationService";
 
 import AddNewCar from "./AddNewCar";
 import ProfileModal from "./Profile";
+import Bookings from "./Bookings";
+import Documentation from "./Documentation";
+import Settings from "./Settings";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -23,6 +27,9 @@ function Dashboard() {
   // Data State
   const [cars, setCars] = useState([]);
   const [loadingCars, setLoadingCars] = useState(true);
+
+  const [bookings, setBookings] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   const [notifications, setNotifications] = useState([]);
 
@@ -65,6 +72,21 @@ function Dashboard() {
       }
     };
     loadCars();
+  }, []);
+
+  // Load Bookings (Firebase)
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const data = await fetchBookings();
+        setBookings(data || []);
+      } catch (err) {
+        console.error("Error loading bookings:", err);
+      } finally {
+        setLoadingBookings(false);
+      }
+    };
+    loadBookings();
   }, []);
 
   // Load Notifications (Realtime)
@@ -250,6 +272,12 @@ function Dashboard() {
         )}
       </div>
     ),
+
+    bookings: <Bookings bookings={[]} cars={cars} />,
+
+    documentation: <Documentation />,
+
+    settings: <Settings />,
   };
 
   return (
@@ -276,10 +304,31 @@ function Dashboard() {
           </li>
 
           <li
+            className={activeSection === "bookings" ? "active" : ""}
+            onClick={() => setActiveSection("bookings")}
+          >
+            📅 <span>Bookings</span>
+          </li>
+
+          <li
+            className={activeSection === "documentation" ? "active" : ""}
+            onClick={() => setActiveSection("documentation")}
+          >
+            📄 <span>Documentation</span>
+          </li>
+
+          <li
             className={activeSection === "notifications" ? "active" : ""}
             onClick={() => setActiveSection("notifications")}
           >
             🔔 <span>Notifications</span>
+          </li>
+
+          <li
+            className={activeSection === "settings" ? "active" : ""}
+            onClick={() => setActiveSection("settings")}
+          >
+            ⚙️ <span>Settings</span>
           </li>
 
           <li onClick={() => setProfileModalOpen(true)}>👤 <span>Profile</span></li>
