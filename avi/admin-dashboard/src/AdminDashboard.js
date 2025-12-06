@@ -1,150 +1,133 @@
 // AdminDashboard.js
-// Complete Admin Dashboard for GearUP
-// Includes Overview, Car Approvals, Payments (graph-only), Settings
-// Uses Firestore (fetchAllBookings + fetchPendingVehicles)
+// Central admin panel for handling verification, car approvals and payment checks.
 
 import React, { useState, useEffect } from "react";
 import "./AdminDashboard.css";
 
-// Firebase queries
+// Firebase logic
 import {
-  fetchAllBookings,
-  fetchPendingVehicles,
+  fetchVerificationRequests,
+  fetchCarRequests,
+  fetchPaymentRequests,
+  pushAdminNotification,
+  removeItem,
   approveVehicle,
   denyVehicle
 } from "./firebase/adminQueries";
 
-// Graph imports
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
-
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
-
   const [slidingItem, setSlidingItem] = useState(null);
 
-  // FIREBASE STATE
-  const [bookings, setBookings] = useState([]);
+  // Data loaded from Firestore
+  const [verificationRequests, setVerificationRequests] = useState([]);
   const [carRequests, setCarRequests] = useState([]);
+  const [paymentRequests, setPaymentRequests] = useState([]);
 
-  // Load data once
+  // Load all admin data once
   useEffect(() => {
-    loadData();
+    async function load() {
+      setVerificationRequests(await fetchVerificationRequests());
+      setCarRequests(await fetchCarRequests());
+      setPaymentRequests(await fetchPaymentRequests());
+    }
+    load();
   }, []);
 
-  const loadData = async () => {
-    const bookingsData = await fetchAllBookings();
-    const pendingCars = await fetchPendingVehicles();
-
-    setBookings(bookingsData);
-    setCarRequests(pendingCars);
-  };
-
-  // FOR CAR APPROVALS – Approve / Deny
-  const handleVehicleDecision = async (id, decision) => {
+  /* When something is approved or denied, slide it out visually,
+     then actually delete/update the collection and remove from state */
+  const handleRemove = (type, id) => {
     setSlidingItem(id);
 
     setTimeout(async () => {
-      if (decision === "approve") {
-        await approveVehicle(id);
-      } else {
-        await denyVehicle(id);
+      if (type === "verification") {
+        await removeItem("verificationRequests", id);
+        setVerificationRequests(prev => prev.filter(x => x.id !== id));
       }
 
-      setCarRequests((prev) => prev.filter((c) => c.id !== id));
+      if (type === "payment") {
+        await removeItem("paymentRequests", id);
+        setPaymentRequests(prev => prev.filter(x => x.id !== id));
+      }
+
       setSlidingItem(null);
-    }, 300);
+    }, 250);
   };
 
-  // ---------------- PAYMENT GRAPH DATA ----------------
-  const graphData = bookings.map((b, index) => ({
-    label: b.vehicleName || `Booking ${index + 1}`,
-    commission: Number(b.totalCost || 0) * 0.1, // 10% Commission
-  }));
+  /* Car approval logic:
+     Update Firestore, send notif, then cleanly remove from UI */
+  const handleCarDecision = async (id, ownerId, action) => {
+    setSlidingItem(id);
 
-  const totalCommission = graphData.reduce(
-    (sum, d) => sum + d.commission,
-    0
-  );
+    if (action === "approve") {
+      await approveVehicle(id, ownerId);
+    } else {
+      await denyVehicle(id, ownerId);
+    }
 
-  // ---------------- SECTION RENDERING ----------------
+    // Remove from current list instantly
+    setCarRequests(prev => prev.filter(c => c.id !== id));
+
+    setTimeout(() => setSlidingItem(null), 250);
+  };
+
+  /* Renders a specific admin tab */
   const renderSection = () => {
-    // OVERVIEW
+    // ——————— OVERVIEW ———————
     if (activeSection === "overview") {
       return (
         <div className="admin-content-box fade-up">
           <h2 className="admin-heading">Administrator Control Center</h2>
-          <p className="admin-subheading">System-level insight dashboard</p>
+          <p className="admin-subheading">Quick overview of pending tasks</p>
           <div className="admin-divider"></div>
 
           <div className="admin-cards-grid">
             <div className="admin-card">
+              <h3>{verificationRequests.length}</h3>
+              <p>Verification Requests</p>
+            </div>
+            <div className="admin-card">
               <h3>{carRequests.length}</h3>
-              <p>Cars Pending Approval</p>
+              <p>Car Approvals Pending</p>
             </div>
-
             <div className="admin-card">
-              <h3>{bookings.length}</h3>
-              <p>Total Bookings</p>
-            </div>
-
-            <div className="admin-card">
-              <h3>${totalCommission.toFixed(2)}</h3>
-              <p>Total Commission Earned</p>
+              <h3>{paymentRequests.length}</h3>
+              <p>Payments Waiting</p>
             </div>
           </div>
         </div>
       );
     }
 
-    // CAR APPROVALS
-    if (activeSection === "cars") {
+    // ——————— VERIFICATION ———————
+    if (activeSection === "verification") {
       return (
         <div className="admin-content-box fade-up">
-          <h2 className="admin-heading">Car Approval Requests</h2>
-          <p className="admin-subheading">Review new car listings</p>
+          <h2 className="admin-heading">Verification Requests</h2>
+          <p className="admin-subheading">Check submitted identity documents</p>
           <div className="admin-divider"></div>
 
-          {carRequests.length === 0 && (
-            <p>No pending car approvals.</p>
-          )}
-
-          {carRequests.map((car) => (
+          {verificationRequests.map(req => (
             <div
-              key={car.id}
-              className={`admin-item ${
-                slidingItem === car.id ? "slide-out" : ""
-              }`}
+              key={req.id}
+              className={`admin-item ${slidingItem === req.id ? "slide-out" : ""}`}
             >
               <div>
-                <strong>{car.model}</strong>
-                <p>Year: {car.year}</p>
-                <p>Fuel: {car.fuel}</p>
-                <p>Seats: {car.seats}</p>
-                <p>Transmission: {car.transmission}</p>
-                <p>Rent: ${car.rent}/day</p>
-                <p>Mileage: {car.mileage} km</p>
-                <p style={{ color: "#c9c9c9" }}>Status: {car.status}</p>
+                <strong>{req.name}</strong>
+                <p>Email: {req.email}</p>
+                <p>License: {req.licenseNumber}</p>
               </div>
 
               <div className="admin-actions">
                 <button
                   className="approve-btn"
-                  onClick={() => handleVehicleDecision(car.id, "approve")}
+                  onClick={() => handleRemove("verification", req.id)}
                 >
                   Approve
                 </button>
-
                 <button
                   className="deny-btn"
-                  onClick={() => handleVehicleDecision(car.id, "deny")}
+                  onClick={() => handleRemove("verification", req.id)}
                 >
                   Deny
                 </button>
@@ -155,106 +138,104 @@ function AdminDashboard() {
       );
     }
 
-    // PAYMENTS GRAPH ONLY
-    if (activeSection === "payments") {
+    // ——————— CAR APPROVALS ———————
+    if (activeSection === "cars") {
       return (
         <div className="admin-content-box fade-up">
-          <h2 className="admin-heading">Payments Overview</h2>
-          <p className="admin-subheading">
-            Commission earnings across all user bookings
-          </p>
+          <h2 className="admin-heading">Car Approval Requests</h2>
+          <p className="admin-subheading">Review newly added vehicles</p>
           <div className="admin-divider"></div>
 
-          {/* GRAPH */}
-          <div style={{ height: "350px", width: "100%" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={graphData}>
-                <CartesianGrid stroke="#333" strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "#c9c9c9", fontSize: 12 }}
-                />
-                <YAxis tick={{ fill: "#c9c9c9" }} />
-                <Tooltip
-                  contentStyle={{
-                    background: "#1a1a1a",
-                    border: "1px solid #444",
-                  }}
-                  labelStyle={{ color: "#fff" }}
-                  itemStyle={{ color: "#D4AF37" }}
-                />
+          {carRequests.length === 0 && <p>No cars awaiting approval.</p>}
 
-                <Line
-                  type="monotone"
-                  dataKey="commission"
-                  stroke="#D4AF37"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "#D4AF37" }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {carRequests.map(car => (
+            <div
+              key={car.id}
+              className={`admin-item car-item ${slidingItem === car.id ? "slide-out" : ""}`}
+            >
+              <img
+                src={car.imageUrl}
+                alt={car.model}
+                className="admin-thumb"
+              />
 
-          {/* Total Commission */}
-          <h3
-            style={{
-              marginTop: "30px",
-              color: "var(--admin-primary)",
-              fontSize: "1.3rem",
-              fontWeight: "600",
-            }}
-          >
-            Total Commission Earned: ${totalCommission.toFixed(2)}
-          </h3>
+              <div className="car-details">
+                <strong>{car.model}</strong>
+                <p>Owner ID: {car.ownerId}</p>
+                <p>Rent: ${car.rent}/day</p>
+              </div>
+
+              <div className="admin-actions">
+                <button
+                  className="approve-btn"
+                  onClick={() => handleCarDecision(car.id, car.ownerId, "approve")}
+                >
+                  Approve
+                </button>
+
+                <button
+                  className="deny-btn"
+                  onClick={() => handleCarDecision(car.id, car.ownerId, "deny")}
+                >
+                  Deny
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       );
     }
 
-    // SETTINGS
-    return (
-      <div className="admin-content-box fade-up">
-        <h2 className="admin-heading">Settings</h2>
-        <p className="admin-subheading">Administrative configuration tools</p>
-        <div className="admin-divider"></div>
-        <p>Settings will be added later.</p>
-      </div>
-    );
+    // ——————— PAYMENTS ———————
+    if (activeSection === "payments") {
+      return (
+        <div className="admin-content-box fade-up">
+          <h2 className="admin-heading">Pending Payments</h2>
+          <div className="admin-divider"></div>
+
+          {paymentRequests.map(pay => (
+            <div
+              key={pay.id}
+              className={`admin-item ${slidingItem === pay.id ? "slide-out" : ""}`}
+            >
+              <div>
+                <strong>User: {pay.user}</strong>
+                <p>Total: ${pay.total}</p>
+                <p>Method: {pay.method}</p>
+              </div>
+
+              <div className="admin-actions">
+                <button
+                  className="approve-btn"
+                  onClick={() => handleRemove("payment", pay.id)}
+                >
+                  Approve
+                </button>
+
+                <button
+                  className="deny-btn"
+                  onClick={() => handleRemove("payment", pay.id)}
+                >
+                  Deny
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
   };
 
-  // MAIN LAYOUT
   return (
     <div className="admin-dashboard-container">
       <aside className="admin-sidebar">
         <div className="admin-brand">GearUP Admin</div>
 
         <ul>
-          <li
-            className={activeSection === "overview" ? "active" : ""}
-            onClick={() => setActiveSection("overview")}
-          >
-            Overview
-          </li>
-
-          <li
-            className={activeSection === "cars" ? "active" : ""}
-            onClick={() => setActiveSection("cars")}
-          >
-            Car Approvals
-          </li>
-
-          <li
-            className={activeSection === "payments" ? "active" : ""}
-            onClick={() => setActiveSection("payments")}
-          >
-            Payments
-          </li>
-
-          <li
-            className={activeSection === "settings" ? "active" : ""}
-            onClick={() => setActiveSection("settings")}
-          >
-            Settings
-          </li>
+          <li className={activeSection === "overview" ? "active" : ""} onClick={() => setActiveSection("overview")}>Overview</li>
+          <li className={activeSection === "verification" ? "active" : ""} onClick={() => setActiveSection("verification")}>Verification</li>
+          <li className={activeSection === "cars" ? "active" : ""} onClick={() => setActiveSection("cars")}>Car Approvals</li>
+          <li className={activeSection === "payments" ? "active" : ""} onClick={() => setActiveSection("payments")}>Payments</li>
         </ul>
       </aside>
 

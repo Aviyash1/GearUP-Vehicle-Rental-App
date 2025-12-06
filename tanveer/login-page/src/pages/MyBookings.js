@@ -11,6 +11,7 @@ import {
   addDoc,
   deleteDoc,
   getDoc,
+  getDocs
 } from "firebase/firestore";
 import "../styles/MyBookings.css";
 
@@ -19,8 +20,25 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
-  // Real-time bookings + user name
+  // Load favorites
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const favRef = collection(db, "favoriteBookings");
+    const q = query(favRef, where("userId", "==", user.uid));
+
+    const unsub = onSnapshot(q, (sn) => {
+      const ids = sn.docs.map((d) => d.data().bookingId);
+      setFavoriteIds(ids);
+    });
+
+    return () => unsub();
+  }, []);
+
+  // Load bookings + user info
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) {
@@ -28,7 +46,8 @@ const MyBookings = () => {
       return;
     }
 
-    const fetchUserName = async () => {
+    // Load user name 
+    const loadUser = async () => {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
         if (snap.exists()) {
@@ -37,50 +56,38 @@ const MyBookings = () => {
           setUserName("User");
         }
       } catch (err) {
-        console.error("Error loading user:", err);
+        console.error(err);
         setUserName("User");
       }
     };
+    loadUser();
 
-    fetchUserName();
+    // Real-time bookings
+    const ref = collection(db, "bookings");
+    const q = query(ref, where("userId", "==", user.uid));
 
-    const bookingsRef = collection(db, "bookings");
-    const q = query(bookingsRef, where("userId", "==", user.uid));
-
-    const unsub = onSnapshot(
-      q,
-      (snapshot) => {
-        const data = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }));
-        setBookings(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error("Error listening to bookings:", err);
-        setLoading(false);
-      }
-    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+      setBookings(data);
+      setLoading(false);
+    });
 
     return () => unsub();
   }, []);
 
-  // Cancel booking + notification
+  // Cancel Booking
   const handleCancelBooking = async (booking) => {
-    if (booking.status === "Cancelled" || booking.status === "Completed") {
-      return;
-    }
+    if (booking.status === "Cancelled" || booking.status === "Completed") return;
 
-    const ok = window.confirm(
-      "Are you sure you want to cancel this booking?"
-    );
-    if (!ok) return;
+    if (!window.confirm("Cancel this booking?")) return;
 
     try {
-      const bookingRef = doc(db, "bookings", booking.id);
-
-      await updateDoc(bookingRef, { status: "Cancelled" });
+      await updateDoc(doc(db, "bookings", booking.id), {
+        status: "Cancelled",
+      });
 
       await addDoc(collection(db, "notifications"), {
         userId: booking.userId,
@@ -92,24 +99,57 @@ const MyBookings = () => {
         createdAt: new Date().toISOString(),
       });
     } catch (err) {
-      console.error("Error cancelling booking:", err);
-      alert("Could not cancel booking. Please try again.");
+      console.error(err);
+      alert("Error cancelling booking.");
     }
   };
 
-  // Permanently delete booking document
+  // Delete Booking
   const handleDeleteBooking = async (booking) => {
-    const ok = window.confirm(
-      "This will permanently delete this booking record. Continue?"
-    );
-    if (!ok) return;
+    if (!window.confirm("Delete this booking permanently?")) return;
 
     try {
       await deleteDoc(doc(db, "bookings", booking.id));
     } catch (err) {
-      console.error("Error deleting booking:", err);
-      alert("Could not delete booking.");
+      console.error(err);
+      alert("Error deleting booking.");
     }
+  };
+
+  // ⭐ Add Favorite
+  const handleAddFavorite = async (booking) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      await addDoc(collection(db, "favoriteBookings"), {
+        userId: user.uid,
+        bookingId: booking.id,
+        vehicleName: booking.vehicleName,
+        vehicleImg: booking.vehicleImg,
+        startDate: booking.startDate,
+        endDate: booking.endDate,
+        totalCost: booking.totalCost,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Error adding favorite:", err);
+    }
+  };
+
+  // ⭐ Remove Favorite
+  const handleRemoveFavorite = async (bookingId) => {
+    const favRef = collection(db, "favoriteBookings");
+    const q = query(
+      favRef,
+      where("userId", "==", auth.currentUser.uid),
+      where("bookingId", "==", bookingId)
+    );
+
+    const snap = await getDocs(q);
+    snap.forEach(async (d) => {
+      await deleteDoc(doc(db, "favoriteBookings", d.id));
+    });
   };
 
   const openDetails = (booking) => setSelectedBooking(booking);
@@ -120,7 +160,7 @@ const MyBookings = () => {
       <div className="bookings-page">
         <div className="bookings-container">
           <h1 className="bookings-title">My Bookings</h1>
-          <p className="loading">Loading your bookings...</p>
+          <p className="loading">Loading...</p>
         </div>
       </div>
     );
@@ -130,15 +170,14 @@ const MyBookings = () => {
     <div className="bookings-page">
       <div className="bookings-container">
         <h1 className="bookings-title">My Bookings</h1>
-        <p className="user-greeting">Welcome, {userName || "User"}</p>
+        <p className="user-greeting">Welcome, {userName}</p>
 
         {bookings.length === 0 ? (
           <p className="no-bookings">No bookings found.</p>
         ) : (
           <div className="bookings-list">
             {bookings.map((b) => {
-              const status = b.status || "Confirmed";
-              const statusClass = `status-tag status-${status.toLowerCase()}`;
+              const statusClass = `status-tag status-${b.status?.toLowerCase()}`;
 
               return (
                 <div className="booking-card" key={b.id}>
@@ -153,50 +192,48 @@ const MyBookings = () => {
                   <div className="booking-main">
                     <h2>{b.vehicleName}</h2>
 
-                    <p>
-                      <strong>From:</strong> {b.startDate}
-                    </p>
-                    <p>
-                      <strong>To:</strong> {b.endDate}
-                    </p>
-                    <p>
-                      <strong>Pickup:</strong> {b.pickupTime}
-                    </p>
-                    <p>
-                      <strong>Drop-off:</strong> {b.dropoffTime}
-                    </p>
+                    <p><strong>From:</strong> {b.startDate}</p>
+                    <p><strong>To:</strong> {b.endDate}</p>
+                    <p><strong>Pickup:</strong> {b.pickupTime}</p>
+                    <p><strong>Drop-off:</strong> {b.dropoffTime}</p>
 
-                    <p>
-                      <strong>Total:</strong> NZ${b.totalCost ?? "0"}
-                    </p>
+                    <p><strong>Total:</strong> NZ${b.totalCost ?? "0"}</p>
 
                     <p>
                       <strong>Status:</strong>{" "}
-                      <span className={statusClass}>{status}</span>
+                      <span className={statusClass}>{b.status}</span>
                     </p>
                   </div>
 
                   <div className="booking-actions">
-                    <button
-                      className="details-btn"
-                      onClick={() => openDetails(b)}
-                    >
+                    {/* ⭐ Favorite Button */}
+                    {favoriteIds.includes(b.id) ? (
+                      <button
+                        className="fav-btn fav-on"
+                        onClick={() => handleRemoveFavorite(b.id)}
+                      >
+                        ★ Favorited
+                      </button>
+                    ) : (
+                      <button
+                        className="fav-btn"
+                        onClick={() => handleAddFavorite(b)}
+                      >
+                        ☆ Favorite
+                      </button>
+                    )}
+
+                    <button className="details-btn" onClick={() => openDetails(b)}>
                       View Details
                     </button>
 
-                    {status !== "Cancelled" && status !== "Completed" && (
-                      <button
-                        className="cancel-btn"
-                        onClick={() => handleCancelBooking(b)}
-                      >
+                    {b.status !== "Cancelled" && b.status !== "Completed" && (
+                      <button className="cancel-btn" onClick={() => handleCancelBooking(b)}>
                         Cancel Booking
                       </button>
                     )}
 
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteBooking(b)}
-                    >
+                    <button className="delete-btn" onClick={() => handleDeleteBooking(b)}>
                       Delete
                     </button>
                   </div>
@@ -227,25 +264,12 @@ const MyBookings = () => {
               />
             )}
 
-            <p>
-              <strong>From:</strong> {selectedBooking.startDate}
-            </p>
-            <p>
-              <strong>To:</strong> {selectedBooking.endDate}
-            </p>
-            <p>
-              <strong>Pickup Time:</strong> {selectedBooking.pickupTime}
-            </p>
-            <p>
-              <strong>Drop-off Time:</strong> {selectedBooking.dropoffTime}
-            </p>
-            <p>
-              <strong>Total:</strong> NZ$
-              {selectedBooking.totalCost ?? "0"}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedBooking.status}
-            </p>
+            <p><strong>From:</strong> {selectedBooking.startDate}</p>
+            <p><strong>To:</strong> {selectedBooking.endDate}</p>
+            <p><strong>Pickup:</strong> {selectedBooking.pickupTime}</p>
+            <p><strong>Drop-off:</strong> {selectedBooking.dropoffTime}</p>
+            <p><strong>Total:</strong> NZ${selectedBooking.totalCost}</p>
+            <p><strong>Status:</strong> {selectedBooking.status}</p>
 
             <button className="close-modal-btn" onClick={closeDetails}>
               Close

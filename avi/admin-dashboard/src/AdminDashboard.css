@@ -1,0 +1,215 @@
+/* AdminDashboard.css
+   Black & Gold premium admin UI
+*/
+
+:root {
+  --admin-bg: #000000;
+  --admin-primary: #D4AF37;
+  --admin-text: #ffffff;
+  --admin-card-bg: #0d0d0d;
+  --admin-border: #1f1f1f;
+}
+
+.admin-dashboard-container {
+  display: flex;
+  height: 100vh;
+  background: #000;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 240px;
+  padding: 30px 20px;
+  border-right: 1px solid var(--admin-border);
+}
+
+.admin-brand {
+  color: var(--admin-primary);
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.admin-sidebar li {
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  color: var(--admin-text);
+}
+
+.admin-sidebar li.active {
+  border-left: 3px solid var(--admin-primary);
+  background: #111;
+  font-weight: 600;
+}
+
+/* Main layout */
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top header */
+.admin-top-header {
+  padding: 20px 30px;
+  background: #0a0a0a;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-top-header h1 {
+  color: var(--admin-primary);
+}
+
+/* Content container */
+.admin-content-box {
+  margin: 30px;
+  padding: 30px;
+  border-radius: 10px;
+  background: #0b0b0b;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+}
+
+.admin-heading {
+  color: var(--admin-primary);
+}
+
+.admin-subheading {
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+.admin-divider {
+  height: 2px;
+  background: var(--admin-primary);
+  opacity: 0.3;
+  margin: 20px 0;
+}
+
+/* Overview cards */
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.admin-card {
+  background: var(--admin-card-bg);
+  padding: 25px;
+  border-radius: 10px;
+  border-bottom: 3px solid var(--admin-primary);
+  text-align: center;
+  transition: 0.2s;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+}
+
+/* General item layout */
+.admin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+  gap: 20px;
+  background: var(--admin-card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  margin-bottom: 15px;
+}
+
+/* Car approval specific layout */
+.car-item {
+  align-items: flex-start;
+}
+
+/* Fix oversized image issue */
+.admin-thumb {
+  width: 240px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Car details next to the image */
+.car-details {
+  flex: 1;
+}
+
+/* Buttons */
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.approve-btn {
+  border: 2px solid var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.approve-btn:hover {
+  background: var(--admin-primary);
+  color: #000;
+}
+
+.deny-btn {
+  border: 2px solid #7a0000;
+  color: #ff4444;
+}
+
+.deny-btn:hover {
+  background: #7a0000;
+  color: white;
+}
+
+/* Notification badge */
+.notif-badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+/* Notification item */
+.admin-notification-item {
+  padding: 18px;
+  background: #111;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  margin-bottom: 12px;
+}
+
+/* Smooth slide-out animation */
+.slide-out {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: 0.25s ease;
+}
+
+/* Fade in animation */
+.fade-up {
+  animation: fadeUp 0.25s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
