@@ -7,6 +7,7 @@ import "./Dashboard.css";
 import { fetchCars, deleteCarFromDatabase } from "./firebase/carService";
 import { fetchBookings } from "./firebase/bookingService";
 import { listenToNotifications } from "./firebase/notificationService";
+import { fetchProfile, saveProfile } from "./firebase/profileService"; // ✅ NEW
 
 // Import components used inside the dashboard
 import AddNewCar from "./AddNewCar";
@@ -18,6 +19,10 @@ import Settings from "./Settings";
 function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ Replace this with your real user ID from Firebase Auth
+  // e.g. const USER_ID = auth.currentUser.uid;
+  const USER_ID = "demo-user-id";
 
   const [activeSection, setActiveSection] = useState("overview");
 
@@ -451,7 +456,10 @@ function Dashboard() {
         </button>
       </aside>
 
-      <main className="main">{renderSection()}</main>
+      <main className="main">
+        {/* Optional: show profile loading state somewhere if you want */}
+        {loadingProfile ? <p>Loading profile...</p> : renderSection()}
+      </main>
 
       {/* PROFILE MODAL */}
       {isProfileModalOpen && (
@@ -603,7 +611,6 @@ function Dashboard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
