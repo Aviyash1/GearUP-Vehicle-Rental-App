@@ -1,5 +1,5 @@
 /* ======================================= */
-/* ROOT VARIABLES                           */
+/* ROOT VARIABLES                          */
 /* ======================================= */
 :root {
   --primary: #2563eb;
@@ -10,7 +10,7 @@
 
   --border: #e2e8f0;
 
-  --bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  --bg: #f1f5f9;
   --panel: #ffffff;
 
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
@@ -18,7 +18,8 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
   --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
 
-  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
   --radius-lg: 20px;
 }
 
@@ -50,31 +51,21 @@ body {
 /* ======================================= */
 .sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #0f172a, #0b1220);
+  background: #0f172a;
   padding: 30px 20px;
   color: #fff;
-
-  /* Required for logout button at bottom */
   display: flex;
   flex-direction: column;
 }
 
-.sidebar .brand {
+.brand {
   text-align: center;
-  margin-bottom: 32px;
   font-size: 1.8rem;
   font-weight: 800;
+  margin-bottom: 32px;
   color: #93c5fd;
 }
 
-/* Hide labels when collapsed */
-.sidebar.collapsed ul li span,
-.sidebar.collapsed .logout-btn span,
-.sidebar.collapsed .brand-text {
-  display: none;
-}
-
-/* Menu */
 .sidebar ul {
   padding: 0;
   list-style: none;
@@ -90,6 +81,7 @@ body {
   color: #dbe1ee;
   cursor: pointer;
   margin-bottom: 10px;
+  transition: 0.2s;
 }
 
 .sidebar li:hover {
@@ -98,30 +90,19 @@ body {
 
 .sidebar li.active {
   background: var(--primary);
-  color: white;
+  color: #fff;
 }
 
-/* ======================================= */
-/* LOGOUT BUTTON                             */
-/* ======================================= */
 .logout-btn {
-  width: 100%;
-  padding: 12px 16px;
+  margin-top: auto;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: #dc2626; /* red */
+  background: #dc2626;
   color: white;
-  font-weight: 700;
-  cursor: pointer;
   border: none;
-
-  margin-top: auto; /* pushes to bottom */
-  margin-bottom: 10px;
-
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  transition: background 0.25s ease;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s;
 }
 
 .logout-btn:hover {
@@ -145,30 +126,72 @@ body {
   margin-bottom: 28px;
 }
 
+h2 {
+  margin-top: 0;
+}
+
 /* ======================================= */
-/* CARDS & CAR GRID                         */
+/* OVERVIEW CARDS                           */
+/* ======================================= */
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.overview-card {
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.overview-card h3 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+/* ======================================= */
+/* CAR GRID                                 */
 /* ======================================= */
 .car-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 .car-card {
-  padding: 16px;
-  text-align: center;
-  border-radius: var(--radius-md);
   background: white;
   border: 1px solid #e6edf7;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
   box-shadow: var(--shadow-xs);
 }
 
-/* 🚗 FIXED IMAGE — ALWAYS SHOWS PROPERLY */
+/* FIX IMAGE CROPPING */
 .car-card img {
   width: 100%;
-  height: 170px;
-  border-radius: var(--radius-md);
+  height: 180px;
   object-fit: cover;
+  border-radius: var(--radius-md);
+  outline: 1px solid #e5e7eb;
+}
+
+.car-card h4 {
+  margin: 12px 0 6px;
+  font-size: 1.2rem;
+}
+
+.car-meta {
+  color: var(--subtext);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 /* ======================================= */
@@ -177,17 +200,61 @@ body {
 .badge {
   display: inline-block;
   padding: 6px 12px;
-  margin-top: 8px;
-  border-radius: 25px;
+  border-radius: 30px;
   font-size: 0.8rem;
   font-weight: 600;
+  margin-top: 6px;
 }
 
-.status-available { background: #ecfdf5; color: #15803d; }
-.status-pending { background: #fff7ed; color: #b45309; }
+.status-pending {
+  background: #fff7ed;
+  color: #b45309;
+}
+
+.status-approved {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.status-available {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
 
 /* ======================================= */
-/* MODALS                                   */
+/* BUTTONS                                   */
+/* ======================================= */
+.btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn.primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn.secondary {
+  background: #e0efff;
+  color: #2563eb;
+}
+
+.btn.cancel {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* ======================================= */
+/* CAR DETAIL MODAL                          */
 /* ======================================= */
 .modal-overlay {
   position: fixed;
@@ -202,110 +269,60 @@ body {
 .modal {
   background: white;
   padding: 32px;
-  width: 600px;
+  width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
-/* Car Detail Modal */
-.car-detail-modal {
-  width: 750px;
-}
-
-.profile-modal-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.image-upload-section {
-  grid-column: span 2;
-  text-align: center;
-}
-
-.preview-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 100px;
-  margin-top: 10px;
-  object-fit: cover;
-  box-shadow: var(--shadow-sm);
-}
-
-/* ======================================= */
-/* ADD CAR MODAL LAYOUT                     */
-/* ======================================= */
-.add-car-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-/* Description spans full width */
-.add-car-grid textarea {
-  grid-column: span 3;
-  min-height: 90px;
-  resize: none;
-}
-
-.preview-image {
-  margin-top: 16px;
+/* FIX DETAIL IMAGE */
+.detail-image {
   width: 100%;
-  max-height: 240px;
-  border-radius: var(--radius-md);
+  height: 280px;
   object-fit: cover;
+  border-radius: var(--radius-md);
+  margin: 14px 0 20px;
+  outline: 1px solid #ececec;
 }
 
-/* ======================================= */
-/* INPUTS                                   */
-/* ======================================= */
-input,
-textarea {
-  width: 100%;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: #f8fafc;
+.car-description {
+  color: var(--subtext);
+  margin-bottom: 18px;
   font-size: 0.95rem;
 }
 
-input:focus,
-textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
-  background: white;
-  outline: none;
+/* INFO GRID CLEANER */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
-/* ======================================= */
-/* BUTTONS                                   */
-/* ======================================= */
-.btn {
-  padding: 12px 20px;
+.car-info-item {
+  background: #f8fafc;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
-.btn.primary { background: var(--primary); color: white; }
-.btn.primary:hover { background: var(--primary-hover); }
+.car-info-label {
+  font-weight: 700;
+  display: block;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
 
-.btn.cancel {
-  background: #e2e8f0;
+.car-info-value {
   color: #475569;
-}
-
-.btn.secondary {
-  background: #dbeafe;
-  color: #2563eb;
 }
 
 /* ======================================= */
 /* ANIMATIONS                               */
 /* ======================================= */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
