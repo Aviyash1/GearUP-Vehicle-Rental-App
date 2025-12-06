@@ -1,13 +1,10 @@
 // src/utils/uploadVehicles.js
 // This script uploads ALL vehicles into Firestore automatically.
-// Run it ONCE inside App.js, then remove the call to avoid duplicates.
 
-import { db } from "../firebase";
+import { db } from "../firebase/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 
-// ===========================
 //   VEHICLE DATA (20 CARS)
-// ===========================
 
 const vehicles = [
   {

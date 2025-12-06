@@ -1,21 +1,26 @@
+/* Remove default list styling */
 .notification-list {
   list-style: none;
   padding: 0;
 }
 
+/* Base style for each notification */
 .notification-item {
   padding: 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ddd; /* Divider line */
 }
 
+/* Highlight unread notifications */
 .notification-item.unread {
   background-color: rgba(255, 215, 0, 0.15);
 }
 
+/* Make read notifications look faded */
 .notification-item.read {
   opacity: 0.6;
 }
 
+/* Spacing for action buttons */
 .notification-item button {
   margin-left: 0.5rem;
 }

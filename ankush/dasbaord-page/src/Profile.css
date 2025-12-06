@@ -1,16 +1,16 @@
-/* ===== Overlay ===== */
+/* Overlay behind the modal */
 .profile-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(6px);
+  inset: 0; /* Full-screen */
+  background: rgba(15, 23, 42, 0.55); /* Dark transparent layer */
+  backdrop-filter: blur(6px); /* Background blur effect */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 5000;
+  z-index: 5000; /* On top of everything */
 }
 
-/* ===== Modal Box ===== */
+/* Main modal container */
 .profile-modal {
   width: 720px;
   max-width: 95%;
@@ -20,6 +20,7 @@
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
 }
 
+/* Modal title */
 .profile-modal h2 {
   margin: 0 0 20px;
   font-size: 1.7rem;
@@ -27,7 +28,7 @@
   color: #1e293b;
 }
 
-/* ===== Layout Grid ===== */
+/* Grid layout: left image, right form fields */
 .profile-grid {
   display: grid;
   grid-template-columns: 200px 1fr;
@@ -35,13 +36,14 @@
   margin-bottom: 22px;
 }
 
-/* ===== LEFT SIDE — PROFILE IMAGE ===== */
+/* Left section: image container */
 .profile-image-section {
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
+/* Profile image preview */
 .profile-preview {
   width: 180px;
   height: 180px;
@@ -51,18 +53,19 @@
   background: #f1f5f9;
 }
 
-/* ===== RIGHT SIDE — FORM FIELDS ===== */
+/* Right section: form fields */
 .profile-right {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* 2 columns */
   gap: 14px;
 }
 
-/* Make name & address full width */
+/* Make certain fields span across both columns */
 .input-full {
   grid-column: span 2;
 }
 
+/* Input styles */
 .profile-right input {
   width: 100%;
   padding: 12px 14px;
@@ -73,13 +76,14 @@
   transition: 0.25s;
 }
 
+/* Input focus effect */
 .profile-right input:focus {
   background: white;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* ===== ACTION BUTTONS ===== */
+/* Action buttons container */
 .profile-actions {
   margin-top: 10px;
   display: flex;
@@ -87,6 +91,7 @@
   gap: 14px;
 }
 
+/* Base button styles */
 .profile-actions .btn {
   padding: 10px 20px;
   border-radius: 10px;
@@ -96,6 +101,7 @@
   transition: 0.25s;
 }
 
+/* Primary button */
 .btn.primary {
   background: #2563eb;
   color: white;
@@ -105,6 +111,7 @@
   background: #1e40af;
 }
 
+/* Cancel button */
 .btn.cancel {
   background: #e2e8f0;
   color: #1e293b;

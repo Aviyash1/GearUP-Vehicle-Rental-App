@@ -7,18 +7,26 @@ import "./App.css";
 
 function App() {
   return (
+    // Enable routing in the app
     <Router>
       <Routes>
+
+        {/* Main dashboard page */}
         <Route path="/" element={<Dashboard />} />
+
+        {/* Separate pages (not used much because dashboard switches sections internally) */}
         <Route path="/settings" element={<Settings />} />
         <Route path="/documentation" element={<Documentation />} />
 
+        {/* Fallback route when no page matches */}
         <Route
           path="*"
           element={
             <div style={{ padding: "50px", textAlign: "center" }}>
               <h2>404 - Page Not Found</h2>
               <p>The page you’re looking for doesn’t exist.</p>
+
+              {/* Link back to home */}
               <a
                 href="/"
                 style={{
@@ -33,6 +41,7 @@ function App() {
             </div>
           }
         />
+
       </Routes>
     </Router>
   );
