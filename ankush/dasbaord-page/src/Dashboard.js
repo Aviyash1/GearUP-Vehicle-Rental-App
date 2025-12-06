@@ -1,6 +1,6 @@
 // Main Dashboard component for the application
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.css";
 
 // Import Firebase services for data operations
@@ -32,6 +32,8 @@ function Dashboard() {
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isAddCarModalOpen, setAddCarModalOpen] = useState(false);
   const [isCarDetailOpen, setCarDetailOpen] = useState(false);
+  // Loading state for profile
+   const [loadingProfile, setLoadingProfile] = useState(false);
 
   const [selectedCar, setSelectedCar] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
