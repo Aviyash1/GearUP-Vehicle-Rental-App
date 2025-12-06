@@ -1,12 +1,27 @@
+// Main Dashboard component for the application
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+
+// Import Firebase services for data operations
+import { fetchCars, deleteCarFromDatabase } from "./firebase/carService";
+import { fetchBookings } from "./firebase/bookingService";
+import { listenToNotifications } from "./firebase/notificationService";
+
+// Import components used inside the dashboard
+import AddNewCar from "./AddNewCar";
+import ProfileModal from "./Profile";
+import Bookings from "./Bookings";
+import Documentation from "./Documentation";
+import Settings from "./Settings";
 
 function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [activeSection, setActiveSection] = useState("overview");
+
+  // Controls whether the sidebar is collapsed or expanded
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
@@ -18,16 +33,16 @@ function Dashboard() {
   const [lastBlobUrl, setLastBlobUrl] = useState(null);
 
   const [profile, setProfile] = useState({
-    name: "Tanveer Singh",
-    email: "TS@gmail.com",
-    phone: "+64 9876543210",
-    address: "350 Queen Street",
-    city: "Auckland",
-    country: "New Zealand",
-    license: "EF56////7890",
-    bank: "Bank of New Zealand",
-    account: "****5678",
-    profileImage: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    country: "",
+    license: "",
+    bank: "",
+    account: "",
+    profileImage: "",
   });
 
   const [cars, setCars] = useState([
@@ -108,6 +123,7 @@ function Dashboard() {
     image: "",
   });
 
+  // Disable scrolling when any modal is open
   useEffect(() => {
     const lock = isProfileModalOpen || isAddCarModalOpen || isCarDetailOpen;
     document.body.style.overflow = lock ? "hidden" : "auto";
@@ -115,9 +131,12 @@ function Dashboard() {
 
   const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
 
+  // Update profile state when input changes
   const handleProfileChange = (e) => {
-    const { name, value } = e.target;
-    setProfile((prev) => ({ ...prev, [name]: value }));
+    setProfile((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleProfileImageUpload = (e) => {
@@ -131,8 +150,8 @@ function Dashboard() {
     setProfile((prev) => ({ ...prev, profileImage: url }));
   };
 
+  // Save profile and close modal
   const handleSaveProfile = () => {
-    alert("Profile updated successfully!");
     setProfileModalOpen(false);
   };
 
@@ -209,8 +228,9 @@ function Dashboard() {
     setCarDetailOpen(true);
   };
 
+  // Count number of cars waiting for approval
   const pendingCount = useMemo(
-    () => cars.filter((c) => c.status === "Pending Admin Approval").length,
+    () => cars.filter((c) => c.status?.includes("Pending")).length,
     [cars]
   );
 
@@ -348,6 +368,8 @@ function Dashboard() {
   return (
     <div className="dashboard-container">
       <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
+        
+        {/* Sidebar brand and toggle */}
         <div className="brand" onClick={toggleSidebar}>
           {isSidebarCollapsed ? "🚗" : "GearUP"}
         </div>
@@ -541,32 +563,33 @@ function Dashboard() {
               </span>
             </div>
 
-            <div className="car-detail-body">
-              <img
-                src={selectedCar.image}
-                alt={selectedCar.model}
-                className="detail-image"
-              />
+            {/* Car image */}
+            <img
+              className="detail-image"
+              src={
+                selectedCar.image ||
+                selectedCar.imageURL ||
+                selectedCar.imageUrl ||
+                "/placeholder-car.png"
+              }
+              alt={selectedCar.model}
+            />
 
-              <p className="car-description">{selectedCar.description}</p>
+            {/* Car description */}
+            <p className="car-description">{selectedCar.description}</p>
 
-              <div className="info-grid">
-                <div><strong>Type:</strong> {selectedCar.type}</div>
-                <div><strong>Year:</strong> {selectedCar.year}</div>
-                <div><strong>Mileage:</strong> {selectedCar.mileage} km</div>
-                <div><strong>Engine:</strong> {selectedCar.engine}</div>
-                <div><strong>Fuel:</strong> {selectedCar.fuel}</div>
-                <div><strong>Transmission:</strong> {selectedCar.transmission}</div>
-                <div><strong>Seats:</strong> {selectedCar.seats}</div>
-                <div><strong>Color:</strong> {selectedCar.color}</div>
-              </div>
-
-              <div className="rent-highlight">
-                <h3>{selectedCar.rent}</h3>
-                <p>per day</p>
-              </div>
+            {/* Car details in grid format */}
+            <div className="info-grid">
+              {Object.entries(selectedCar).map(([key, value]) =>
+                typeof value === "string" || typeof value === "number" ? (
+                  <div key={key}>
+                    <strong>{key}:</strong> {value}
+                  </div>
+                ) : null
+              )}
             </div>
 
+            {/* Close modal */}
             <div className="modal-actions">
               <button className="btn secondary" onClick={() => alert("Edit feature coming soon!")}>
                 ✏️ Edit Car
@@ -576,11 +599,14 @@ function Dashboard() {
                 Close
               </button>
             </div>
+
           </div>
         </div>
       )}
+
     </div>
   );
 }
 
+// Export the Dashboard component
 export default Dashboard;

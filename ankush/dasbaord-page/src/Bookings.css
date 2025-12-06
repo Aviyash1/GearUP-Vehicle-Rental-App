@@ -1,9 +1,11 @@
+/* Grid layout that adjusts automatically based on screen width */
 .booking-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
 }
 
+/* Each booking is shown inside a simple card box */
 .booking-card {
   padding: 1rem;
   background: #fff;
@@ -11,6 +13,7 @@
   box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
 }
 
+/* Badge colors for different booking states */
 .badge.active {
   background-color: #28a745;
   color: white;
