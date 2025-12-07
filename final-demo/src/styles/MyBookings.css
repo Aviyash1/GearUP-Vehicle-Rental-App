@@ -4,105 +4,184 @@
   max-width: 950px;
   margin: 30px auto;
   padding: 20px;
-  font-family: Poppins, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 h1 {
   font-size: 2rem;
-  margin-bottom: 5px;
-}
-
-.welcome {
-  opacity: 0.7;
-}
-
-/* NO BOOKINGS */
-.no-bookings {
-  margin-top: 20px;
-  font-size: 1.1rem;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
 /* BOOKINGS LIST */
 .bookings-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
 }
 
 /* BOOKING CARD */
 .booking-card {
   display: flex;
-  gap: 20px;
-  background: white;
-  padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
   align-items: center;
+  gap: 25px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e3e3e3;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+  transition: 0.2s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 18px rgba(0,0,0,0.18);
 }
 
 /* IMAGE */
 .booking-img {
-  width: 180px;
-  height: 120px;
-  object-fit: cover;
+  width: 170px;
+  height: 110px;
   border-radius: 10px;
+  object-fit: cover;
 }
 
-/* DETAILS */
-.booking-details {
+/* BOOKING INFO — FIXED */
+.booking-info {
   flex: 1;
 }
 
-.status {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 8px;
-  margin-top: 5px;
+.booking-info h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.booking-info p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* HEART BUTTON */
+.fav-btn {
+  font-size: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.fav-btn:hover {
+  transform: scale(1.2);
+}
+
+.fav-btn.active {
+  color: red;
+  transform: scale(1.1);
+}
+
+/* BACK BUTTON */
+.back-btn {
+  margin-top: 30px;
+  width: 100%;
+  padding: 14px;
+  background: #0047ff;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
   font-weight: 600;
+  transition: 0.2s;
 }
 
-.status.active {
-  background: #e0ffe5;
-  color: #008f2a;
+.back-btn:hover {
+  background: #0035c7;
 }
 
-.status.cancelled {
+/* VIEW MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  width: 420px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.modal-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* DETAILS BUTTON (BLUE) */
+.details-btn {
+  padding: 10px 16px;
+  background: #002d72;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.details-btn:hover {
+  background: #001f52;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+}
+
+/* CANCEL BUTTON (RED) */
+.cancel-btn {
+  padding: 10px 16px;
   background: #ffe0e0;
-  color: #c40000;
+  color: #c40000 !important;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
-/* BUTTONS */
+.cancel-btn:hover {
+  background: #ffcdcd;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+}
+
+/* BUTTON CONTAINER */
 .booking-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.details-btn {
-  padding: 10px 14px;
-  background: #002d72;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.cancel-btn {
-  padding: 10px 14px;
-  background: #ffcece;
-  color: #b40000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* BACK BTN */
-.back-btn {
-  margin-top: 25px;
-  width: 100%;
-  padding: 12px;
-  background: #0046ff;
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-}

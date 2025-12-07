@@ -1,4 +1,3 @@
-// src/pages/payment-page/PaymentPage.js
 import React, { useEffect, useState } from "react";
 import "../styles/PaymentPage.css";
 import { useLocation, useNavigate } from "react-router-dom";

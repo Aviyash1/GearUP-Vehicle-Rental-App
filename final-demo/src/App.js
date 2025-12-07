@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
 import SearchPage from "./pages/SearchPage";
 import PaymentPage from "./pages/PaymentPage";
+import Favourites from "./pages/Favourites";
 
 function App() {
   return (
@@ -77,6 +78,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route 
+          path="/favourites"
+          element={<Favourites />}
+        />
+
 
         <Route
           path="/my-bookings"

@@ -3,8 +3,9 @@ import "../styles/Dashboard.css";
 import { auth } from "../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { FaCar, FaUserCircle, FaClipboardList, FaBell } from "react-icons/fa";
-import dashboardBanner from "../images/Toyota Crown Klugar.jpg"; 
+
+import { FaCar, FaUserCircle, FaClipboardList, FaBell, FaHeart } from "react-icons/fa";
+import dashboardBanner from "../images/Toyota Crown Klugar.jpg";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -21,7 +22,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Navigation Bar */}
+      {/* Top Navigation */}
       <nav className="navbar">
         <div className="logo">GearUp Rentals</div>
         <div className="user-section">
@@ -38,15 +39,13 @@ export default function Dashboard() {
           <h1>Welcome back 👋</h1>
           <p>Manage your rentals, vehicles, and account all in one place.</p>
         </div>
-        <img
-          src={dashboardBanner}
-          alt="Dashboard Banner"
-          className="banner-img"
-        />
+        <img src={dashboardBanner} alt="Dashboard Banner" className="banner-img" />
       </header>
 
-      {/* Dashboard Cards */}
+      {/* Feature Cards */}
       <section className="cards-section">
+
+        {/* Search Cars */}
         <div className="card" onClick={() => navigate("/searchpage")}>
           <div className="icon"><FaCar /></div>
           <h3>Browse Vehicles</h3>
@@ -54,6 +53,7 @@ export default function Dashboard() {
           <button className="primary-btn">Explore Now</button>
         </div>
 
+        {/* My Bookings */}
         <div className="card" onClick={() => navigate("/my-bookings")}>
           <div className="icon"><FaClipboardList /></div>
           <h3>My Bookings</h3>
@@ -61,6 +61,7 @@ export default function Dashboard() {
           <button className="primary-btn">View Bookings</button>
         </div>
 
+        {/* My Profile */}
         <div className="card" onClick={() => navigate("/my-profile")}>
           <div className="icon"><FaUserCircle /></div>
           <h3>My Profile</h3>
@@ -68,13 +69,22 @@ export default function Dashboard() {
           <button className="primary-btn">Edit Profile</button>
         </div>
 
-        {/* FIXED: route now points to /user-notifications */}
+        {/* NEW — Favourites Card */}
+        <div className="card" onClick={() => navigate("/favourites")}>
+          <div className="icon"><FaHeart /></div>
+          <h3>Favourite Vehicles</h3>
+          <p>Your saved cars for quick booking anytime.</p>
+          <button className="primary-btn">View Favourites</button>
+        </div>
+
+        {/* Notifications */}
         <div className="card" onClick={() => navigate("/user-notifications")}>
           <div className="icon"><FaBell /></div>
           <h3>Notifications</h3>
           <p>Stay informed with your latest booking updates.</p>
           <button className="primary-btn">Check Alerts</button>
         </div>
+
       </section>
     </div>
   );
