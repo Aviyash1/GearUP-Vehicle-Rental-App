@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth, db } from "../firebaseConfig";
+import { auth, db } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { Navigate } from "react-router-dom";
@@ -12,12 +12,14 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
+        setUser(null);
         setLoading(false);
         return;
       }
 
       setUser(currentUser);
 
+      // Fetch user role from Firestore
       const snap = await getDoc(doc(db, "users", currentUser.uid));
       if (snap.exists()) {
         setRole(snap.data().role);
@@ -31,9 +33,13 @@ export default function ProtectedRoute({ children, allowedRoles }) {
 
   if (loading) return <p>Checking access...</p>;
 
-  if (!user) return <Navigate to="/" />;
+  // Not logged in → redirect to login
+  if (!user) return <Navigate to="/login" />;
 
-  if (!allowedRoles.includes(role)) return <Navigate to="/unauthorized" />;
+  // Logged in but role doesn't match → redirect
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" />;
+  }
 
   return children;
 }

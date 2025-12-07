@@ -1,0 +1,146 @@
+/* MAIN LAYOUT */
+.admin-container {
+  display: flex;
+  height: 100vh;
+  background: #0d0d0d;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: 260px;
+  background: #000;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-logo {
+  color: #f1c40f;
+  font-size: 22px;
+  margin-bottom: 25px;
+}
+
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-sidebar li {
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background: #141414;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.admin-sidebar li:hover {
+  background: #1f1f1f;
+}
+
+.admin-sidebar li.active {
+  background: #f1c40f;
+  color: black;
+  font-weight: 600;
+}
+
+.logout-btn {
+  margin-top: auto;
+  padding: 12px 15px;
+  background: #e74c3c;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+}
+
+/* MAIN PANEL */
+.admin-main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  margin-bottom: 25px;
+}
+
+/* CONTENT BOX */
+.admin-box {
+  background: #111;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.4);
+}
+
+/* STATS GRID */
+.admin-stats-grid {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-card {
+  flex: 1;
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 24px;
+  color: #f1c40f;
+}
+
+/* EARNINGS CARD */
+.earnings-card {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.earnings {
+  font-size: 30px;
+  font-weight: bold;
+  color: #f1c40f;
+}
+
+/* TABLE */
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.payments-table th,
+.payments-table td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+}
+
+.payments-table th {
+  background: #222;
+  color: #f1c40f;
+}
+
+.payments-table tr:hover {
+  background: #1b1b1b;
+}
+
+/* Animation */
+.fade {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,109 @@
+/* DARK BACKDROP */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* MAIN MODAL BOX */
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  position: relative;
+  animation: fadeIn 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* COMPACT VERSION FOR EDIT MODAL */
+.modal-box.compact {
+  width: 360px;
+  padding: 18px 22px;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.modal-close:hover {
+  opacity: 1;
+}
+
+/* TITLE */
+.modal-title {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+}
+
+/* FORM */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-form.compact input,
+.modal-form.compact textarea {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.modal-form input:focus,
+.modal-form textarea:focus {
+  border-color: #2563eb;
+}
+
+/* Locked fields */
+.locked-field {
+  background: #f3f4f6 !important;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.locked-field.small {
+  font-size: 13px;
+}
+
+/* SAVE BUTTON */
+.modal-save {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.modal-save:hover {
+  background: #1e40af;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}

@@ -47,7 +47,7 @@ export default function Dashboard() {
 
       {/* Dashboard Cards */}
       <section className="cards-section">
-        <div className="card" onClick={() => navigate("/vehicles")}>
+        <div className="card" onClick={() => navigate("/searchpage")}>
           <div className="icon"><FaCar /></div>
           <h3>Browse Vehicles</h3>
           <p>Explore available cars, bikes, and SUVs for your next trip.</p>
@@ -68,7 +68,8 @@ export default function Dashboard() {
           <button className="primary-btn">Edit Profile</button>
         </div>
 
-        <div className="card" onClick={() => navigate("/notifications")}>
+        {/* FIXED: route now points to /user-notifications */}
+        <div className="card" onClick={() => navigate("/user-notifications")}>
           <div className="icon"><FaBell /></div>
           <h3>Notifications</h3>
           <p>Stay informed with your latest booking updates.</p>

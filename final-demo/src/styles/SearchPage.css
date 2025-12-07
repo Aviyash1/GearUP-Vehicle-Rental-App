@@ -1,0 +1,316 @@
+/* GENERAL PAGE */
+.search-container {
+  font-family: "Poppins", sans-serif;
+  background-color: #f9fbff;
+  min-height: 100vh;
+  color: #333;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px 30px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo-img {
+  width: 120px;
+  cursor: pointer;
+}
+
+/* SEARCH BAR */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f3f3f3;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 150px;
+  padding: 12px 12px 12px 36px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  transition: 0.25s;
+}
+
+.input-wrapper input:focus {
+  border-color: #0046ff;
+  background: #fefefe;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #444;
+  font-size: 14px;
+}
+
+.search-btn {
+  background-color: #0046ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+  background-color: #0034cc;
+  transform: scale(1.05);
+}
+
+/* MAIN LAYOUT */
+.main-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 30px;
+  padding: 30px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* MAP BOX */
+.map-box {
+  position: relative;
+  height: 250px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  background: #ffffff;
+  border: none !important; /* remove black border */
+}
+
+.map-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.map-btn {
+  background: #00c853;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.map-btn:hover {
+  background: #00b347;
+  transform: scale(1.07);
+}
+
+/* FILTER CARD */
+.filters {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 16px;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transition: 0.25s ease;
+}
+
+.filters:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* FILTER HEADER */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.filter-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.filter-header a {
+  color: #2563eb;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.filter-header a:hover {
+  text-decoration: underline;
+}
+
+/* FILTER GROUP */
+.filter-group {
+  margin-top: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+}
+
+.filter-group h4 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* CHECKBOX STYLING */
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.filter-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #0046ff;
+  cursor: pointer;
+}
+
+.filter-group label:hover {
+  color: #0046ff;
+  font-weight: 500;
+}
+
+/* RESULTS */
+.results {
+  width: 100%;
+}
+
+/* GRID DISPLAY FOR CAR CARDS */
+.car-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* CAR CARD */
+.car-card {
+  background: white;
+  padding: 15px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease;
+}
+
+.car-card:hover {
+  transform: scale(1.03);
+}
+
+.car-card img {
+  width: 100%;
+  height: 165px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.car-card h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.car-card p {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* PRICE SECTION */
+.price-section {
+  background: #eef2ff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #d7defc;
+}
+
+.rent-btn {
+  background: #0046ff;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.rent-btn:hover {
+  background: #0033cc;
+  transform: scale(1.06);
+}
+
+/* MORE INFO DROPDOWN */
+.info-dropdown summary {
+  background: #0046ff;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.owner-info {
+  background: #f1f1f1;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}

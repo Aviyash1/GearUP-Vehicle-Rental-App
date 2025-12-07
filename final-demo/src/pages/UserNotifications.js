@@ -9,9 +9,9 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import "../styles/Notifications.css";
+import "../styles/UserNotifications.css";
 
-const Notifications = () => {
+const UserNotifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,4 +166,4 @@ const Notifications = () => {
   );
 };
 
-export default Notifications;
+export default UserNotifications;
