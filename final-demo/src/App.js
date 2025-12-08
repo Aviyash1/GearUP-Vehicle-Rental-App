@@ -141,6 +141,9 @@ function App() {
           }
         />
 
+        <Route path="/reset" element={<ResetPassword />} />
+
+
       </Routes>
     </Router>
   );

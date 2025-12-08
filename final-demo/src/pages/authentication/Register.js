@@ -1,10 +1,7 @@
+// src/pages/authentication/Register.js
 import React, { useState } from "react";
-import { auth, db } from "../../firebase/firebaseConfig";
-import {
-  createUserWithEmailAndPassword,
-  signOut
-} from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebaseConfig";
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/register.css";
 
@@ -20,32 +17,41 @@ export default function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
+    setErrorMsg("");
+
     if (!name || !phone || !email || !password) {
       setErrorMsg("Please fill all fields.");
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+      // Check if email already exists in Firestore
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", email));
+      const snapshot = await getDocs(q);
 
-      await setDoc(doc(db, "users", user.uid), {
+      if (!snapshot.empty) {
+        setErrorMsg("An account with this email already exists.");
+        return;
+      }
+
+      // Generate a new Firestore document ID manually
+      const userId = crypto.randomUUID(); // simple unique ID for the user
+
+      // Save new user in Firestore
+      await setDoc(doc(db, "users", userId), {
         name,
         phone,
         email,
+        password,  // storing password (plain text unless we add hashing)
         role,
         createdAt: new Date().toISOString()
       });
 
-      await signOut(auth);
-
       navigate("/login");
     } catch (err) {
-      setErrorMsg(err.message);
+      console.error(err);
+      setErrorMsg("Registration failed. Please try again.");
     }
   };
 

@@ -1,26 +1,31 @@
-// src/pages/ResetPassword.js
+// src/pages/authentication/ResetPassword.js
 import React, { useState } from "react";
 import "../../styles/Login.css";
 import { useNavigate } from "react-router-dom";
-import { updatePassword } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig";
+import { db } from "../../firebase/firebaseConfig";
+import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 
 export default function ResetPassword() {
-  const [form, setForm] = useState({ newPassword: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    email: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg("");
 
-    if (!form.newPassword || !form.confirmPassword) {
-      setMsg("✗ Please fill in both fields.");
+    // Basic validation
+    if (!form.email || !form.newPassword || !form.confirmPassword) {
+      setMsg("✗ Please fill in all fields.");
       return;
     }
 
@@ -35,55 +40,92 @@ export default function ResetPassword() {
     }
 
     try {
-      const user = auth.currentUser;
-      if (!user) {
-        setMsg("✗ Please log in first to change your password.");
+      // Query Firestore for user by email
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", form.email));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        setMsg("✗ No account found with that email.");
         return;
       }
 
-      await updatePassword(user, form.newPassword);
-      setMsg("✓ Password updated successfully! Redirecting to login...");
+      // Update password in Firestore
+      const userDoc = snapshot.docs[0];
+      await updateDoc(userDoc.ref, { password: form.newPassword });
+
+      setMsg("✓ Password reset successful! Redirecting to login...");
       setTimeout(() => navigate("/"), 2000);
+
     } catch (error) {
-      console.error("Password update error:", error);
-      if (error.code === "auth/requires-recent-login") {
-        setMsg("✗ Please log in again to change your password.");
-      } else {
-        setMsg("✗ Failed to update password. Try again.");
-      }
+      console.error(error);
+      setMsg("✗ Something went wrong. Please try again.");
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      
+      {/* LEFT PANEL */}
+      <div className="login-left">
+        <h1>Forgot Your Password?</h1>
+
+        <p className="subheading">Wareware te kupuhipa?</p>
+
+        <p>
+          That's okay — even the strongest Kia Ora warriors forget sometimes.
+          <br /><br />
+          No worries. Enter your email and your new password on the right,
+          and we’ll reset it for you.
+        </p>
+      </div>
+
+      {/* RIGHT PANEL */}
+      <div className="login-right">
         <h2>Reset Password</h2>
-        <form onSubmit={handleSubmit}>
+
+        <form className="reset-form" onSubmit={handleSubmit}>
+          
+          <input
+            type="email"
+            className="reset-input"
+            placeholder="Enter Your Email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+          />
+
           <input
             type="password"
-            name="newPassword"
+            className="reset-input"
             placeholder="New Password"
+            name="newPassword"
             value={form.newPassword}
             onChange={handleChange}
           />
+
           <input
             type="password"
-            name="confirmPassword"
+            className="reset-input"
             placeholder="Confirm Password"
+            name="confirmPassword"
             value={form.confirmPassword}
             onChange={handleChange}
           />
-          <button type="submit">Reset Password</button>
+
+          <button type="submit" className="login-btn">
+            Reset Password
+          </button>
+
           {msg && (
-            <p className={`msg ${msg.startsWith("✓") ? "success" : "error"}`}>
+            <p className={msg.startsWith("✓") ? "success-text" : "error-text"}>
               {msg}
             </p>
           )}
         </form>
 
-        <p className="switch">
-          Back to{" "}
-          <span onClick={() => navigate("/")}>Login</span>
+        <p className="signup-link">
+          <span onClick={() => navigate("/")}>Back to Login</span>
         </p>
       </div>
     </div>
