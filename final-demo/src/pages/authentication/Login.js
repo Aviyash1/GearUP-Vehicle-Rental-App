@@ -35,17 +35,18 @@ export default function Login() {
       const userDoc = snapshot.docs[0];
       const data = userDoc.data();
 
-      // Check password
+      // Validate password
       if (data.password !== password) {
         setError("Incorrect password.");
         return;
       }
 
-      // Determine role
-      const role = data.role || "User";
+      // Save session
+      localStorage.setItem("user", JSON.stringify(data));
 
-      if (role === "Admin") navigate("/admin-dashboard");
-      else if (role === "CarOwner") navigate("/car-owner");
+      // Redirect based on role
+      if (data.role === "Admin") navigate("/admin-dashboard");
+      else if (data.role === "CarOwner") navigate("/car-owner");
       else navigate("/dashboard");
 
     } catch (err) {
@@ -58,9 +59,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-left">
         <h1>Kia Ora!</h1>
-        <p>
-          Welcome to <b>GearUP</b> — your one-stop platform for rental services.
-        </p>
+        <p>Welcome to <b>GearUP</b> — your one-stop platform for rental services.</p>
       </div>
 
       <div className="login-right">
@@ -84,16 +83,11 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <p
-          className="forgot-password"
-          onClick={() => navigate("/reset")}
-        >
+        <p className="forgot-password" onClick={() => navigate("/reset")}>
           Forgot Password?
         </p>
 
-        <button className="login-btn" onClick={handleLogin}>
-          Log In
-        </button>
+        <button className="login-btn" onClick={handleLogin}>Log In</button>
 
         <p className="signup-link">
           Don't have an account? <a href="/register">Sign Up</a>

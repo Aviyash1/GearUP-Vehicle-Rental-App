@@ -1,4 +1,5 @@
 // src/pages/authentication/Register.js
+
 import React, { useState } from "react";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
@@ -25,25 +26,25 @@ export default function Register() {
     }
 
     try {
-      // Check if email already exists in Firestore
+      // Check if email already used
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
       const snapshot = await getDocs(q);
-
       if (!snapshot.empty) {
-        setErrorMsg("An account with this email already exists.");
+        setErrorMsg("Email already registered.");
         return;
       }
 
-      // Generate a new Firestore document ID manually
-      const userId = crypto.randomUUID(); // simple unique ID for the user
+      // Generate UID manually
+      const userId = crypto.randomUUID();
 
-      // Save new user in Firestore
+      // Save user in Firestore
       await setDoc(doc(db, "users", userId), {
+        uid: userId,
         name,
         phone,
         email,
-        password,  // storing password (plain text unless we add hashing)
+        password,
         role,
         createdAt: new Date().toISOString()
       });
@@ -51,56 +52,17 @@ export default function Register() {
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setErrorMsg("Registration failed. Please try again.");
+      setErrorMsg("Registration failed.");
     }
   };
 
   return (
     <div className="auth-container">
-
-      {/* ANIMATED LOGO TOP LEFT */}
-      <div className="logo-container">
-        <svg
-          className="gear-logo"
-          width="55"
-          height="55"
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="50" cy="50" r="12" fill="#1F4E79" />
-          <path
-            d="
-              M50 5 L58 5 L62 20 L75 25 L85 15 L95 25 
-              L85 35 L90 50 L85 65 L95 75 L85 85 
-              L75 75 L62 80 L58 95 L50 95 L42 95 
-              L38 80 L25 75 L15 85 L5 75 L15 65 
-              L10 50 L15 35 L5 25 L15 15 L25 25 
-              L38 20 L42 5 Z"
-            fill="#1F4E79"
-          />
-        </svg>
-
-        <span className="logo-text">GearUP</span>
-      </div>
-
       {/* LEFT PANEL */}
       <div className="auth-left">
         <h1>Nau Mai, Haere Mai!</h1>
-
         <p className="auth-subtitle">
-          Welcome — we are glad to have you here.
-        </p>
-
-        <p className="auth-desc">
-          You’re one step away from unlocking your dream rental, or transforming
-          your own vehicles into passive income.  
-          Sign up on the right to get started.
-        </p>
-
-        <p className="auth-desc roles">
-          <strong>Choose your role:</strong><br />
-          <strong>User</strong> — Looking to rent vehicles<br />
-          <strong>Car Owner</strong> — Wanting to list vehicles and start earning
+          You're one step away from joining GearUP.
         </p>
       </div>
 
@@ -110,51 +72,20 @@ export default function Register() {
 
         {errorMsg && <div className="error-box">{errorMsg}</div>}
 
-        <input
-          className="input-field"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <input className="input-field" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <input className="input-field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="input-field" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
 
-        <input
-          className="input-field"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          className="input-field"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-
-        <select
-          className="input-field"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-        >
+        <select className="input-field" value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="User">User</option>
           <option value="CarOwner">Car Owner</option>
         </select>
 
-        <input
-          type="password"
-          className="input-field"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <input type="password" className="input-field" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <button className="register-btn" onClick={handleRegister}>
-          Sign Up
-        </button>
+        <button className="register-btn" onClick={handleRegister}>Sign Up</button>
 
-        <p className="login-link">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+        <p className="login-link">Already have an account? <Link to="/login">Login</Link></p>
       </div>
     </div>
   );
