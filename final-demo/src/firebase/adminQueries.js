@@ -34,9 +34,10 @@ export async function fetchCarRequests() {
 
 /* Load payment confirmations */
 export async function fetchPaymentRequests() {
-  const snap = await getDocs(collection(db, "paymentRequests"));
+  const snap = await getDocs(collection(db, "payments")); // FIXED
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
+
 
 /* Approve user verification */
 export async function approveVerification(userId, requestId) {

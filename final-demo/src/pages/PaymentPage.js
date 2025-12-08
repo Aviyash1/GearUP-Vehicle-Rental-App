@@ -83,7 +83,22 @@ function PaymentPage() {
     const result = await createBooking(bookingData);
 
     if (result.success) {
-      // 🔥 ADD NOTIFICATION FOR USER
+      // -------------------------------
+      //  SAVE PAYMENT RECORD FOR ADMIN
+      // -------------------------------
+      await addDoc(collection(db, "payments"), {
+        car: car.model,
+        user: auth.currentUser.uid,
+        owner: car.ownerId,
+        total: baseTotal,
+        platformFee: commission,
+        ownerReceives,
+        date: Date.now(),
+      });
+
+      // -------------------------------
+      //  SEND NOTIFICATION TO USER
+      // -------------------------------
       await addDoc(collection(db, "notifications"), {
         userId: auth.currentUser.uid,
         title: "Booking Confirmed",
