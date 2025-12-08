@@ -1,12 +1,10 @@
 // src/pages/CarOwnerProfileModal.js
 import React, { useState } from "react";
 import "../styles/CarOwnerProfileModal.css";
-import { auth, db } from "../firebase/firebaseConfig";
+import { db } from "../firebase/firebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
 
 export default function CarOwnerProfileModal({ open, onClose }) {
-
-  // Hooks MUST be at top
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -24,9 +22,16 @@ export default function CarOwnerProfileModal({ open, onClose }) {
       return alert("Please fill out all fields.");
     }
 
-    // Create a NEW Firestore document with auto-ID
+    // FETCH USER FROM LOCALSTORAGE SESSION (FIXED)
+    const sessionUser = JSON.parse(localStorage.getItem("user"));
+    if (!sessionUser || !sessionUser.uid) {
+      alert("Session expired. Please log in again.");
+      onClose();
+      return;
+    }
+
     await addDoc(collection(db, "verificationRequests"), {
-      userId: auth.currentUser.uid,
+      userId: sessionUser.uid,          // FIXED
       name: form.name,
       email: form.email,
       licenseNumber: form.licenseNumber,
@@ -64,7 +69,7 @@ export default function CarOwnerProfileModal({ open, onClose }) {
         <label>Driver License Number</label>
         <input
           name="licenseNumber"
-          value={form.licenseNumber}
+          value={form.icenseNumber}
           onChange={handleChange}
           placeholder="Enter license number"
         />

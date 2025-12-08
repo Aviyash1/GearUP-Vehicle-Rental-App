@@ -17,14 +17,13 @@ export async function fetchVerificationRequests() {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// Fetch all bookings for admin use
+/* Fetch all bookings for admin use */
 export async function fetchAllBookings() {
   const snap = await getDocs(collection(db, "bookings"));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-
-/* Load vehicles awaiting admin approval */
+/* Load cars awaiting admin approval */
 export async function fetchCarRequests() {
   const snap = await getDocs(collection(db, "vehicles"));
   return snap.docs
@@ -34,19 +33,22 @@ export async function fetchCarRequests() {
 
 /* Load payment confirmations */
 export async function fetchPaymentRequests() {
-  const snap = await getDocs(collection(db, "payments")); // FIXED
+  const snap = await getDocs(collection(db, "payments"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-
-/* Approve user verification */
-export async function approveVerification(userId, requestId) {
-  // Update user document
+/* --------------------------------------------------
+   FIXED: Approve verification
+   Correct argument order:
+   approveVerification(requestId, userId)
+-------------------------------------------------- */
+export async function approveVerification(requestId, userId) {
+  // Update the user document (Firestore UID)
   await updateDoc(doc(db, "users", userId), {
-    verificationStatus: "Approved"
+    verified: true        // NEW STANDARD FIELD
   });
 
-  // Remove the verification request
+  // Delete the verification request
   await deleteDoc(doc(db, "verificationRequests", requestId));
 }
 
@@ -55,7 +57,7 @@ export async function denyVerification(requestId) {
   await deleteDoc(doc(db, "verificationRequests", requestId));
 }
 
-/* Approve a car listing */
+/* Approve a vehicle */
 export async function approveVehicle(vehicleId, ownerId) {
   await updateDoc(doc(db, "vehicles", vehicleId), { status: "Approved" });
 
@@ -67,7 +69,7 @@ export async function approveVehicle(vehicleId, ownerId) {
   });
 }
 
-/* Deny a car listing */
+/* Deny a vehicle */
 export async function denyVehicle(vehicleId, ownerId) {
   await updateDoc(doc(db, "vehicles", vehicleId), { status: "Denied" });
 
@@ -79,7 +81,7 @@ export async function denyVehicle(vehicleId, ownerId) {
   });
 }
 
-/* Send notifications to owners */
+/* Send notification to owner */
 export async function pushAdminNotification({
   ownerId,
   message,

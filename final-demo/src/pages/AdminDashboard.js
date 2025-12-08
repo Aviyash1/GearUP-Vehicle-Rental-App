@@ -3,8 +3,9 @@
 
 import React, { useState, useEffect } from "react";
 import "../styles/AdminDashboard.css";
+import { useNavigate } from "react-router-dom";
 
-// Firebase logic
+// Firebase logic (unchanged)
 import {
   fetchVerificationRequests,
   fetchCarRequests,
@@ -18,6 +19,8 @@ import {
 } from "../firebase/adminQueries";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
   const [activeSection, setActiveSection] = useState("overview");
   const [slidingItem, setSlidingItem] = useState(null);
 
@@ -28,6 +31,12 @@ function AdminDashboard() {
   const [bookings, setBookings] = useState([]);
 
   const [totalRevenue, setTotalRevenue] = useState(0);
+
+  // Logout function (LOCAL STORAGE AUTH)
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login"); 
+  };
 
   useEffect(() => {
     async function load() {
@@ -51,17 +60,18 @@ function AdminDashboard() {
     load();
   }, []);
 
-  // Remove animation handler
+  // Animation handler
   const slideThen = async (callback) => {
-    setSlidingItem(Math.random()); // trigger animation
+    setSlidingItem(Math.random());
     setTimeout(async () => {
       await callback();
       setSlidingItem(null);
     }, 250);
   };
 
-  /* Render sections */
+  /* Render Sections */
   const renderSection = () => {
+    
     // ============= OVERVIEW =============
     if (activeSection === "overview") {
       return (
@@ -229,8 +239,10 @@ function AdminDashboard() {
           <li className={activeSection === "payments" ? "active" : ""} onClick={() => setActiveSection("payments")}>Payments</li>
         </ul>
 
-        {/* LOGOUT BUTTON ADDED */}
-        <button className="logout-btn">Logout</button>
+        {/* FIXED LOGOUT BUTTON */}
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
       </aside>
 
       <main className="admin-main">
@@ -240,7 +252,6 @@ function AdminDashboard() {
 
         {renderSection()}
       </main>
-
     </div>
   );
 }

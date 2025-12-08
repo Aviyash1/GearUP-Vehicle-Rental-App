@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/AddNewCar.css";
-import { addCarToDatabase, fetchCars } from "../firebase/carService";
-import { auth } from "../firebase/firebaseConfig";
+import { addCarToDatabase, fetchCarsByOwner } from "../firebase/carService";
 
 export default function AddNewCar({ open, onClose, onCarAdded }) {
   const [car, setCar] = useState({
@@ -18,22 +17,24 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
     imageUrl: "",
     description: "",
     location: "",
-    ownerId: null, // FIXED
+    ownerId: null, 
   });
 
-  // ⭐ Load ownerId properly
+  /* ---------------------------------------------
+     LOAD OWNER ID FROM LOCAL STORAGE SESSION
+  ----------------------------------------------*/
   useEffect(() => {
-    if (auth.currentUser) {
-      setCar((prev) => ({ ...prev, ownerId: auth.currentUser.uid }));
+    const sessionUser = JSON.parse(localStorage.getItem("user"));
+    if (sessionUser && sessionUser.uid) {
+      setCar((prev) => ({ ...prev, ownerId: sessionUser.uid }));
     }
-  }, [auth.currentUser]);
+  }, []);
 
   if (!open) return null;
 
   const handleChange = (e) => {
     let value = e.target.value;
 
-    // Auto-clean numeric fields
     if (["year", "mileage", "seats", "rent"].includes(e.target.name)) {
       value = value.replace(/[^0-9]/g, "");
     }
@@ -52,8 +53,7 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
     if (missing.length > 0) return `Missing: ${missing.join(", ")}`;
 
     if (!/^\d{4}$/.test(car.year)) return "Year must be 4 digits.";
-
-    if (!car.ownerId) return "Owner ID missing. Try reopening the modal.";
+    if (!car.ownerId) return "Owner ID missing. Please re-login.";
 
     return null;
   };
@@ -75,16 +75,17 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
       status: "Pending Admin Approval",
     };
 
-    console.log("Uploading vehicle:", vehicleData); // DEBUG
-
     try {
       await addCarToDatabase(vehicleData);
-      const updated = await fetchCars();
+
+      // 🔥 LOAD ONLY THIS OWNER'S VEHICLES
+      const updated = await fetchCarsByOwner(car.ownerId);
+
       onCarAdded(updated);
       onClose();
     } catch (e) {
       console.error("Failed to add vehicle:", e);
-      alert("Failed to add vehicle. Check console for details.");
+      alert("Failed to add vehicle.");
     }
   };
 
@@ -107,7 +108,6 @@ export default function AddNewCar({ open, onClose, onCarAdded }) {
             ) : null
           )}
 
-          {/* Description */}
           <textarea
             name="description"
             className="addcar-description"

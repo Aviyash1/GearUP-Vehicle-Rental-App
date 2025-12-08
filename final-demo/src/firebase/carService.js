@@ -1,3 +1,5 @@
+// src/firebase/carService.js
+
 import { db } from "./firebaseConfig";
 import {
   collection,
@@ -8,58 +10,61 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  where
+  where,
 } from "firebase/firestore";
 
-/* ============================
-      ADD VEHICLE
-=============================== */
+/* ------------------------------------------------
+   ADD VEHICLE (OwnerId MUST be provided)
+-------------------------------------------------- */
 export async function addCarToDatabase(vehicleData) {
   console.log("ADDING VEHICLE TO FIRESTORE:", vehicleData);
 
   if (!vehicleData.ownerId) {
-    throw new Error("ownerId is missing, cannot upload vehicle");
+    throw new Error("ownerId is missing — cannot upload vehicle.");
   }
 
-  const ref = collection(db, "vehicles");
-  return await addDoc(ref, vehicleData);
+  return await addDoc(collection(db, "vehicles"), vehicleData);
 }
 
-/* ============================
-      FETCH ALL VEHICLES
-=============================== */
+/* ------------------------------------------------
+   FETCH ALL VEHICLES (FOR USERS / SEARCH PAGE)
+-------------------------------------------------- */
 export async function fetchCars() {
-  const ref = collection(db, "vehicles");
-  const q = query(ref, orderBy("createdAt", "desc"));
+  const q = query(
+    collection(db, "vehicles"),
+    orderBy("createdAt", "desc")
+  );
+
   const snap = await getDocs(q);
   return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-/* ============================
-   FETCH VEHICLES BY OWNER
-=============================== */
+/* ------------------------------------------------
+   FETCH VEHICLES BELONGING TO ONE OWNER ONLY
+-------------------------------------------------- */
 export async function fetchCarsByOwner(ownerId) {
   if (!ownerId) return [];
 
-  const ref = collection(db, "vehicles");
-  const q = query(ref, where("ownerId", "==", ownerId));
+  const q = query(
+    collection(db, "vehicles"),
+    where("ownerId", "==", ownerId),
+    orderBy("createdAt", "desc")
+  );
 
   const snap = await getDocs(q);
   return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-/* ============================
-        UPDATE VEHICLE
-=============================== */
+/* ------------------------------------------------
+   UPDATE VEHICLE (Edit car)
+-------------------------------------------------- */
 export async function updateCar(carId, updatedData) {
-  const ref = doc(db, "vehicles", carId);
-  await updateDoc(ref, updatedData);
+  await updateDoc(doc(db, "vehicles", carId), updatedData);
 }
 
-/* ============================
-        DELETE VEHICLE
-=============================== */
+/* ------------------------------------------------
+   DELETE VEHICLE
+-------------------------------------------------- */
 export async function deleteCar(carId) {
-  const ref = doc(db, "vehicles", carId);
-  await deleteDoc(ref);
+  await deleteDoc(doc(db, "vehicles", carId));
 }
